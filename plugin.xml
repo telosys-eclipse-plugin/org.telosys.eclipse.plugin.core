@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+	<!-- ========== Commands -->
+		<!-- id :  Unique identifier for your command. -->
+		<!-- name: Display name for the command. -->
+	<!-- "New Model" command -->
+	<extension  point="org.eclipse.ui.commands">
+	    <command id="org.telosys.eclipse.plugin.core.command.Init"          name="Init" />
+	    <command id="org.telosys.eclipse.plugin.core.command.NewModel"      name="New Model" />
+	    <command id="org.telosys.eclipse.plugin.core.command.InstallModel"  name="Install Model" />
+	</extension>
+	<!-- Bind the handler to the command -->
+	<extension  point="org.eclipse.ui.handlers">
+		<handler commandId="org.telosys.eclipse.plugin.core.command.Init" 
+		             class="org.telosys.eclipse.plugin.core.command.InitHandler" />
+		<handler commandId="org.telosys.eclipse.plugin.core.command.NewModel" 
+		             class="org.telosys.eclipse.plugin.core.command.NewModelHandler" /> 
+		<handler commandId="org.telosys.eclipse.plugin.core.command.InstallModel" 
+		             class="org.telosys.eclipse.plugin.core.command.InstallModelHandler" /> 
+	</extension>
+		
+	<!-- ========== Menu Contribution -->
+	<!-- Contribute commands to the context menu for projects in the Project Explorer -->
+	<extension
+	    point="org.eclipse.ui.menus">
+		<!-- locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu"                  OK -->
+		<!-- locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?after=additions"  OK --> 
+		<!-- locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?before=additions" OK --> 
+		<!-- "additions" section is where dynamically added menu items (by Eclipse or other plugins) appear.-->
+		<!-- after=additions  : Adds the menu item(s) after the predefined "additions" section   -->
+		<!-- before=additions : Adds the menu item(s) before the predefined "additions" section  -->
+	    <menuContribution
+	        locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?before=additions">
+	    	<!-- First Level (without command) -->
+        	<menu label="Telosys" icon="icons/sample.png">
+	    		<!-- Second Level (with commands) -->
+		        <command label="Init" style="push" 
+		                 commandId="org.telosys.eclipse.plugin.core.command.Init" />
+		        <command label="New Model" style="push" 
+		                 commandId="org.telosys.eclipse.plugin.core.command.NewModel" />
+		        <command label="Install Model(s)" style="push" 
+		                 commandId="org.telosys.eclipse.plugin.core.command.InstallModel" />
+	        </menu>
+	    </menuContribution>
+	</extension>
+
+</plugin>
