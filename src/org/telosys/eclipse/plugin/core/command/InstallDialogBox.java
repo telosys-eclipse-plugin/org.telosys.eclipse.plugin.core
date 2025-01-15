@@ -13,6 +13,7 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -25,6 +26,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.telosys.eclipse.plugin.core.commons.AbstractDialogBox;
 import org.telosys.eclipse.plugin.core.commons.DialogBox;
+import org.telosys.eclipse.plugin.core.commons.ProjectUtil;
 import org.telosys.tools.api.InstallationType;
 import org.telosys.tools.commons.depot.DepotElement;
 import org.telosys.tools.commons.depot.DepotRateLimit;
@@ -33,7 +35,7 @@ import org.telosys.tools.commons.depot.DepotResponse;
 public class InstallDialogBox extends AbstractDialogBox {
 
 	private static final int BOX_WIDTH  = 600;
-	private static final int BOX_HEIGHT = 500;
+	private static final int BOX_HEIGHT = 700;
 
 	private final IProject project;
 	private final String   depotFromConfiguration;
@@ -41,10 +43,11 @@ public class InstallDialogBox extends AbstractDialogBox {
 	private final String   elementName; // "model" or "bundle"
 	
 	// UI widgets 
-	private Text  depotText;
-	private List  elementsList;
-	private Text  message1Text;
-	private Text  message2Text;
+	private Text   depotText;
+	private List   elementsFoundList;
+	private Text   elementsFoundText;
+	private Button installButton;
+	private Text   installResultText;
 
 	private java.util.List<DepotElement> currentDepotElements = new LinkedList<>(); // initial state = void list to avoid null
 
@@ -54,14 +57,7 @@ public class InstallDialogBox extends AbstractDialogBox {
 		layout.marginLeft = 10;
 		return layout;
 	}
-//	private static String getTitle(InstallationType installationType) {
-//		String s = "Install ";
-//		switch (installationType) {
-//		case BUNDLE: return s + "bundle";
-//		case MODEL:  return s + "model";
-//		default:     return s;
-//		}
-//	}
+
 	private static String getElementName(InstallationType installationType) {
 		switch (installationType) {
 		case BUNDLE: return "bundle";
@@ -115,7 +111,7 @@ public class InstallDialogBox extends AbstractDialogBox {
         }
     }
     
-	protected void createRow1(Composite parent) {
+	private void createRow1(Composite parent) {
         Composite container = new Composite(parent, SWT.NONE);
         container.setLayout(new GridLayout(3, false));  // 3 columns with no margin between them
 
@@ -133,14 +129,6 @@ public class InstallDialogBox extends AbstractDialogBox {
         depotText.setLayoutData(data);
         depotText.setText(depotFromConfiguration);
 
-        // Button with width based on its text
-        Button button = new Button(container, SWT.PUSH);
-        button.setText("Get " + elementName + "s from depot");
-        GridData buttonData = new GridData(SWT.DEFAULT, SWT.DEFAULT); 
-        buttonData.horizontalAlignment = SWT.END;
-        button.setLayoutData(buttonData);
-        // Add selection listener to handle button click
-        button.addSelectionListener(new ButtonGetFromDepotSelectionAdapter(this));
         
 //        // Compute Text width 
 //        int totalWidth = container.getSize().x;  // Total width of the container
@@ -157,6 +145,17 @@ public class InstallDialogBox extends AbstractDialogBox {
 //         data.horizontalAlignment = SWT.FILL;
 	}
 	
+	private Button createButton(Composite container, String buttonText, SelectionListener listener) {
+        Button button = new Button(container, SWT.PUSH);
+        button.setText(buttonText);
+        GridData gridData = new GridData(SWT.DEFAULT, SWT.DEFAULT);
+        gridData.widthHint = 200; // Set the button width
+        button.setLayoutData(gridData);
+        // Add selection listener to handle button click
+        button.addSelectionListener(listener);
+        return button;
+	}
+	
 	private void getElementsFromDepotAndPopulateList() {
 		String depot = depotText.getText();
 		if ( depot != null && !depot.isEmpty() ) {
@@ -168,24 +167,6 @@ public class InstallDialogBox extends AbstractDialogBox {
 	}
 	private void getElementsFromDepotAndPopulateList(String depot) {
 		GetDepotElementsTask getDepotElementsTask = new GetDepotElementsTask(project, depot);
-//		ProgressMonitorDialog progressMonitorDialog = new ProgressMonitorDialog(getShell()) ;
-//		try {
-//			// Run task to get elements
-//			progressMonitorDialog.run(false, false, getDepotElementsTask);
-//			Optional<String> taskError = getDepotElementsTask.getError();
-//			if ( taskError.isEmpty() ) {
-//				// No error => Populate list with task result
-//				populateList(getDepotElementsTask.getDepotResponse());
-//			}
-//			else {
-//				// Error
-//				DialogBox.showError("Cannot get elements from depot", taskError.get());
-//			}
-//		} catch (InvocationTargetException e) {
-//			DialogBox.showError("Error during task", e.getMessage());
-//		} catch (InterruptedException e) {
-//			DialogBox.showInformation("Task interrupted");
-//		}
 		runTask(getDepotElementsTask);
 		Optional<String> taskError = getDepotElementsTask.getError();
 		if ( taskError.isEmpty() ) {
@@ -199,18 +180,21 @@ public class InstallDialogBox extends AbstractDialogBox {
 	}
 
 	private void installElementsFromDepot() {
-		DialogBox.showInformation("installElementsFromDepot()");
 		String depot = depotText.getText();
 		if ( depot != null && !depot.isEmpty() ) {
 			java.util.List<DepotElement> selectedElements = getSelectedElements();
 			if ( selectedElements != null && !selectedElements.isEmpty() ) {
+				installResultText.setText(""); // clear result text
 				InstallDepotElementsTask task = new InstallDepotElementsTask(project, depot, selectedElements, installationType);
 				runTask(task);
 				String result = task.getResult();
-				DialogBox.showInformation(result);
+				installResultText.setText(result); // clear result text
+				if ( task.getInstallationsCount() > 0 ) {
+					ProjectUtil.refresh(project);
+				}
 			}
 			else {
-				DialogBox.showInformation("No selection, nothing to install.");
+				DialogBox.showInformation("Nothing selected (nothing to install).");
 			}
 		}
 		else {
@@ -218,7 +202,7 @@ public class InstallDialogBox extends AbstractDialogBox {
 		}
 	}
 	private java.util.List<DepotElement> getSelectedElements() {
-		String[] selectedElements = elementsList.getSelection();
+		String[] selectedElements = elementsFoundList.getSelection();
 		if ( selectedElements != null && selectedElements.length > 0 && !currentDepotElements.isEmpty()) {
 			java.util.List<String> selectedElementsList = Arrays.asList(selectedElements);
 			return currentDepotElements.stream()
@@ -240,35 +224,15 @@ public class InstallDialogBox extends AbstractDialogBox {
 		}
 	}
 	
-	//    private void runGetDepotElementsTask(GetDepotElementsTaskWithProgress task, Shell shell) {
-//		ProgressMonitorDialog progressMonitorDialog = new ProgressMonitorDialog(shell) ;
-//		try {
-//			progressMonitorDialog.run(false, false, task);
-//			populateList(task.getElements());
-//		} catch (InvocationTargetException e) {
-//			DialogBox.showError("Error during task", e.getMessage());
-//		} catch (InterruptedException e) {
-//			DialogBox.showInformation("Task interrupted");
-//		}
-//    }
 	@Override
 	protected void createContent(Composite container) {
 		
 		createRow1(container);
+		createButton(container, "Get " + elementName + "s from depot", 
+				new ButtonGetFromDepotSelectionAdapter(this));
 		
-//        //--- Button with width based on its text
-//        Button button = new Button(container, SWT.PUSH);
-//        button.setText("Get models from depot");
-//        button.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-//        // Add selection listener to handle button click
-//        button.addSelectionListener(new ButtonSelectionAdapter(this));
-		
-		
-		//--- Text for message 1
-	    message1Text = createMessage(container);
-
         //--- List of models/bundles available in the depot   
-		elementsList = new List(container, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL );
+		elementsFoundList = new List(container, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL );
 //		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 //		gd.horizontalAlignment = SWT.LEFT ;
 //		gd.verticalAlignment   = SWT.TOP ;
@@ -276,22 +240,24 @@ public class InstallDialogBox extends AbstractDialogBox {
 //		//gd.widthHint   = 300 ;
 		GridData gridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 	    gridData.heightHint = 200; // Fixed vertical size in pixels
-	    elementsList.setLayoutData(gridData);
-		
-//	    elementsList.add("Loading elements from depot...");
-//	    elementsList.add("Please wait");
+	    elementsFoundList.setLayoutData(gridData);
 		
 		//--- Text for message 2 (must look like Label)
-//	    message2Text = new Text(container, SWT.READ_ONLY);
-//	    message2Text.setBackground(container.getBackground()); // Match the parent background
-//	    message2Text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-//		//message.setBorderVisible(false); // Remove the border
-	    message2Text = createMessage(container);
+	    elementsFoundText = createMessage(container);
 
-		Button button2 = new Button(container, SWT.PUSH);
-	    button2.setText("Install selected " + elementName + "s");
-		button2.setLayoutData(new GridData(SWT.DEFAULT, SWT.DEFAULT));
-		button2.addSelectionListener(new ButtonInstallFromDepotSelectionAdapter(this));				
+//		Button button2 = new Button(container, SWT.PUSH);
+//	    button2.setText("Install selected " + elementName + "s");
+//		button2.setLayoutData(new GridData(SWT.DEFAULT, SWT.DEFAULT));
+//		button2.addSelectionListener(new ButtonInstallFromDepotSelectionAdapter(this));				
+	    installButton = createButton(container, "Install selected " + elementName + "s", 
+										new ButtonInstallFromDepotSelectionAdapter(this));
+	    installButton.setEnabled(false);
+
+		installResultText = new Text(container, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.READ_ONLY ); // SWT.H_SCROLL
+	    //msgText.setBackground(container.getBackground()); // Match the parent background
+		installResultText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		installResultText.setLayoutData(gridData); // reuse same GridData
+
 	}
 	private Text createMessage(Composite container) { // (must look like Label)
 	    Text msgText = new Text(container, SWT.READ_ONLY);
@@ -308,18 +274,6 @@ public class InstallDialogBox extends AbstractDialogBox {
 		createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
 	}
 	
-//	@Override
-//	protected void afterDisplayingDialog() {
-//		DialogBox.showInformation("afterDisplayingDialog");
-//	}
-	
-//	@Override
-//	protected void okPressed() {
-////		modelName = inputField.getText();
-//		//TODO: Launch installation
-//		super.okPressed();
-//	}
-	
 	private String buildStatusMessage(DepotResponse depotResponse) {
 		int nb = depotResponse.getElements().size();
 		String plural = nb > 1 ? "s" : "";
@@ -329,15 +283,13 @@ public class InstallDialogBox extends AbstractDialogBox {
 				+ "( API rate limit: " + rateLimit.getRemaining() + "/" + rateLimit.getLimit() + " )" ;
 	}
 	private void populateList(DepotResponse depotResponse) {
-		message1Text.setText( depotResponse.getElements().size() + " element(s) found in depot");
-		elementsList.removeAll();
+		elementsFoundList.removeAll();
 		for ( DepotElement e : depotResponse.getElements() ) {
-			elementsList.add( e.getName() ); 
+			elementsFoundList.add( e.getName() ); 
 			// List widget does not directly support tooltips for individual items
 		}
 		currentDepotElements = depotResponse.getElements();
-//		DepotRateLimit rateLimit = depotResponse.getRateLimit();
-		//message2Text.setText( "API rate limit: " + rateLimit.getRemaining() + "/" + rateLimit.getLimit() );
-		message2Text.setText(buildStatusMessage(depotResponse));
+		elementsFoundText.setText(buildStatusMessage(depotResponse));
+	    installButton.setEnabled(!depotResponse.getElements().isEmpty());
 	}
 }

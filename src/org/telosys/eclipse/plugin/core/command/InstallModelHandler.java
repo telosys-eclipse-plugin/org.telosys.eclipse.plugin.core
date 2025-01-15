@@ -3,6 +3,7 @@ package org.telosys.eclipse.plugin.core.command;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 import org.telosys.eclipse.plugin.core.commons.DialogBox;
 import org.telosys.eclipse.plugin.core.commons.ProjectExplorerUtil;
@@ -19,7 +20,10 @@ public class InstallModelHandler extends AbstractCommandHandler {
         	TelosysProject telosysProject = getTelosysProject(project);
         	String depot = telosysProject.getTelosysToolsCfg().getDepotForModels(); 
         	InstallDialogBox dialogBox = new InstallDialogBox(shell, project, depot, InstallationType.MODEL );
-        	dialogBox.open(); // show dialog box immediately 
+        	int returnCode = dialogBox.open(); // show dialog box immediately 
+        	if ( returnCode == SWT.CANCEL) {
+        		DialogBox.showInformation("CANCEL");
+        	}
         	
         	// TOD MOVE 
         	// runTaskWithProgressMonitor(new GetDepotElementsTaskWithProgress(), shell);

@@ -25,7 +25,10 @@ public class InstallDepotElementsTask implements IRunnableWithProgress
 	private final InstallationType installationType;
 	private final List<DepotElement> elements;
 
+	// Installation result : text + count 
 	private final StringBuilder sbResult;
+	private int numberOfElementsInstalled = 0 ;
+
 	
 	/**
 	 * Constructor
@@ -41,6 +44,9 @@ public class InstallDepotElementsTask implements IRunnableWithProgress
 
 	public String getResult() {
 		return sbResult.toString();
+	}
+	public int getInstallationsCount() {
+		return numberOfElementsInstalled;
 	}
 
 	
@@ -62,12 +68,12 @@ public class InstallDepotElementsTask implements IRunnableWithProgress
 	
 	private void installElementsFromDepot() {
 		TelosysProject telosysProject = new TelosysProject(ProjectUtil.getOSFullPath(project));
-		int n = 0;
+		numberOfElementsInstalled = 0;
 		for (DepotElement e : elements) {
 			try {
 				if ( telosysProject.downloadAndInstallBranch(depot, e.getName(), e.getDefaultBranch(), installationType) ) {
 					sbResult.append(" . '" + e.getName() + "' : installed. ");
-					n++;
+					numberOfElementsInstalled++;
 				} else {
 					sbResult.append(" . '" + e.getName() + "' : not installed (already exists). ");
 				}
@@ -76,6 +82,6 @@ public class InstallDepotElementsTask implements IRunnableWithProgress
 			}
 			sbResult.append("\n");
 		}
-		sbResult.append(n + "/" + elements.size() + " installed. \n");
+		sbResult.append(numberOfElementsInstalled + "/" + elements.size() + " installed. \n");
 	}
 }
