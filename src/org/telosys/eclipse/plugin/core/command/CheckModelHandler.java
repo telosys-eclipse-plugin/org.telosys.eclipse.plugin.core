@@ -42,28 +42,28 @@ public class CheckModelHandler extends AbstractCommandHandler {
         return null;
     }
     
-    private IFolder getSelectedModel(IResource selectedElement) {
-    	if ( selectedElement instanceof IFolder ) {
-    		IFolder folder = (IFolder)selectedElement;
-    		// Parent level 1
-    		IContainer parent1 = folder.getParent();
-    		if ( parent1 instanceof IFolder ) {
-    			if ( "models".equals(parent1.getName()) ) {
-    	    		// Parent level 2
-    	    		IContainer parent2 = parent1.getParent();
-    	    		if ( parent2 instanceof IFolder ) {
-    	    			if ( "TelosysTools".equals(parent2.getName()) ) {
-    	    				return folder;
-    	    			}
-    	    		}
-    			}
-    		}
-    	}
-    	return null;
-    }
+//    private IFolder getSelectedModel(IResource selectedElement) {
+//    	if ( selectedElement instanceof IFolder ) {
+//    		IFolder folder = (IFolder)selectedElement;
+//    		// Parent level 1
+//    		IContainer parent1 = folder.getParent();
+//    		if ( parent1 instanceof IFolder ) {
+//    			if ( "models".equals(parent1.getName()) ) {
+//    	    		// Parent level 2
+//    	    		IContainer parent2 = parent1.getParent();
+//    	    		if ( parent2 instanceof IFolder ) {
+//    	    			if ( "TelosysTools".equals(parent2.getName()) ) {
+//    	    				return folder;
+//    	    			}
+//    	    		}
+//    			}
+//    		}
+//    	}
+//    	return null;
+//    }
     
-    private String[] getProjectModels(IProject project) {
-		TelosysProject telosysProject = ProjectUtil.getTelosysProject(project);
-		return telosysProject.getModelNames().toArray(new String[0]);
-    }
+//    private String[] getProjectModels(IProject project) {
+//		TelosysProject telosysProject = ProjectUtil.getTelosysProject(project);
+//		return telosysProject.getModelNames().toArray(new String[0]);
+//    }
 }

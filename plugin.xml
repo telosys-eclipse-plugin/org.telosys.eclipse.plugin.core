@@ -11,6 +11,7 @@
 	    <command id="org.telosys.eclipse.plugin.core.command.NewModel"       name="New Model" />
 	    <command id="org.telosys.eclipse.plugin.core.command.InstallModel"   name="Install Model" />
 	    <command id="org.telosys.eclipse.plugin.core.command.CheckModel"     name="Check Model" />
+	    <command id="org.telosys.eclipse.plugin.core.command.NewEntity"       name="New Entity" />
 	    <command id="org.telosys.eclipse.plugin.core.command.InstallBundle"  name="Install Bundle" />
 	</extension>
 	<!-- Bind the Java class handler to the command Id -->
@@ -23,14 +24,15 @@
 		             class="org.telosys.eclipse.plugin.core.command.InstallModelHandler" /> 
 		<handler commandId="org.telosys.eclipse.plugin.core.command.CheckModel" 
 		             class="org.telosys.eclipse.plugin.core.command.CheckModelHandler" /> 
+		<handler commandId="org.telosys.eclipse.plugin.core.command.NewEntity" 
+		             class="org.telosys.eclipse.plugin.core.command.NewEntityHandler" /> 
 		<handler commandId="org.telosys.eclipse.plugin.core.command.InstallBundle" 
 		             class="org.telosys.eclipse.plugin.core.command.InstallBundleHandler" /> 
 	</extension>
 		
 	<!-- ========== Menu Contribution -->
 	<!-- Contribute commands to the context menu for projects in the Project Explorer -->
-	<extension
-	    point="org.eclipse.ui.menus">
+	<extension  point="org.eclipse.ui.menus">
 		<!-- locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu"                  OK -->
 		<!-- locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?after=additions"  OK --> 
 		<!-- locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?before=additions" OK --> 
@@ -46,6 +48,7 @@
 		        <command label="New Model"       style="push"  commandId="org.telosys.eclipse.plugin.core.command.NewModel" />
 		        <command label="Install Model"   style="push"  commandId="org.telosys.eclipse.plugin.core.command.InstallModel" />
 		        <command label="Check Model"     style="push"  commandId="org.telosys.eclipse.plugin.core.command.CheckModel" />
+		        <command label="New Entity"      style="push"  commandId="org.telosys.eclipse.plugin.core.command.NewEntity" />
 		        <command label="Install Bundle"  style="push"  commandId="org.telosys.eclipse.plugin.core.command.InstallBundle" />
 	        </menu>
 	    </menuContribution>

@@ -1,11 +1,7 @@
 package org.telosys.eclipse.plugin.core.command;
 
-import java.lang.reflect.InvocationTargetException;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -25,7 +21,6 @@ import org.telosys.eclipse.plugin.core.commons.DialogBox;
 import org.telosys.eclipse.plugin.core.commons.ModelCheckStatus;
 import org.telosys.eclipse.plugin.core.commons.ProjectUtil;
 import org.telosys.eclipse.plugin.core.commons.TelosysEvolution;
-import org.telosys.tools.api.TelosysModelException;
 import org.telosys.tools.api.TelosysProject;
 
 public class CheckModelDialogBox extends AbstractDialogBox {
@@ -39,7 +34,7 @@ public class CheckModelDialogBox extends AbstractDialogBox {
 	
 	// UI widgets 
 	private Combo  modelCombo;
-	private Button checkModelButton;
+	//private Button checkModelButton;
 	private Text   checkModelResultText;
 
 	private static Layout createDialogBoxLayout() {
@@ -142,18 +137,6 @@ public class CheckModelDialogBox extends AbstractDialogBox {
 		checkModelResultText.setText(modelCheckStatus.getFullReport());
 	}
 	
-	private void runTask(IRunnableWithProgress runnable) {
-		ProgressMonitorDialog progressMonitorDialog = new ProgressMonitorDialog(getShell()) ;
-		try {
-			// Run task 
-			progressMonitorDialog.run(false, false, runnable);
-		} catch (InvocationTargetException e) {
-			DialogBox.showError("Error during task", e.getMessage());
-		} catch (InterruptedException e) {
-			DialogBox.showInformation("Task interrupted");
-		}
-	}
-	
 	@Override
 	protected void createContent(Composite container) {
 		log("createContent()");
@@ -162,8 +145,7 @@ public class CheckModelDialogBox extends AbstractDialogBox {
 		createRow1(container);
 		
 		//--- Button 
-		checkModelButton = createButton(container, "Check model", 
-				new ButtonCheckModelSelectionAdapter(this));
+		createButton(container, "Check model", new ButtonCheckModelSelectionAdapter(this));
 		
 	    //--- Multi-lines text box to print installation result 
 		checkModelResultText = new Text(container, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.READ_ONLY ); // SWT.H_SCROLL
