@@ -1,6 +1,7 @@
 package org.telosys.eclipse.plugin.core.command;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -15,10 +16,20 @@ public class NewModelDialogBox extends AbstractDialogBox {
 		return modelName ;
 	}
 
+	/**
+	 * Constructor
+	 * @param parentShell
+	 */
 	public NewModelDialogBox(Shell parentShell) {
 		super(parentShell, "New Model");
 	}
-
+	
+	@Override
+	protected Point getInitialSize() {
+		// return the window size : width, height
+		return new Point(450, 200);
+	}
+	
 	@Override
 	protected void createContent(Composite container) {
 		inputField = createLabelAndField("Model name");

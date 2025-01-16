@@ -40,10 +40,11 @@ public class InstallDialogBox extends AbstractDialogBox {
 	private final IProject project;
 	private final String   depotFromConfiguration;
 	private final InstallationType installationType;
-	private final String   elementName; // "model" or "bundle"
+	private final String   elementName; // What to install ("model" or "bundle")
 	
 	// UI widgets 
 	private Text   depotText;
+	private Button elementsFromDepotButton;
 	private List   elementsFoundList;
 	private Text   elementsFoundText;
 	private Button installButton;
@@ -75,6 +76,7 @@ public class InstallDialogBox extends AbstractDialogBox {
 	 */
 	public InstallDialogBox(Shell parentShell, IProject project, String depot, InstallationType installationType) {
 		super(parentShell, "Install "+getElementName(installationType), createDialogBoxLayout());
+		log("CONSTRUCTOR()");
 		this.project = project;
 		this.installationType = installationType;
 		this.elementName = getElementName(installationType);
@@ -82,7 +84,26 @@ public class InstallDialogBox extends AbstractDialogBox {
 	}
 	
 	@Override
+	public void create() {
+		log("create() : before call super.create()");
+		super.create();
+		log("create() : after call super.create()");
+//		// Init the window
+//		log("create() : set focus");
+//		// getFromDepotButton.forceFocus(); // NOK
+//		// getShell().setDefaultButton(getFromDepotButton); // NOK
+//		// Explicitly set focus to the Button when the shell opens
+//		getShell().addListener(SWT.Activate, e -> { 
+//			System.out.println("Shell activated (via Listener SWT.Activate)!"); 
+//			//getFromDepotButton.setFocus(); // NOK
+//			getFromDepotButton.forceFocus(); // NOK
+//			} );
+		
+//		getShell().setTabList(new Control[] {elementsFromDepotButton, elementsFoundList}); // Error Widget has the wrong parent
+	}	
+	@Override
 	protected Point getInitialSize() {
+		log("getInitialSize()");
 		// Default size : width, height
 		return new Point(BOX_WIDTH, BOX_HEIGHT);
 	}
@@ -113,36 +134,21 @@ public class InstallDialogBox extends AbstractDialogBox {
     
 	private void createRow1(Composite parent) {
         Composite container = new Composite(parent, SWT.NONE);
-        container.setLayout(new GridLayout(3, false));  // 3 columns with no margin between them
+//        container.setLayout(new GridLayout(3, false));  // 3 columns with no margin between them
+        container.setLayout(new GridLayout(2, false));  // 2 columns with no margin between them
 
+        //--- Label
         Label label = new Label(container, SWT.NONE);
         label.setText("Depot:");
         label.setLayoutData(new GridData(SWT.DEFAULT, SWT.DEFAULT));
 
-        // Text that fills all the remaining space
+        //--- Input field
         depotText = new Text(container, SWT.BORDER);
-        //text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
         GridData data = new GridData();  
         data.grabExcessHorizontalSpace = true;
-        //data.minimumWidth = 120;
         data.widthHint = 300;
         depotText.setLayoutData(data);
         depotText.setText(depotFromConfiguration);
-
-        
-//        // Compute Text width 
-//        int totalWidth = container.getSize().x;  // Total width of the container
-//        int labelWidth = label.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;  // Width of Label
-//        int buttonWidth = button.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;  // Width of Button
-//        int remainingWidth = totalWidth - labelWidth - buttonWidth;  // Remaining width for Text
-
-        // Set the computed width for Text
-//        GridData textData = new GridData(SWT.FILL, SWT.CENTER);
-//		GridData gridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
-//	    gridData.heightHint = 200; // Fixed vertical size in pixels
-//        textData.widthHint = remainingWidth;
-//        GridData data =  new GridData();
-//         data.horizontalAlignment = SWT.FILL;
 	}
 	
 	private Button createButton(Composite container, String buttonText, SelectionListener listener) {
@@ -226,18 +232,17 @@ public class InstallDialogBox extends AbstractDialogBox {
 	
 	@Override
 	protected void createContent(Composite container) {
-		
+		log("createContent()");
+
+		//--- Depot : label + input field
 		createRow1(container);
-		createButton(container, "Get " + elementName + "s from depot", 
+		
+		//--- Button for getting elements from depot
+		elementsFromDepotButton = createButton(container, "Get " + elementName + "s from depot", 
 				new ButtonGetFromDepotSelectionAdapter(this));
 		
         //--- List of models/bundles available in the depot   
 		elementsFoundList = new List(container, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL );
-//		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-//		gd.horizontalAlignment = SWT.LEFT ;
-//		gd.verticalAlignment   = SWT.TOP ;
-//		gd.heightHint  = 200 ;
-//		//gd.widthHint   = 300 ;
 		GridData gridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 	    gridData.heightHint = 200; // Fixed vertical size in pixels
 	    elementsFoundList.setLayoutData(gridData);
@@ -245,19 +250,15 @@ public class InstallDialogBox extends AbstractDialogBox {
 		//--- Text for message 2 (must look like Label)
 	    elementsFoundText = createMessage(container);
 
-//		Button button2 = new Button(container, SWT.PUSH);
-//	    button2.setText("Install selected " + elementName + "s");
-//		button2.setLayoutData(new GridData(SWT.DEFAULT, SWT.DEFAULT));
-//		button2.addSelectionListener(new ButtonInstallFromDepotSelectionAdapter(this));				
+		//--- Button for installation
 	    installButton = createButton(container, "Install selected " + elementName + "s", 
 										new ButtonInstallFromDepotSelectionAdapter(this));
 	    installButton.setEnabled(false);
 
+	    //--- Multi-lines text box to print installation result 
 		installResultText = new Text(container, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.READ_ONLY ); // SWT.H_SCROLL
-	    //msgText.setBackground(container.getBackground()); // Match the parent background
 		installResultText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		installResultText.setLayoutData(gridData); // reuse same GridData
-
 	}
 	private Text createMessage(Composite container) { // (must look like Label)
 	    Text msgText = new Text(container, SWT.READ_ONLY);
@@ -269,8 +270,8 @@ public class InstallDialogBox extends AbstractDialogBox {
 
 	@Override
 	protected void createButtonsForButtonBar(Composite parent) {
-		// set specific labels for the buttons
-		//createButton(parent, IDialogConstants.OK_ID,     "Install", true);
+		log("createButtonsForButtonBar()");
+		// define buttons to be displayed at the bottom right of the window 
 		createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
 	}
 	

@@ -5,13 +5,15 @@
 	<!-- ========== Commands -->
 		<!-- id :  Unique identifier for your command. -->
 		<!-- name: Display name for the command. -->
-	<!-- "New Model" command -->
+	<!-- Define command Id -->
 	<extension  point="org.eclipse.ui.commands">
-	    <command id="org.telosys.eclipse.plugin.core.command.Init"          name="Init" />
-	    <command id="org.telosys.eclipse.plugin.core.command.NewModel"      name="New Model" />
-	    <command id="org.telosys.eclipse.plugin.core.command.InstallModel"  name="Install Model" />
+	    <command id="org.telosys.eclipse.plugin.core.command.Init"           name="Init" />
+	    <command id="org.telosys.eclipse.plugin.core.command.NewModel"       name="New Model" />
+	    <command id="org.telosys.eclipse.plugin.core.command.InstallModel"   name="Install Model" />
+	    <command id="org.telosys.eclipse.plugin.core.command.CheckModel"     name="Check Model" />
+	    <command id="org.telosys.eclipse.plugin.core.command.InstallBundle"  name="Install Bundle" />
 	</extension>
-	<!-- Bind the handler to the command -->
+	<!-- Bind the Java class handler to the command Id -->
 	<extension  point="org.eclipse.ui.handlers">
 		<handler commandId="org.telosys.eclipse.plugin.core.command.Init" 
 		             class="org.telosys.eclipse.plugin.core.command.InitHandler" />
@@ -19,6 +21,10 @@
 		             class="org.telosys.eclipse.plugin.core.command.NewModelHandler" /> 
 		<handler commandId="org.telosys.eclipse.plugin.core.command.InstallModel" 
 		             class="org.telosys.eclipse.plugin.core.command.InstallModelHandler" /> 
+		<handler commandId="org.telosys.eclipse.plugin.core.command.CheckModel" 
+		             class="org.telosys.eclipse.plugin.core.command.CheckModelHandler" /> 
+		<handler commandId="org.telosys.eclipse.plugin.core.command.InstallBundle" 
+		             class="org.telosys.eclipse.plugin.core.command.InstallBundleHandler" /> 
 	</extension>
 		
 	<!-- ========== Menu Contribution -->
@@ -36,12 +42,11 @@
 	    	<!-- First Level (without command) -->
         	<menu label="Telosys" icon="icons/sample.png">
 	    		<!-- Second Level (with commands) -->
-		        <command label="Init" style="push" 
-		                 commandId="org.telosys.eclipse.plugin.core.command.Init" />
-		        <command label="New Model" style="push" 
-		                 commandId="org.telosys.eclipse.plugin.core.command.NewModel" />
-		        <command label="Install Model(s)" style="push" 
-		                 commandId="org.telosys.eclipse.plugin.core.command.InstallModel" />
+		        <command label="Init"            style="push"  commandId="org.telosys.eclipse.plugin.core.command.Init" />
+		        <command label="New Model"       style="push"  commandId="org.telosys.eclipse.plugin.core.command.NewModel" />
+		        <command label="Install Model"   style="push"  commandId="org.telosys.eclipse.plugin.core.command.InstallModel" />
+		        <command label="Check Model"     style="push"  commandId="org.telosys.eclipse.plugin.core.command.CheckModel" />
+		        <command label="Install Bundle"  style="push"  commandId="org.telosys.eclipse.plugin.core.command.InstallBundle" />
 	        </menu>
 	    </menuContribution>
 	</extension>

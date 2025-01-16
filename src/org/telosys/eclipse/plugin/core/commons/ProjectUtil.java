@@ -4,12 +4,14 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.telosys.tools.api.TelosysProject;
 
 public class ProjectUtil {
     
     /**
-     * Show information message
-     * @param message
+     * Returns the Operating System full path for the given Eclipse project
+     * @param eclipseProject
+     * @return
      */
     public static String getOSFullPath(IProject eclipseProject) {
         if (eclipseProject != null && eclipseProject.exists()) {
@@ -21,9 +23,13 @@ public class ProjectUtil {
             }        	
         }
         else {
-        	DialogBox.showWarning("Cannot get OS full path: project is null or doesn't exist!");
+        	DialogBox.showError("Cannot get OS full path: project is null or doesn't exist!");
         }
     	return null;
+    }
+    
+    public static TelosysProject getTelosysProject(IProject eclipseProject) {
+   		return new TelosysProject(ProjectUtil.getOSFullPath(eclipseProject));
     }
     
     /**

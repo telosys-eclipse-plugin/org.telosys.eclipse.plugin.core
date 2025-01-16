@@ -9,7 +9,7 @@ import org.telosys.eclipse.plugin.core.commons.ProjectExplorerUtil;
 import org.telosys.tools.api.InstallationType;
 import org.telosys.tools.api.TelosysProject;
 
-public class InstallModelHandler extends AbstractCommandHandler {
+public class InstallBundleHandler extends AbstractCommandHandler {
 	
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -17,10 +17,10 @@ public class InstallModelHandler extends AbstractCommandHandler {
         if ( project != null ) {
         	Shell shell = getShell();
         	TelosysProject telosysProject = getTelosysProject(project);
-        	String depot = telosysProject.getTelosysToolsCfg().getDepotForModels(); 
-        	InstallDialogBox dialogBox = new InstallDialogBox(shell, project, depot, InstallationType.MODEL );
+        	String depot = telosysProject.getTelosysToolsCfg().getDepotForBundles(); 
+        	InstallDialogBox dialogBox = new InstallDialogBox(shell, project, depot, InstallationType.BUNDLE );
         	dialogBox.open(); // show dialog box immediately 
-        	// nothing else to do, all the work is done in the DialogBox component        	
+        	// nothing else to do, all the work is done in the DialogBox component
         }
         else {
         	DialogBox.showError("Cannot get project for selected element");

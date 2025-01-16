@@ -2,7 +2,6 @@ package org.telosys.eclipse.plugin.core.commons;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -54,28 +53,33 @@ public abstract class AbstractDialogBox extends Dialog {
 		this.layout = layout;
 	}
 	
-//    @Override
-//    public int open() {
-//        int result = super.open();  // Show the dialog
-//        afterDisplayingDialog();    // Call the method after dialog is opened
-//        return result;
-//    }
-    
 	protected abstract void createContent(Composite container) ;
+
+	protected void log(String msg) {
+		System.out.println("[LOG] - " + msg);
+	}
 	
-//	protected void afterDisplayingDialog() {
-//		// Designed to be overriden in subclass if necessary
-//	}
-	
+    @Override
+    public int open() {
+		log("open() : before call super.open()");
+        int result = super.open();  // Show the dialog (MODAL)
+        // 
+		log("open() : after call super.open() => Window is closed");
+        //afterDisplayingDialog();    // Call the method after dialog is opened
+        return result;
+    }
+    
 	// overriding this methods allows to set the title of the custom dialog
 	@Override
 	protected void configureShell(Shell shell) {
+		log("configureShell()");
 		super.configureShell(shell);
 		shell.setText(title);
 	}  
 		
 	@Override
 	protected Control createDialogArea(Composite parent) {
+		log("createDialogArea()");
 		container = (Composite) super.createDialogArea(parent);
 //		GridLayout layout = new GridLayout(2, false);
 //		layout.marginRight = 5;
@@ -103,12 +107,6 @@ public abstract class AbstractDialogBox extends Dialog {
 		txt.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		txt.setText(fieldValue);		
 		return txt ;
-	}
-	
-	@Override
-	protected Point getInitialSize() {
-		// Default size : width, height
-		return new Point(450, 200);
 	}
 
 }

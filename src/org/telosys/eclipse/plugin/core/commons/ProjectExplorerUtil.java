@@ -5,7 +5,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -14,7 +13,7 @@ import org.eclipse.ui.navigator.CommonViewer;
 
 public class ProjectExplorerUtil {
 
-	public static IViewPart getViewPart() { // IViewPart extends IWorkbenchPart, IPersistable
+	private static IViewPart getProjectExplorerViewPart() { // IViewPart extends IWorkbenchPart, IPersistable
         // Find the Project Explorer view
 		IWorkbenchWindow activeWorkbenchWindow =  PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		if ( activeWorkbenchWindow != null ) {
@@ -35,8 +34,8 @@ public class ProjectExplorerUtil {
         return null;
 	}
 	
-	public static CommonNavigator getViewPartAsCommonNavigator() {
-		IViewPart part = getViewPart();
+	private static CommonNavigator getProjectExplorerViewPartAsCommonNavigator() {
+		IViewPart part = getProjectExplorerViewPart();
         if (part instanceof CommonNavigator) {
             return (CommonNavigator) part;
         } else {
@@ -46,8 +45,8 @@ public class ProjectExplorerUtil {
         }
 	}
 
-	public static CommonViewer getViewPartAsCommonViewer () {
-		CommonNavigator commonNavigator = getViewPartAsCommonNavigator();
+	private static CommonViewer getProjectExplorerViewPartAsCommonViewer () {
+		CommonNavigator commonNavigator = getProjectExplorerViewPartAsCommonNavigator();
         if (commonNavigator != null) {
             return commonNavigator.getCommonViewer();
         } else {
@@ -56,19 +55,19 @@ public class ProjectExplorerUtil {
         }
 	}
 	
-	public static Shell getShell() {
-		IViewPart part = getViewPart();
-		if ( part != null) {
-			return part.getSite().getShell();
-		}
-		else {
-        	// Not supposed to happen
-            return null;
-		}
-	}
+//	public static Shell getShell() {
+//		IViewPart part = getViewPart();
+//		if ( part != null) {
+//			return part.getSite().getShell();
+//		}
+//		else {
+//        	// Not supposed to happen
+//            return null;
+//		}
+//	}
 	
 	public static ISelection getCurrentSelection() {
-		CommonViewer commonViewer = getViewPartAsCommonViewer();
+		CommonViewer commonViewer = getProjectExplorerViewPartAsCommonViewer();
         if (commonViewer != null) {
             return commonViewer.getSelection();
         } else {
@@ -105,10 +104,24 @@ public class ProjectExplorerUtil {
 		return null;
 	}
 
+	public static IResource getSingleSelectedResource() {
+        Object selectedElement = ProjectExplorerUtil.getSingleSelectedElement();
+        if ( selectedElement instanceof IResource ) { // not null and instance of IProject
+        	return (IResource)selectedElement;
+        }
+		return null;
+	}
 	public static IProject getSingleSelectedProject() {
         Object selectedElement = ProjectExplorerUtil.getSingleSelectedElement();
         if ( selectedElement instanceof IProject ) { // not null and instance of IProject
         	return (IProject)selectedElement;
+        }
+		return null;
+	}
+	public static IFolder getSingleSelectedFolder() {
+        Object selectedElement = ProjectExplorerUtil.getSingleSelectedElement();
+        if ( selectedElement instanceof IFolder ) { // not null and instance of IProject
+        	return (IFolder)selectedElement;
         }
 		return null;
 	}
@@ -165,7 +178,7 @@ public class ProjectExplorerUtil {
 	 */
 	public static void expandFolder(IFolder folder, int level) {
 		if ( folder != null ) {
-			CommonViewer commonViewer = getViewPartAsCommonViewer();
+			CommonViewer commonViewer = getProjectExplorerViewPartAsCommonViewer();
 	        if (commonViewer != null) {
 	            // Expand the folder in the viewer
 	        	commonViewer.expandToLevel(folder, level); // Expand to one level (use Integer.MAX_VALUE for full expansion)

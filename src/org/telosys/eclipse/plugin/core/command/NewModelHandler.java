@@ -65,7 +65,6 @@ public class NewModelHandler extends AbstractCommandHandler {
 //    }
     
     private File processNewModelCommand(IProject project, String modelName) {
-//    	DialogBox.showInformation("process New Model : " + modelName);
     	TelosysProject telosysProject = getTelosysProject(project);
     	if ( telosysProject.modelFolderExists(modelName) ) {
     		DialogBox.showWarning("Model '" + modelName + "' already exists");
@@ -75,5 +74,4 @@ public class NewModelHandler extends AbstractCommandHandler {
     		return telosysProject.createNewDslModel(modelName);
     	}
     }
-
 }
