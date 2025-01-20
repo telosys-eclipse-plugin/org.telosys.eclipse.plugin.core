@@ -35,14 +35,16 @@ public class NewEntityHandler extends AbstractCommandHandler {
         	}
         	String[] projectModels = getProjectModels(selectedProject);
         	// Open dialog box
-        	// Open dialog box
         	NewEntityDialogBox dialogBox = new NewEntityDialogBox(getShell(), selectedProject, projectModels, selectedModel );
     		if ( dialogBox.open() == Window.OK ) {
-    			//TODO 
     			String modelName = dialogBox.getModelName();
     			String entityName = dialogBox.getEntityName();
-            	DialogBox.showInformation("TODO", "Create entity '" + entityName + "' in model '" + modelName+"'");
-    		}
+    			File file = executeNewEntityCommand(selectedProject, modelName, entityName);
+    			if ( file != null ) {
+    				// File created => reveal in Project Explorer
+                	ProjectExplorerUtil.reveal(file);
+    			}
+            }
         	// nothing else to do, all the work is done in the DialogBox component        	
     	}
     	else {
@@ -51,42 +53,15 @@ public class NewEntityHandler extends AbstractCommandHandler {
         return null;
     }
 
-//    // When the user opens a menu containing the command, 
-//    // isEnabled() is called to determine whether the command should be enabled (clickable) or disabled (grayed out).
-//    @Override
-//    public boolean isEnabled() {
-//    	//return ProjectExplorerUtil.getSingleSelectedProject() != null ;
-//    	return isValidSelectionForModelCommand();
-//    }
-//    
-//    @Override
-//    public void setEnabled(Object evaluationContext) {
-//        // Use your logic to decide and set the enabled state
-//        setBaseEnabled(isEnabled());
-//    }    
-//
-//    public boolean isValidSelectionForModelCommand() {
-//        Object selectedElement = ProjectExplorerUtil.getSingleSelectedElement();
-//        System.out.println("isValidSelectionForModelCommand(): selectedElement = " + selectedElement);
-//        if ( selectedElement instanceof IProject ) {
-//        	return true;
-//        }
-//        else if ( selectedElement instanceof IFolder ) {
-//        	IFolder folder = (IFolder) selectedElement;
-//        	String folderName = folder.getName();
-//        	return "TelosysTools".equals(folderName) || "models".equals(folderName);
-//        }
-//		return false;
-//    }
-    
-    private File processNewModelCommand(IProject project, String modelName) {
+    private File executeNewEntityCommand(IProject project, String modelName, String entityName) {
+//    	DialogBox.showInformation("executeNewEntityCommand()", "Create entity '" + entityName + "' in model '" + modelName+"'");
     	TelosysProject telosysProject = getTelosysProject(project);
-    	if ( telosysProject.modelFolderExists(modelName) ) {
-    		DialogBox.showWarning("Model '" + modelName + "' already exists");
+    	try {
+    		return telosysProject.createNewDslEntity(modelName, entityName);
+		} catch (Exception e) {
+    		DialogBox.showError("Cannot create entity '" + entityName + "'", 
+    				"Exception: \n" + e.getClass().getCanonicalName() + "\n" + e.getMessage());
     		return null;
-    	}
-    	else {
-    		return telosysProject.createNewDslModel(modelName);
-    	}
+		}
     }
 }

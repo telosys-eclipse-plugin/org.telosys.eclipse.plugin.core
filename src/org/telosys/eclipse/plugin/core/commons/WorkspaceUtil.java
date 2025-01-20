@@ -9,74 +9,72 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.ui.navigator.CommonViewer;
 
 public class WorkspaceUtil {
-
-	/**
-	 * Returns the Eclipse workspace (set of resources : projects, files, ...) Based
-	 * on "ResourcesPlugin.getWorkspace()"
-	 * 
-	 * @return the workspace instance.
-	 */
-	public static IWorkspace getWorkspace() {
-		return ResourcesPlugin.getWorkspace();
+	
+	private static void showError(String title, String message) {
+		if ( Config.SHOW_ERROR  ) {
+			DialogBox.showError(title, message);
+		}
 	}
+
+//	/**
+//	 * Returns the Eclipse workspace (set of resources : projects, files, ...) Based
+//	 * on "ResourcesPlugin.getWorkspace()"
+//	 * 
+//	 * @return the workspace instance.
+//	 */
+//	public static IWorkspace getWorkspace() {
+//		return ResourcesPlugin.getWorkspace();
+//	}
 
 	/**
 	 * Returns the Eclipse workspace root
-	 * 
-	 * @return the current workspace root
+	 * @return 
 	 */
 	public static IWorkspaceRoot getWorkspaceRoot() {
-		return getWorkspace().getRoot();
-	}
-
-	/**
-	 * Converts the given filesystem "File" to an Eclipse workspace "IFile" object
-	 * <br>
-	 * Returns null if the given file is not under the location of the workspace
-	 * 
-	 * @param file
-	 * @return
-	 */
-	public static IFile getIFileFromFile_OLD(File file) {
-
-		IWorkspaceRoot root = getWorkspaceRoot();
-		if (root != null) {
-			String sAbsolutePath = file.getAbsolutePath();
-			IPath path = new Path(sAbsolutePath);
-			/*
-			 * getFileForLocation(path) : The path should be absolute; a relative path will
-			 * be treated as absolute. The path segments need not be valid names. The
-			 * resulting file need not exist in the workspace. This method returns null when
-			 * the given file system location is not under the location of any existing
-			 * project in the workspace.
-			 */
-			IFile iFile = root.getFileForLocation(path);
-			if (iFile != null) {
-				return iFile;
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		if ( workspace != null ) {
+			IWorkspaceRoot workspaceRoot = workspace.getRoot();
+			if ( workspaceRoot != null ) {
+				return workspaceRoot;
 			}
+			else {
+				showError("getWorkspaceRoot()", "Cannot get workspace root");
+			}
+		}
+		else {
+			showError("getWorkspaceRoot()", "Cannot get workspace");
 		}
 		return null;
 	}
 
-//	public static IResource findResource(File file) {
-//		if (file != null && file.exists() ) {
-//			// Convert the File path to an IPath
-//			IPath osAbsolutePath  = Path.fromOSString(file.getAbsolutePath());
-//			// Find the corresponding resource in workspace
-//			IWorkspaceRoot workspaceRoot = getWorkspaceRoot();
-//			if (workspaceRoot != null) {
-//				// find the resource by path 
-//				// including resources that are in a phantom state 
-//				// (e.g., those that may not have been fully synchronized or refreshed yet).
-//				return workspaceRoot.findMember(path, true); // includePhantoms = true
-//			}
-//		}
-//		return null;
-//	}
+	
+	/**
+	 * NB: works only after refresh 
+	 * @param file
+	 * @return
+	 */
+	public static IResource findResource(File file) {
+		if (file != null && file.exists() ) {
+			// Find the corresponding resource in workspace
+			IWorkspaceRoot workspaceRoot = getWorkspaceRoot();
+			if (workspaceRoot != null) {
+				// Convert the file's absolute path to an IPath
+				IPath location   = Path.fromOSString(file.getAbsolutePath());
+				// find the resource by path 
+				// including resources that are in a phantom state 
+				// (e.g., those that may not have been fully synchronized or refreshed yet).
+				//return workspaceRoot.findMember(location , true); // includePhantoms = true
+				return workspaceRoot.findMember(location);
+			}
+		}
+		return null;
+	}
 	
 	public static IPath getIPath(File file) {
 		if (file != null && file.exists() ) {
@@ -86,21 +84,21 @@ public class WorkspaceUtil {
 		return null;
 	}
 
-	/**
-	 * Returns a IFile for the given File
-	 * @param file
-	 * @return
-	 */
-	public static IFile getIFile(File file) {
-		IPath osAbsolutePath = getIPath(file);
-		if ( osAbsolutePath != null ) {
-			IWorkspaceRoot workspaceRoot = getWorkspaceRoot();
-			if (workspaceRoot != null) {
-				return workspaceRoot.getFileForLocation(osAbsolutePath);
-			}
-		}
-		return null;
-	}
+//	/**
+//	 * Returns a IFile for the given File
+//	 * @param file
+//	 * @return
+//	 */
+//	public static IFile getIFile(File file) {
+//		IPath osAbsolutePath = getIPath(file);
+//		if ( osAbsolutePath != null ) {
+//			IWorkspaceRoot workspaceRoot = getWorkspaceRoot();
+//			if (workspaceRoot != null) {
+//				return workspaceRoot.getFileForLocation(osAbsolutePath);
+//			}
+//		}
+//		return null;
+//	}
 		
 	/**
 	 * Returns a IContainer (IProject or IFolder) for the given File
@@ -115,7 +113,7 @@ public class WorkspaceUtil {
 				return workspaceRoot.getContainerForLocation(osAbsolutePath);
 			}
 		}
-		return null;
+		return null; // The file is not in the workspace
 	}
 
 	/**
@@ -131,4 +129,32 @@ public class WorkspaceUtil {
 		}
 		return null;
 	}
+	
+	public static void refresh(IResource resource) {
+		refresh(resource, IResource.DEPTH_INFINITE);
+	}
+	
+	public static void refresh(IResource resource, int depth) {
+        try {
+        	// Refreshes the resource hierarchy from this resource and its children (to the specified depth) 
+        	resource.refreshLocal(depth, null);
+        } catch (CoreException e) {
+            // Handle the exception appropriately
+        	DialogBox.showError("Cannot refresh resource '" + resource.getName() + "' \n"
+        			+ "Exception: " + e.getClass().getCanonicalName() + "\n"
+        			+ "Message: "  + e.getMessage() );
+        }
+    }
+	
+    public static void refresh(File file) {
+    	IResource resource = findResource(file); 
+    	if ( resource != null ) {
+    		// Container found => refresh it 
+    		refresh(resource);
+    	}
+    	// else resource not found : not an error if Model/Bundle outside the workspace
+    }
+    
+
+
 }

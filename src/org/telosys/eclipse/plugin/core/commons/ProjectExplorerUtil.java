@@ -1,5 +1,8 @@
 package org.telosys.eclipse.plugin.core.commons;
 
+import java.io.File;
+
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -12,6 +15,12 @@ import org.eclipse.ui.navigator.CommonNavigator;
 import org.eclipse.ui.navigator.CommonViewer;
 
 public class ProjectExplorerUtil {
+	
+	private static void showError(String title, String message) {
+		if ( Config.SHOW_ERROR ) {
+			DialogBox.showError(title, message);
+		}
+	}
 
 	private static IViewPart getProjectExplorerViewPart() { // IViewPart extends IWorkbenchPart, IPersistable
         // Find the Project Explorer view
@@ -24,12 +33,12 @@ public class ProjectExplorerUtil {
 			}
 			else {
 				// Not supposed to happen
-	        	DialogBox.showError("getViewPart(): Cannot find 'ProjectExplorer' view");
+	        	showError("getViewPart()", "Cannot find 'ProjectExplorer' view");
 			}
 		}
 		else {
 			// Not supposed to happen
-        	DialogBox.showError("getViewPart(): Cannot get active workbench window");
+        	showError("getViewPart()", "Cannot get active workbench window");
 		}
         return null;
 	}
@@ -40,7 +49,7 @@ public class ProjectExplorerUtil {
             return (CommonNavigator) part;
         } else {
 			// Not supposed to happen
-        	DialogBox.showError("getViewPartAsCommonNavigator(): the view part is not an instance of CommonNavigator");
+        	// showError at lower level 
         	return null;
         }
 	}
@@ -51,20 +60,10 @@ public class ProjectExplorerUtil {
             return commonNavigator.getCommonViewer();
         } else {
 			// Not supposed to happen
+        	// showError at lower level 
         	return null;
         }
 	}
-	
-//	public static Shell getShell() {
-//		IViewPart part = getViewPart();
-//		if ( part != null) {
-//			return part.getSite().getShell();
-//		}
-//		else {
-//        	// Not supposed to happen
-//            return null;
-//		}
-//	}
 	
 	public static ISelection getCurrentSelection() {
 		CommonViewer commonViewer = getProjectExplorerViewPartAsCommonViewer();
@@ -72,19 +71,26 @@ public class ProjectExplorerUtil {
             return commonViewer.getSelection();
         } else {
         	// Not supposed to happen
+        	// showError at lower level 
             return null;
         }    
 	}
 	public static IStructuredSelection getStructuredSelection() {
 		ISelection selection = getCurrentSelection();
-        if (selection instanceof IStructuredSelection) {
-            return (IStructuredSelection) selection;
+        if (selection != null ) {
+        	if ( selection instanceof IStructuredSelection) {
+        		return (IStructuredSelection) selection;
+        	}
+        	else {
+            	// Not supposed to happen
+            	showError("getStructuredSelection()", "Project Explorer selection is not an instance of 'IStructuredSelection'.");
+        	}
         }
         else {
         	// Not supposed to happen
-        	DialogBox.showError("getStructuredSelection(): Project Explorer selection is not a 'IStructuredSelection'.");
-        	return null;
+        	// showError at lower level 
         }
+    	return null;
 	}
 
 	public static Object getFirstSelectedElement() {
@@ -154,7 +160,7 @@ public class ProjectExplorerUtil {
         }
         else {
         	if ( element != null ) {
-            	DialogBox.showError("Unexpected type for project element : " + element.getClass().getCanonicalName());
+            	showError("getProjectFromElement()", "Unexpected type for project element : " + element.getClass().getCanonicalName());
         	}
             return null; 
         }
@@ -165,24 +171,75 @@ public class ProjectExplorerUtil {
 	 * and then expands all the subtree rooted at the given folder (full expansion)
 	 * @param folder
 	 */
-	public static void expandFolder(IFolder folder) {
-		if ( folder != null ) {
-			expandFolder(folder, Integer.MAX_VALUE); // Integer.MAX_VALUE => full expansion
-		}
+	public static void expand(IContainer container) {
+		expand(container, Integer.MAX_VALUE); // Integer.MAX_VALUE => full expansion
 	}
-	/**
-	 * Expands all ancestors of the given folder so that it becomes visible in this viewer's tree control, 
-	 * and then expands the subtree rooted at the given folder to the given level.
-	 * @param folder
-	 * @param level
-	 */
-	public static void expandFolder(IFolder folder, int level) {
-		if ( folder != null ) {
+	public static void expand(IContainer container, int level) {
+		if ( container != null ) {
 			CommonViewer commonViewer = getProjectExplorerViewPartAsCommonViewer();
-	        if (commonViewer != null) {
-	            // Expand the folder in the viewer
-	        	commonViewer.expandToLevel(folder, level); // Expand to one level (use Integer.MAX_VALUE for full expansion)
-	        }
+			commonViewer.expandToLevel(container, level); // Expand to one level (use Integer.MAX_VALUE for full expansion)
+		}
+		else {
+        	showError("expandFolder(IFolder folder)", "folder is null");
 		}
 	}
+//	/**
+//	 * Expands all ancestors of the given folder so that it becomes visible in this viewer's tree control, 
+//	 * and then expands the subtree rooted at the given folder to the given level.
+//	 * @param folder
+//	 * @param level
+//	 */
+//	public static void expandFolder(IFolder folder, int level) {
+//		if ( folder != null ) {
+//			CommonViewer commonViewer = getProjectExplorerViewPartAsCommonViewer();
+//	        if (commonViewer != null) {
+//	            // Expand the folder in the viewer
+//	        	commonViewer.expandToLevel(folder, level); // Expand to one level (use Integer.MAX_VALUE for full expansion)
+//	        }
+//		}
+//		else {
+//        	showError("expandFolder(IFolder folder, int level)", "folder is null");
+//		}
+//	}
+	
+    public static void reveal(File file) {
+    	if ( file != null ) {
+    		if ( file.exists()) {
+    			File folder = null;
+    			if ( file.isDirectory() ) {
+    				// eg a model directory
+    				folder = file;
+    			}
+    			else if ( file.isFile() ) {
+    				// eg an entity file
+    				folder = file.getParentFile();
+    			}
+    			if ( folder != null && folder.isDirectory() ) {
+        	    	// IResource resource = WorkspaceUtil.findResource(parent);
+        			// findResource cannot be used because the Workspace as not yet been refreshed
+        	    	IContainer container = WorkspaceUtil.getIContainer(folder);
+        	    	if ( container != null ) {
+//        	    		if ( resource instanceof IContainer ) {
+//            	    		// Resource found => refresh and expand parent
+//            	    		IContainer container = (IContainer) resource;
+            	    		WorkspaceUtil.refresh(container);
+            	    		expand(container);
+//        	    		}
+        	    	}
+        	    	else {
+                		showError("reveal(File file)", "folder to reveal not found in workspace \n" + folder.getAbsolutePath() );
+        	    	}
+    			}
+    		}
+    		else {
+        		showError("reveal(File file)", "file doesn't exist");
+    		}
+    	}
+    	else {
+    		showError("reveal(File file)", "file is null");
+    	}
+    	// else resource not found : not an error if Model/Bundle is outside the workspace
+    }
+    
+	
 }

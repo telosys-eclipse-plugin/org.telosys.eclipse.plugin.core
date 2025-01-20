@@ -24,8 +24,9 @@ public class NewModelHandler extends AbstractCommandHandler {
     			File file = processNewModelCommand(project, modelName);
     			if ( file != null ) {
     				// Model created => refresh and expand
-    	            ProjectUtil.refresh(project);
-    	            ProjectExplorerUtil.expandFolder(WorkspaceUtil.getIFolder(file));
+//    	            ProjectUtil.refresh(project);
+//    	            ProjectExplorerUtil.expandFolder(WorkspaceUtil.getIFolder(file));
+    				ProjectExplorerUtil.reveal(file);
     			}
     		}
         }
