@@ -44,7 +44,6 @@ public class InstallDialogBox extends AbstractDialogBox {
 	
 	// UI widgets 
 	private Text   depotText;
-	private Button elementsFromDepotButton;
 	private List   elementsFoundList;
 	private Text   elementsFoundText;
 	private Button installButton;
@@ -134,7 +133,6 @@ public class InstallDialogBox extends AbstractDialogBox {
     
 	private void createRow1(Composite parent) {
         Composite container = new Composite(parent, SWT.NONE);
-//        container.setLayout(new GridLayout(3, false));  // 3 columns with no margin between them
         container.setLayout(new GridLayout(2, false));  // 2 columns with no margin between them
 
         //--- Label
@@ -238,7 +236,7 @@ public class InstallDialogBox extends AbstractDialogBox {
 		createRow1(container);
 		
 		//--- Button for getting elements from depot
-		elementsFromDepotButton = createButton(container, "Get " + elementName + "s from depot", 
+		createButton(container, "Get " + elementName + "s from depot", 
 				new ButtonGetFromDepotSelectionAdapter(this));
 		
         //--- List of models/bundles available in the depot   

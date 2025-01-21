@@ -1,12 +1,10 @@
 package org.telosys.eclipse.plugin.core.command;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
@@ -20,7 +18,6 @@ public class NewEntityFromModelDialogBox extends AbstractDialogBox {
 	private static final int BOX_WIDTH  = 600;
 	private static final int BOX_HEIGHT = 300;
 
-//	private final String  projectName;
 	private final String  modelName;
 	
 	// UI widgets 
@@ -38,11 +35,12 @@ public class NewEntityFromModelDialogBox extends AbstractDialogBox {
 
 	/**
 	 * Constructor
+	 * @param parentShell
+	 * @param modelName
 	 */
 	public NewEntityFromModelDialogBox(Shell parentShell, String modelName) {
 		super(parentShell, "New Entity", createDialogBoxLayout());
 		log("CONSTRUCTOR()");
-//		this.projectName = projectName;
 		this.modelName = modelName;
 	}
 
@@ -65,10 +63,6 @@ public class NewEntityFromModelDialogBox extends AbstractDialogBox {
         label.setText(text);
         label.setLayoutData(new GridData(SWT.DEFAULT, SWT.DEFAULT));
 	}
-//	private void createRowProject(Composite composite) {
-//        createLabel(composite,  "Project: ");
-//        createLabel(composite,  this.projectName);
-//	}
 	private void createRowModel(Composite composite) {
         createLabel(composite,  "Model: ");
         createLabel(composite,  this.modelName);
@@ -81,8 +75,6 @@ public class NewEntityFromModelDialogBox extends AbstractDialogBox {
         gridData.grabExcessHorizontalSpace = true;
         gridData.widthHint = 300;
         entityNameText.setLayoutData(gridData);
-
-		//entityNameText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 	}
 	
 	@Override
@@ -90,8 +82,6 @@ public class NewEntityFromModelDialogBox extends AbstractDialogBox {
 		log("createContent()");
         Composite composite = new Composite(parent, SWT.NONE);
         composite.setLayout(new GridLayout(2, false));  // 2 columns
-        //--- Project
-//        createRowProject(composite); 
 		//--- Model : label + combo box
 		createRowModel(composite);
 		//--- Entity name : label + input text
