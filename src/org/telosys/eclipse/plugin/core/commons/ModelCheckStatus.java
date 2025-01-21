@@ -25,6 +25,14 @@ public class ModelCheckStatus {
 		this.reportLines = reportLines;
 	}
 	
+	public ModelCheckStatus(String modelName, boolean isOK, String reportSingleLine) {
+		super();
+		this.modelName = modelName;
+		this.isOK = isOK;
+		this.reportLines = new LinkedList<String>();
+		this.reportLines.add(reportSingleLine);
+	}
+	
 	public String getModelName() {
 		return modelName;
 	}

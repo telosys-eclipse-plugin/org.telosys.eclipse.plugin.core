@@ -11,7 +11,7 @@
 	    <command id="org.telosys.eclipse.plugin.core.command.NewModel"       name="New Model" />
 	    <command id="org.telosys.eclipse.plugin.core.command.InstallModel"   name="Install Model" />
 	    <command id="org.telosys.eclipse.plugin.core.command.CheckModel"     name="Check Model" />
-	    <command id="org.telosys.eclipse.plugin.core.command.NewEntity"       name="New Entity" />
+	    <command id="org.telosys.eclipse.plugin.core.command.NewEntity"      name="New Entity" />
 	    <command id="org.telosys.eclipse.plugin.core.command.InstallBundle"  name="Install Bundle" />
 	</extension>
 	<!-- Bind the Java class handler to the command Id -->
@@ -42,7 +42,7 @@
 	    <menuContribution
 	        locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?before=additions">
 	    	<!-- First Level (without command) -->
-        	<menu label="Telosys" icon="icons/sample.png">
+        	<menu label="Telosys commands" icon="icons/sample.png">
 	    		<!-- Second Level (with commands) -->
 		        <command label="Init"            style="push"  commandId="org.telosys.eclipse.plugin.core.command.Init" />
 		        <command label="New Model"       style="push"  commandId="org.telosys.eclipse.plugin.core.command.NewModel" />

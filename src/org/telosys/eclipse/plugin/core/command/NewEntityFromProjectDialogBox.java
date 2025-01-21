@@ -15,18 +15,16 @@ import org.eclipse.swt.widgets.Text;
 import org.telosys.eclipse.plugin.core.commons.AbstractDialogBox;
 import org.telosys.eclipse.plugin.core.commons.DialogBox;
 
-public class NewEntityDialogBox extends AbstractDialogBox {
+public class NewEntityFromProjectDialogBox extends AbstractDialogBox {
 
 	private static final int BOX_WIDTH  = 600;
 	private static final int BOX_HEIGHT = 300;
 
 	private final IProject  project;
 	private final String[]  allModels;
-	private final String    currentModel;
 	
 	// UI widgets 
 	private Combo  modelCombo;
-	//private Button checkModelButton;
 	private Text   entityNameText;
 	
 	// Output data
@@ -46,14 +44,12 @@ public class NewEntityDialogBox extends AbstractDialogBox {
 	 * @param parentShell
 	 * @param project
 	 * @param allModels
-	 * @param currentModel
 	 */
-	public NewEntityDialogBox(Shell parentShell, IProject project, String[] allModels, String currentModel) {
+	public NewEntityFromProjectDialogBox(Shell parentShell, IProject project, String[] allModels) {
 		super(parentShell, "New Entity", createDialogBoxLayout());
 		log("CONSTRUCTOR()");
 		this.project = project;
 		this.allModels = allModels;
-		this.currentModel = currentModel;
 	}
 
 	public String getModelName() {
@@ -97,14 +93,8 @@ public class NewEntityDialogBox extends AbstractDialogBox {
         modelCombo.setVisibleItemCount(10);
         // combo items (models)
         modelCombo.setItems(allModels);
-        if ( currentModel != null ) {
-            int index = modelCombo.indexOf(currentModel); // Find the index of the value
-            if (index != -1) {
-            	modelCombo.select(index); // Select the item if it exists
-            }
-        }
 	}
-	private void createRow2(Composite composite) {
+	private void createRowEntity(Composite composite) {
         //--- Label
         Label label = new Label(composite, SWT.NONE);
         label.setText("Entity name: ");
@@ -125,7 +115,7 @@ public class NewEntityDialogBox extends AbstractDialogBox {
 		//--- Model : label + combo box
 		createRowModel(composite);
 		//--- Entity name : label + input text
-		createRow2(composite);
+		createRowEntity(composite);
 	}
 
 	@Override

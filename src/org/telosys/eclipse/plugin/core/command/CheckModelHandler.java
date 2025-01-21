@@ -1,40 +1,31 @@
 package org.telosys.eclipse.plugin.core.command;
 
+import java.io.File;
+
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.telosys.eclipse.plugin.core.commons.DialogBox;
+import org.telosys.eclipse.plugin.core.commons.ModelCheckStatus;
 import org.telosys.eclipse.plugin.core.commons.ProjectExplorerUtil;
-import org.telosys.eclipse.plugin.core.commons.ProjectUtil;
-import org.telosys.tools.api.TelosysProject;
+import org.telosys.eclipse.plugin.core.commons.TelosysEvolution;
+import org.telosys.eclipse.plugin.core.commons.WorkspaceUtil;
 
 public class CheckModelHandler extends AbstractCommandHandler {
 	
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-    	String selectedModel = null;
-    	IProject selectedProject = null;
     	IResource selectedResource = ProjectExplorerUtil.getSingleSelectedResource();
     	if ( selectedResource != null ) {
-        	IFolder selectedModelFolder = getSelectedModel(selectedResource);
-        	if ( selectedModelFolder != null ) {
-        		// one model is selected
-        		selectedModel = selectedModelFolder.getName();
-        		selectedProject = selectedModelFolder.getProject();
-        	}
-        	else {
-        		// no model selected
-        		selectedModel = null;
-        		selectedProject = selectedResource.getProject();
-        	}
-        	String[] projectModels = getProjectModels(selectedProject);
-        	// Open dialog box
-        	CheckModelDialogBox dialogBox = new CheckModelDialogBox(getShell(), selectedProject, projectModels, selectedModel );
-        	dialogBox.open(); // show dialog box immediately 
-        	// nothing else to do, all the work is done in the DialogBox component        	
+	    	if ( isInModelFolder(selectedResource) ) {
+	    		IContainer modelContainer = selectedResource instanceof IContainer ? (IContainer)selectedResource : selectedResource.getParent();
+	    		checkModelFromModelFolder(modelContainer);
+	    	}
+	    	else {
+	    		checkModelFromProjectFolder(selectedResource);
+	    	}
     	}
     	else {
         	DialogBox.showError("Cannot get project for selected element");
@@ -42,28 +33,27 @@ public class CheckModelHandler extends AbstractCommandHandler {
         return null;
     }
     
-//    private IFolder getSelectedModel(IResource selectedElement) {
-//    	if ( selectedElement instanceof IFolder ) {
-//    		IFolder folder = (IFolder)selectedElement;
-//    		// Parent level 1
-//    		IContainer parent1 = folder.getParent();
-//    		if ( parent1 instanceof IFolder ) {
-//    			if ( "models".equals(parent1.getName()) ) {
-//    	    		// Parent level 2
-//    	    		IContainer parent2 = parent1.getParent();
-//    	    		if ( parent2 instanceof IFolder ) {
-//    	    			if ( "TelosysTools".equals(parent2.getName()) ) {
-//    	    				return folder;
-//    	    			}
-//    	    		}
-//    			}
-//    		}
-//    	}
-//    	return null;
-//    }
+    private void checkModelFromProjectFolder(IResource selectedResource) {
+		IProject selectedProject = selectedResource.getProject();
+    	String[] projectModels = getProjectModels(selectedProject);
+    	// Open dialog box to choose a model and check it 
+    	CheckModelFromProjectDialogBox dialogBox = new CheckModelFromProjectDialogBox(getShell(), selectedProject, projectModels );
+    	dialogBox.open(); // show dialog box immediately 
+    	// nothing else to do, all the work is done in the DialogBox component        	
+    }
     
-//    private String[] getProjectModels(IProject project) {
-//		TelosysProject telosysProject = ProjectUtil.getTelosysProject(project);
-//		return telosysProject.getModelNames().toArray(new String[0]);
-//    }
+    private void checkModelFromModelFolder(IContainer modelFolder) {
+    	File osDirFile = WorkspaceUtil.getFileFromResource(modelFolder);
+    	if ( osDirFile != null ) {
+    		//--- Check the model
+    		ModelCheckStatus modelCheckStatus = TelosysEvolution.checkModel(osDirFile);
+    		//--- Show the result
+        	CheckModelFromModelDialogBox dialogBox = new CheckModelFromModelDialogBox(getShell(), osDirFile, modelCheckStatus.getFullReport());
+        	dialogBox.open(); // show dialog box to print the result 
+        	// nothing else to do (all the work is done)
+    	}
+    	else {
+    		DialogBox.showError("Cannot get OS file from model folder \n" + modelFolder.getFullPath());
+    	}
+    }
 }

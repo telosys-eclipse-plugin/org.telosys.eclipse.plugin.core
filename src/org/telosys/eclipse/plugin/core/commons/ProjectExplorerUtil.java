@@ -169,7 +169,7 @@ public class ProjectExplorerUtil {
 	/**
 	 * Expands all ancestors of the given folder so that it becomes visible in this viewer's tree control, 
 	 * and then expands all the subtree rooted at the given folder (full expansion)
-	 * @param folder
+	 * @param container
 	 */
 	public static void expand(IContainer container) {
 		expand(container, Integer.MAX_VALUE); // Integer.MAX_VALUE => full expansion
@@ -180,34 +180,16 @@ public class ProjectExplorerUtil {
 			commonViewer.expandToLevel(container, level); // Expand to one level (use Integer.MAX_VALUE for full expansion)
 		}
 		else {
-        	showError("expandFolder(IFolder folder)", "folder is null");
+        	showError("expand(IContainer container)", "container is null");
 		}
 	}
-//	/**
-//	 * Expands all ancestors of the given folder so that it becomes visible in this viewer's tree control, 
-//	 * and then expands the subtree rooted at the given folder to the given level.
-//	 * @param folder
-//	 * @param level
-//	 */
-//	public static void expandFolder(IFolder folder, int level) {
-//		if ( folder != null ) {
-//			CommonViewer commonViewer = getProjectExplorerViewPartAsCommonViewer();
-//	        if (commonViewer != null) {
-//	            // Expand the folder in the viewer
-//	        	commonViewer.expandToLevel(folder, level); // Expand to one level (use Integer.MAX_VALUE for full expansion)
-//	        }
-//		}
-//		else {
-//        	showError("expandFolder(IFolder folder, int level)", "folder is null");
-//		}
-//	}
 	
     public static void reveal(File file) {
     	if ( file != null ) {
     		if ( file.exists()) {
     			File folder = null;
     			if ( file.isDirectory() ) {
-    				// eg a model directory
+    				// eg a model/bundle directory
     				folder = file;
     			}
     			else if ( file.isFile() ) {
@@ -215,20 +197,16 @@ public class ProjectExplorerUtil {
     				folder = file.getParentFile();
     			}
     			if ( folder != null && folder.isDirectory() ) {
-        	    	// IResource resource = WorkspaceUtil.findResource(parent);
-        			// findResource cannot be used because the Workspace as not yet been refreshed
+        			// NB: findResource cannot be used because the Workspace as not yet been refreshed
         	    	IContainer container = WorkspaceUtil.getIContainer(folder);
         	    	if ( container != null ) {
-//        	    		if ( resource instanceof IContainer ) {
-//            	    		// Resource found => refresh and expand parent
-//            	    		IContainer container = (IContainer) resource;
-            	    		WorkspaceUtil.refresh(container);
-            	    		expand(container);
-//        	    		}
+        	    		WorkspaceUtil.refresh(container);
+        	    		expand(container);
         	    	}
-        	    	else {
-                		showError("reveal(File file)", "folder to reveal not found in workspace \n" + folder.getAbsolutePath() );
-        	    	}
+        	    	// else: not an error (a model or a bundle can be located outside the project)
+//        	    	else {
+//                		showError("reveal(File file)", "folder to reveal not found in workspace \n" + folder.getAbsolutePath() );
+//        	    	}
     			}
     		}
     		else {
@@ -238,7 +216,6 @@ public class ProjectExplorerUtil {
     	else {
     		showError("reveal(File file)", "file is null");
     	}
-    	// else resource not found : not an error if Model/Bundle is outside the workspace
     }
     
 	

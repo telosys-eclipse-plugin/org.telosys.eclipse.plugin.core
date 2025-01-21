@@ -3,7 +3,6 @@ package org.telosys.eclipse.plugin.core.commons;
 import java.io.File;
 
 import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
@@ -12,7 +11,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.ui.navigator.CommonViewer;
 
 public class WorkspaceUtil {
 	
@@ -83,7 +81,16 @@ public class WorkspaceUtil {
 		}
 		return null;
 	}
-
+	
+    public static File getFileFromResource(IResource resource) {
+        if ( resource != null ) {
+            IPath location = resource.getLocation(); // Get the IPath of the resource
+            if ( location != null ) {
+                return location.toFile(); // Convert IPath to java.io.File
+            }
+        }
+        return null;
+    }
 //	/**
 //	 * Returns a IFile for the given File
 //	 * @param file

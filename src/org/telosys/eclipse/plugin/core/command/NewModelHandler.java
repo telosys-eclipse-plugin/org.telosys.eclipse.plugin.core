@@ -18,17 +18,22 @@ public class NewModelHandler extends AbstractCommandHandler {
     public Object execute(ExecutionEvent event) throws ExecutionException {
     	IProject project = ProjectExplorerUtil.getProjectFromSelection();
         if ( project != null ) {
-    		NewModelDialogBox dialogBox = new NewModelDialogBox( getShell() );
-    		if ( dialogBox.open() == Window.OK ) {
-    			String modelName = dialogBox.getModelName();
-    			File file = processNewModelCommand(project, modelName);
-    			if ( file != null ) {
-    				// Model created => refresh and expand
-//    	            ProjectUtil.refresh(project);
-//    	            ProjectExplorerUtil.expandFolder(WorkspaceUtil.getIFolder(file));
-    				ProjectExplorerUtil.reveal(file);
-    			}
-    		}
+        	if ( isTelosysProject(project) ) {
+        		NewModelDialogBox dialogBox = new NewModelDialogBox( getShell() );
+        		if ( dialogBox.open() == Window.OK ) {
+        			String modelName = dialogBox.getModelName();
+        			File file = processNewModelCommand(project, modelName);
+        			if ( file != null ) {
+        				// Model created => refresh and expand
+//        	            ProjectUtil.refresh(project);
+//        	            ProjectExplorerUtil.expandFolder(WorkspaceUtil.getIFolder(file));
+        				ProjectExplorerUtil.reveal(file);
+        			}
+        		}
+        	}
+        	else {
+            	DialogBox.showWarning(" You cannot create a model here.\n\n This project is not a Telosys project.");
+        	}
         }
         // else : if multiple selected elements 
         else {
