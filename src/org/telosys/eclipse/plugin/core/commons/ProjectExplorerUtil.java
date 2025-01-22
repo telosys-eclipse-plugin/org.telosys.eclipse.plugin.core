@@ -1,6 +1,8 @@
 package org.telosys.eclipse.plugin.core.commons;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
@@ -10,12 +12,13 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.navigator.CommonNavigator;
 import org.eclipse.ui.navigator.CommonViewer;
 
 public class ProjectExplorerUtil {
 	
+	private static final String TELOSYSTOOLS  = "TelosysTools";
+
 	private static void showError(String title, String message) {
 		if ( Config.SHOW_ERROR ) {
 			DialogBox.showError(title, message);
@@ -24,7 +27,7 @@ public class ProjectExplorerUtil {
 
 	private static IViewPart getProjectExplorerViewPart() { // IViewPart extends IWorkbenchPart, IPersistable
         // Find the Project Explorer view
-		IWorkbenchWindow activeWorkbenchWindow =  PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		IWorkbenchWindow activeWorkbenchWindow = WorkbenchUtil.getActiveWindow();
 		if ( activeWorkbenchWindow != null ) {
 	        // Find the Project Explorer view
 			IViewPart viewPart = activeWorkbenchWindow.getActivePage().findView("org.eclipse.ui.navigator.ProjectExplorer");
@@ -117,6 +120,7 @@ public class ProjectExplorerUtil {
         }
 		return null;
 	}
+	
 	public static IProject getSingleSelectedProject() {
         Object selectedElement = ProjectExplorerUtil.getSingleSelectedElement();
         if ( selectedElement instanceof IProject ) { // not null and instance of IProject
@@ -124,6 +128,14 @@ public class ProjectExplorerUtil {
         }
 		return null;
 	}
+	public static IProject getSingleSelectedProject(boolean showMessageIfNoProject) {
+		IProject project = getProjectFromSingleSelectedElement();
+		if ( project == null && showMessageIfNoProject ) {
+			DialogBox.showInformation("Select one and only one project please.");
+		}
+		return project;
+	}
+	
 	public static IFolder getSingleSelectedFolder() {
         Object selectedElement = ProjectExplorerUtil.getSingleSelectedElement();
         if ( selectedElement instanceof IFolder ) { // not null and instance of IProject
@@ -132,7 +144,44 @@ public class ProjectExplorerUtil {
 		return null;
 	}
 
-
+	public static Set<IProject> getSelectedProjects(IStructuredSelection selection) {
+		Set<IProject> projects = new HashSet<>();
+	    if (selection == null || selection.isEmpty()) {
+	        return projects; // Return empty list if no selection
+	    }
+	    for ( Object element : selection ) {
+	        IProject project = getProjectFromElement(element);
+	        if ( project != null ) {
+	            projects.add(project); // HashSet avoid duplicates
+	        }
+	    }
+	    return projects;
+	}	
+	public static IProject getSelectedTelosysProject(boolean verbose) {
+		Set<IProject> projects = getSelectedProjects(getStructuredSelection());
+		if (projects.size() == 1) {
+			// Single project found
+			IProject project = projects.iterator().next(); // First (single) element
+			if ( isTelosysProject(project) ) {
+				return project;
+			}
+			else {
+				if ( verbose ) DialogBox.showInformation("The selected project is not a Telosys project.");
+			}
+		}
+		else if ( projects.size() > 1) {
+			// Many projects found
+			if ( verbose ) DialogBox.showInformation("Select only one project please.");
+		}
+		return null;
+	}
+	private static boolean isTelosysProject(IProject project) {
+		if ( project != null ) {
+			IFolder telosystoolsFolder = project.getFolder(TELOSYSTOOLS);
+			return telosystoolsFolder != null && telosystoolsFolder.exists();
+		}
+    	return false;
+	}
 	/**
 	 * Returns the current project for current selected element(s) (one or many)
 	 * @return
@@ -151,18 +200,20 @@ public class ProjectExplorerUtil {
 	}
 
 	private static IProject getProjectFromElement(Object element) {
-        if ( element instanceof IProject ) { // not null and instance of IProject
+		if ( element == null ) {
+			showError("getProjectFromElement", "element parameter is null");
+			return null;
+		}
+        if ( element instanceof IProject ) { 
         	return (IProject)element;
         }
         else if ( element instanceof IResource ) {
-        	IResource resource = (IResource)element;
-        	return resource.getProject(); // Returns the project which contains this resource.
+        	// Returns the project which contains this resource.
+        	return ((IResource) element).getProject();
         }
         else {
-        	if ( element != null ) {
-            	showError("getProjectFromElement()", "Unexpected type for project element : " + element.getClass().getCanonicalName());
-        	}
-            return null; 
+           	showError("getProjectFromElement()", "Unexpected type for project element : " + element.getClass().getCanonicalName());
+            return null;
         }
 	}
 

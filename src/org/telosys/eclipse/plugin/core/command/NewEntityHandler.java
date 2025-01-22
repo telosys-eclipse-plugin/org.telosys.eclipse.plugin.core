@@ -9,12 +9,13 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.window.Window;
+import org.telosys.eclipse.plugin.core.commons.AbstractMenuHandler;
 import org.telosys.eclipse.plugin.core.commons.DialogBox;
 import org.telosys.eclipse.plugin.core.commons.ProjectExplorerUtil;
 import org.telosys.eclipse.plugin.core.commons.WorkspaceUtil;
 import org.telosys.tools.api.TelosysProject;
 
-public class NewEntityHandler extends AbstractCommandHandler {
+public class NewEntityHandler extends AbstractMenuHandler {
 	
 	private String getSelectedProject(IFolder selectedModelFolder) {
     	if ( selectedModelFolder != null ) {
@@ -43,7 +44,7 @@ public class NewEntityHandler extends AbstractCommandHandler {
 //    	IProject selectedProject = null;
     	IResource selectedResource = ProjectExplorerUtil.getSingleSelectedResource();
     	if ( selectedResource != null ) {
-	    	if ( isInModelFolder(selectedResource) ) {
+	    	if ( isInModelDirectory(selectedResource) ) {
 	    		IContainer modelContainer = selectedResource instanceof IContainer ? (IContainer)selectedResource : selectedResource.getParent();
 	    		newEntityFromModelFolder(modelContainer);
 	    	}

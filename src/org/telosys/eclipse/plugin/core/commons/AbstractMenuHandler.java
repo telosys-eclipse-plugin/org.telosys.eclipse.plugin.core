@@ -1,4 +1,4 @@
-package org.telosys.eclipse.plugin.core.command;
+package org.telosys.eclipse.plugin.core.commons;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.resources.IContainer;
@@ -7,14 +7,16 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
-import org.telosys.eclipse.plugin.core.commons.DialogBox;
-import org.telosys.eclipse.plugin.core.commons.ProjectUtil;
-import org.telosys.eclipse.plugin.core.commons.TelosysEvolution;
 import org.telosys.tools.api.TelosysProject;
 
-public abstract class AbstractCommandHandler extends AbstractHandler {
+public abstract class AbstractMenuHandler extends AbstractHandler {
 	
+	protected void log(String msg) {
+		if ( Config.LOG_FROM_MENU_HANDLER ) {
+			System.out.println("[LOG-MenuHandler] - " + msg);
+		}
+	}
+
 	protected TelosysProject getTelosysProject(IProject project) {
 		return new TelosysProject(ProjectUtil.getOSFullPath(project));
 	}
@@ -25,11 +27,12 @@ public abstract class AbstractCommandHandler extends AbstractHandler {
     }
 
 	protected Shell getShell() {
-		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-		if (shell == null) {
-			DialogBox.showError("Cannot get Shell from workbench!");
-		}
-		return shell;
+//		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+//		if (shell == null) {
+//			DialogBox.showError("Cannot get Shell from workbench!");
+//		}
+//		return shell;
+		return WorkbenchUtil.getActiveWindowShell();
 	}
 	
 //	protected IFolder getSelectedModel(IResource selectedElement) {
@@ -56,23 +59,23 @@ public abstract class AbstractCommandHandler extends AbstractHandler {
 //		return null;
 //	}
 
-	private static final String MODEL_YAML   = "model.yaml";
-	private static final String TELOSYSTOOLS = "TelosysTools";
+	private static final String MODEL_YAML    = "model.yaml";
+	private static final String TEMPLATES_CFG = "templates.cfg";
 
 	/**
-	 * Returns true if the given resource is a Telosys model folder <br>
-	 * or is any kind of resource located in a Telosys model folder
+	 * Returns true if the given resource is a Telosys model directory <br>
+	 * or is any kind of resource located in a Telosys model directory
 	 * @param resource
 	 * @return
 	 */
-	protected boolean isInModelFolder(IResource resource) {
-		if ( isModelFolder(resource) ) {
+	protected boolean isInModelDirectory(IResource resource) {
+		if ( isModelDirectory(resource) ) {
 			return true;
 		}
 		else {
 			IContainer parent = resource.getParent();
 			if ( parent != null ) {
-				return isModelFolder(parent);
+				return isModelDirectory(parent);
 			}
 		}
 		return false;
@@ -83,7 +86,7 @@ public abstract class AbstractCommandHandler extends AbstractHandler {
 	 * @param resource
 	 * @return
 	 */
-	protected boolean isModelFolder(IResource resource) {
+	protected boolean isModelDirectory(IResource resource) {
 		// The resource can be a IFolder (inside a IProject) or a IProject 
     	if ( resource instanceof IFolder ) {
     		IFolder folder = (IFolder)resource;
@@ -97,16 +100,30 @@ public abstract class AbstractCommandHandler extends AbstractHandler {
     	}
     	return false;
     }
-	protected boolean isTelosysProject(IProject project) {
-		if ( project != null ) {
-			IFolder telosystoolsFolder = project.getFolder(TELOSYSTOOLS);
-			return telosystoolsFolder != null && telosystoolsFolder.exists();
-		}
+	protected boolean isBundleDirectory(IResource resource) {
+		// The resource can be a IFolder (inside a IProject) or a IProject 
+    	if ( resource instanceof IFolder ) {
+    		IFolder folder = (IFolder)resource;
+    		IFile file = folder.getFile(TEMPLATES_CFG);
+    		return file != null && file.exists();
+    	}
+    	else if ( resource instanceof IProject ) {
+    		IProject project = (IProject)resource;
+    		IFile file = project.getFile(TEMPLATES_CFG);
+    		return file != null && file.exists();
+    	}
     	return false;
-	}
+    }
+	
+
 	
 	protected String[] getProjectModels(IProject project) {
 		TelosysProject telosysProject = ProjectUtil.getTelosysProject(project);
 		return telosysProject.getModelNames().toArray(new String[0]);
     }
+
+	protected void notTelosysProjectMessage() {
+		DialogBox.showInformation("This project is not a Telosys project.");
+	}
+
 }

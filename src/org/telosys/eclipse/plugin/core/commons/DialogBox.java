@@ -2,7 +2,6 @@ package org.telosys.eclipse.plugin.core.commons;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 
 public class DialogBox {
     
@@ -11,7 +10,8 @@ public class DialogBox {
 	 * @return
 	 */
 	private static Shell getShell() {
-		return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+		//return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+		return WorkbenchUtil.getActiveWindowShell();
     }
     
     /**

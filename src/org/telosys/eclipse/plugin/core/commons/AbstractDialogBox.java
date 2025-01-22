@@ -13,6 +13,12 @@ import org.eclipse.swt.widgets.Text;
 
 public abstract class AbstractDialogBox extends Dialog {
 	
+	protected void log(String msg) {
+		if ( Config.LOG_FROM_DIALOG_BOX ) {
+			System.out.println("[LOG-DialogBox] - " + msg);
+		}
+	}
+	
 	private final String title ;
 	private final Layout layout ;
 	private Composite container ;
@@ -55,10 +61,6 @@ public abstract class AbstractDialogBox extends Dialog {
 	
 	protected abstract void createContent(Composite container) ;
 
-	protected void log(String msg) {
-		System.out.println("[LOG] - " + msg);
-	}
-	
     @Override
     public int open() {
 		log("open() : before call super.open()");

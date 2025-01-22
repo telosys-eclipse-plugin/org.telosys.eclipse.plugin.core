@@ -13,6 +13,7 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.telosys.eclipse.plugin.core.commons.AbstractDialogBox;
+import org.telosys.eclipse.plugin.core.commons.Const;
 
 public class CheckModelFromModelDialogBox extends AbstractDialogBox {
 

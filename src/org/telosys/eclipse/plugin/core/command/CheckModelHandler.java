@@ -7,19 +7,20 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.telosys.eclipse.plugin.core.commons.AbstractMenuHandler;
 import org.telosys.eclipse.plugin.core.commons.DialogBox;
 import org.telosys.eclipse.plugin.core.commons.ModelCheckStatus;
 import org.telosys.eclipse.plugin.core.commons.ProjectExplorerUtil;
 import org.telosys.eclipse.plugin.core.commons.TelosysEvolution;
 import org.telosys.eclipse.plugin.core.commons.WorkspaceUtil;
 
-public class CheckModelHandler extends AbstractCommandHandler {
+public class CheckModelHandler extends AbstractMenuHandler {
 	
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
     	IResource selectedResource = ProjectExplorerUtil.getSingleSelectedResource();
     	if ( selectedResource != null ) {
-	    	if ( isInModelFolder(selectedResource) ) {
+	    	if ( isInModelDirectory(selectedResource) ) {
 	    		IContainer modelContainer = selectedResource instanceof IContainer ? (IContainer)selectedResource : selectedResource.getParent();
 	    		checkModelFromModelFolder(modelContainer);
 	    	}

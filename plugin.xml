@@ -2,11 +2,23 @@
 <?eclipse version="3.4"?>
 <plugin>
 
+	<!-- ========== Editors -->
+	<extension point="org.eclipse.ui.editors">
+	    <editor    id="org.telosys.eclipse.plugin.core.controlcenter.ControlCenterEditor"
+	            class="org.telosys.eclipse.plugin.core.controlcenter.ControlCenterEditor"
+	            name="Telosys project control center"
+	            icon="icons/sample.png"
+	            >
+	        <!-- means that the editor is registered to handle files with the ".myext" extension. --> 
+	    </editor>
+	</extension>
+	
 	<!-- ========== Commands -->
 		<!-- id :  Unique identifier for your command. -->
 		<!-- name: Display name for the command. -->
 	<!-- Define command Id -->
 	<extension  point="org.eclipse.ui.commands">
+	    <command id="org.telosys.eclipse.plugin.core.controlcenter.ControlCenter"  name="Open control center" />
 	    <command id="org.telosys.eclipse.plugin.core.command.Init"           name="Init" />
 	    <command id="org.telosys.eclipse.plugin.core.command.NewModel"       name="New Model" />
 	    <command id="org.telosys.eclipse.plugin.core.command.InstallModel"   name="Install Model" />
@@ -16,6 +28,8 @@
 	</extension>
 	<!-- Bind the Java class handler to the command Id -->
 	<extension  point="org.eclipse.ui.handlers">
+		<handler commandId="org.telosys.eclipse.plugin.core.controlcenter.ControlCenter" 
+		             class="org.telosys.eclipse.plugin.core.controlcenter.ControlCenterHandler" />
 		<handler commandId="org.telosys.eclipse.plugin.core.command.Init" 
 		             class="org.telosys.eclipse.plugin.core.command.InitHandler" />
 		<handler commandId="org.telosys.eclipse.plugin.core.command.NewModel" 
@@ -41,9 +55,14 @@
 		<!-- before=additions : Adds the menu item(s) before the predefined "additions" section  -->
 	    <menuContribution
 	        locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?before=additions">
-	    	<!-- First Level (without command) -->
-        	<menu label="Telosys commands" icon="icons/sample.png">
-	    		<!-- Second Level (with commands) -->
+	    	<!-- First Level -->
+        <!--
+        	<menu label="Telosys Control Center" icon="icons/sample.png"  />
+        -->
+        	<command label="Telosys Control Center" icon="icons/sample.png" 
+        	      style="push"  commandId="org.telosys.eclipse.plugin.core.controlcenter.ControlCenter"/>
+        	<menu label="Telosys Commands" icon="icons/sample.png">
+	    		<!-- Second Level -->
 		        <command label="Init"            style="push"  commandId="org.telosys.eclipse.plugin.core.command.Init" />
 		        <command label="New Model"       style="push"  commandId="org.telosys.eclipse.plugin.core.command.NewModel" />
 		        <command label="Install Model"   style="push"  commandId="org.telosys.eclipse.plugin.core.command.InstallModel" />
