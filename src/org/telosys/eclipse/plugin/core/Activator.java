@@ -24,6 +24,9 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+		System.out.println("-------------------------------------------------" );
+		System.out.println("Starting Plugin " + PLUGIN_ID );
+		System.out.println("-------------------------------------------------" );
         // Attach listener 
 		// PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService().addSelectionListener(new SelectionListener_BAK());
 	}

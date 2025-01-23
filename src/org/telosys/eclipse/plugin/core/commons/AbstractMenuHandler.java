@@ -59,61 +59,58 @@ public abstract class AbstractMenuHandler extends AbstractHandler {
 //		return null;
 //	}
 
-	private static final String MODEL_YAML    = "model.yaml";
-	private static final String TEMPLATES_CFG = "templates.cfg";
-
-	/**
-	 * Returns true if the given resource is a Telosys model directory <br>
-	 * or is any kind of resource located in a Telosys model directory
-	 * @param resource
-	 * @return
-	 */
-	protected boolean isInModelDirectory(IResource resource) {
-		if ( isModelDirectory(resource) ) {
-			return true;
-		}
-		else {
-			IContainer parent = resource.getParent();
-			if ( parent != null ) {
-				return isModelDirectory(parent);
-			}
-		}
-		return false;
-	}
-	/**
-	 * Returns true if the given resource can be considered as a Telosys model folder <br>
-	 * True if the resource is a folder or project containing a file "model.yaml"
-	 * @param resource
-	 * @return
-	 */
-	protected boolean isModelDirectory(IResource resource) {
-		// The resource can be a IFolder (inside a IProject) or a IProject 
-    	if ( resource instanceof IFolder ) {
-    		IFolder folder = (IFolder)resource;
-    		IFile file = folder.getFile(MODEL_YAML);
-    		return file != null && file.exists();
-    	}
-    	else if ( resource instanceof IProject ) {
-    		IProject project = (IProject)resource;
-    		IFile file = project.getFile(MODEL_YAML);
-    		return file != null && file.exists();
-    	}
-    	return false;
-    }
-	protected boolean isBundleDirectory(IResource resource) {
-		// The resource can be a IFolder (inside a IProject) or a IProject 
-    	if ( resource instanceof IFolder ) {
-    		IFolder folder = (IFolder)resource;
-    		IFile file = folder.getFile(TEMPLATES_CFG);
-    		return file != null && file.exists();
-    	}
-    	else if ( resource instanceof IProject ) {
-    		IProject project = (IProject)resource;
-    		IFile file = project.getFile(TEMPLATES_CFG);
-    		return file != null && file.exists();
-    	}
-    	return false;
-    }
+//	/**
+//	 * Returns true if the given resource is a Telosys model directory <br>
+//	 * or is any kind of resource located in a Telosys model directory
+//	 * @param resource
+//	 * @return
+//	 */
+//	protected boolean isInModelDirectory(IResource resource) {
+//		if ( isModelDirectory(resource) ) {
+//			return true;
+//		}
+//		else {
+//			IContainer parent = resource.getParent();
+//			if ( parent != null ) {
+//				return isModelDirectory(parent);
+//			}
+//		}
+//		return false;
+//	}
+//	/**
+//	 * Returns true if the given resource can be considered as a Telosys model folder <br>
+//	 * True if the resource is a folder or project containing a file "model.yaml"
+//	 * @param resource
+//	 * @return
+//	 */
+//	protected boolean isModelDirectory(IResource resource) {
+//		// The resource can be a IFolder (inside a IProject) or a IProject 
+//    	if ( resource instanceof IFolder ) {
+//    		IFolder folder = (IFolder)resource;
+//    		IFile file = folder.getFile(Const.MODEL_YAML);
+//    		return file != null && file.exists();
+//    	}
+//    	else if ( resource instanceof IProject ) {
+//    		IProject project = (IProject)resource;
+//    		IFile file = project.getFile(Const.MODEL_YAML);
+//    		return file != null && file.exists();
+//    	}
+//    	return false;
+//    }
+//	protected boolean isBundleDirectory(IResource resource) {
+//		// The resource can be a IFolder (inside a IProject) or a IProject 
+//    	if ( resource instanceof IFolder ) {
+//    		IFolder folder = (IFolder)resource;
+//    		IFile file = folder.getFile(Const.TEMPLATES_CFG);
+//    		return file != null && file.exists();
+//    	}
+//    	else if ( resource instanceof IProject ) {
+//    		IProject project = (IProject)resource;
+//    		IFile file = project.getFile(Const.TEMPLATES_CFG);
+//    		return file != null && file.exists();
+//    	}
+//    	return false;
+//    }
 	
 
 	

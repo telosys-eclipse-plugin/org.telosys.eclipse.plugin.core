@@ -1,0 +1,85 @@
+
+A menu is displayed before Handler is created and loaded 
+
+=> at the first display the menu is always visible and enabled
+the "isEnabled()" method is not called because Handler doesn't even exist!
+
+---------------------------------------------------------------------------------------
+visibleWhen ( usable in "menu" or "command" tag ) NB: works only after first display of the menu !!!
+  Purpose: Controls the visibility of a UI element.
+  Usage: Used to specify conditions under which a UI element (e.g., a menu item or toolbar button) should be visible.
+  Example: If you want a menu item to be visible only when a certain type of project is selected, you would use visibleWhen.
+          	<command  .. .. ..   >
+          	   <visibleWhen checkEnabled="true">
+            		<!-- property: "namespace" + "property name" -->
+                	<test property="org.telosys.eclipse.plugin.property.isTelosysProject" value="true"/>
+            	</visibleWhen>
+          	</command>
+
+--------------------------------------------------------------------------------------- 
+activeWhen  ( usable in "handler" tag ) NB: works only after first display of the menu !!!
+  Purpose: Controls the activation of a handler.
+  Usage: Used to specify conditions under which a handler should be active. An active handler can execute commands and respond to user actions.
+  Example: If you want a handler to be active only when a certain type of project is selected, you would use activeWhen.
+  
+  TO BE VERIFIED:
+  the activeWhen element can force the creation of the handler if the condition specified is true. 
+  When the condition in the activeWhen element evaluates to true, the handler is instantiated and becomes active, 
+  allowing it to respond to commands and user actions.
+
+---------------------------------------------------------------------------------------
+enabledWhen  ( usable in "handler" tag )
+
+
+---------------------------------------------------------------------------------------
+Purpose of "type" in "propertyTester"
+
+When a property tester is invoked, it tests properties of objects of the specified type. 
+Eclipse uses this information to determine whether your custom property tester is applicable to a given object.
+For example:
+    If you set type="org.eclipse.core.resources.IFile", your property tester will be invoked for objects that are instances of IFile.
+    If type="java.lang.Object", your property tester can be used for any object (but it's less efficient).
+How type Works
+    At runtime, when a property is evaluated (e.g., via an enableWhen or visibleWhen expression), 
+    Eclipse checks if the target object is an instance of the specified type.
+    If the object is compatible with the type, the property tester is invoked. If not, Eclipse skips it.
+
+From https://stackoverflow.com/questions/21310743/eclipse-rcp-propertytester-never-gets-called-via-menu-visiblewhen 
+  The object to be tested must be an instance of the type (or adapt to) before the tester will be called (the help is very vague about this!).
+  Use type="org.eclipse.core.runtime.IAdaptable" which will match most objects or type="org.eclipse.core.resources.IResource" to just match resources.
+
+---------------------------------------------------------------------------------------
+PropertyTester 
+
+plugin.xml
+  <test property="org.telosys.eclipse.plugin.property.isTelosysProject" value="false"/>
+Java code:
+ - receiver (Object) = [P/project002]
+ - property (String) = isTelosysProject
+ - args              = 0
+ - expectedValue     = false(java.lang.Boolean)
+
+plugin.xml
+  <test property="org.telosys.eclipse.plugin.property.isTelosysProject" /> (expected value is true by default)
+Java code:
+ - receiver (Object) = [P/project002]
+ - property (String) = isTelosysProject
+ - args              = 0
+ - expectedValue     = true(java.lang.Boolean)
+ 
+Works with "menu/command/visibleWhen" but only after first display of the menu (NB Plugin not yet started) !!!
+idem with  "menu/visibleWhen"
+
+Works with "handler/activeWhen" (disabled menu item if false) but only after first display of the menu (NB Plugin not yet started) !!! 
+
+Solution: forcePluginActivation="true"
+  <test property="org.telosys.eclipse.plugin.property.alwaysTrue" forcePluginActivation="true" />
+
+---------------------------------------------------------------------------------------
+
+See also :
+ <menuContribution  class=".."  />
+ class : class used to provide menu contribution (if provided all child elements will be ignored)
+ 
+ 
+ 

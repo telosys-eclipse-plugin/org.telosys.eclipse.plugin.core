@@ -17,7 +17,6 @@ import org.eclipse.ui.navigator.CommonViewer;
 
 public class ProjectExplorerUtil {
 	
-	private static final String TELOSYSTOOLS  = "TelosysTools";
 
 	private static void showError(String title, String message) {
 		if ( Config.SHOW_ERROR ) {
@@ -162,7 +161,7 @@ public class ProjectExplorerUtil {
 		if (projects.size() == 1) {
 			// Single project found
 			IProject project = projects.iterator().next(); // First (single) element
-			if ( isTelosysProject(project) ) {
+			if ( Validator.isTelosysProject(project) ) {
 				return project;
 			}
 			else {
@@ -175,13 +174,13 @@ public class ProjectExplorerUtil {
 		}
 		return null;
 	}
-	private static boolean isTelosysProject(IProject project) {
-		if ( project != null ) {
-			IFolder telosystoolsFolder = project.getFolder(TELOSYSTOOLS);
-			return telosystoolsFolder != null && telosystoolsFolder.exists();
-		}
-    	return false;
-	}
+//	private static boolean isTelosysProject(IProject project) {
+//		if ( project != null ) {
+//			IFolder telosystoolsFolder = project.getFolder(Const.TELOSYSTOOLS);
+//			return telosystoolsFolder != null && telosystoolsFolder.exists();
+//		}
+//    	return false;
+//	}
 	/**
 	 * Returns the current project for current selected element(s) (one or many)
 	 * @return

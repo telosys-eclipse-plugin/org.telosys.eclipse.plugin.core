@@ -10,6 +10,7 @@ import org.eclipse.ui.PartInitException;
 import org.telosys.eclipse.plugin.core.commons.AbstractMenuHandler;
 import org.telosys.eclipse.plugin.core.commons.DialogBox;
 import org.telosys.eclipse.plugin.core.commons.ProjectExplorerUtil;
+import org.telosys.eclipse.plugin.core.commons.Validator;
 import org.telosys.eclipse.plugin.core.commons.WorkbenchUtil;
 
 public class ControlCenterHandler extends AbstractMenuHandler {
@@ -24,15 +25,15 @@ public class ControlCenterHandler extends AbstractMenuHandler {
     	log("ControlCenterHandler.execute()");
     	// Retrieve the current selected project from current selected elements
     	IProject project = ProjectExplorerUtil.getProjectFromSelection();
-
-    	// TODO
-    	openOrActiveEditorPage(project);
-//    	if ( isTelosysProject(project) ) {
-//            openOrActiveEditorPage(project);
-//    	}
-//    	else {
-//    		notTelosysProjectMessage();
-//    	}
+        if ( project != null ) {
+        	// check project type (in case of bad enable/disable on menu items)
+        	if ( Validator.isTelosysProject(project) ) {
+                openOrActiveEditorPage(project);
+        	}
+        	else {
+        		notTelosysProjectMessage();
+        	}
+        }
         return null;
     }
     

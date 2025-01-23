@@ -12,6 +12,7 @@ import org.telosys.eclipse.plugin.core.commons.DialogBox;
 import org.telosys.eclipse.plugin.core.commons.ModelCheckStatus;
 import org.telosys.eclipse.plugin.core.commons.ProjectExplorerUtil;
 import org.telosys.eclipse.plugin.core.commons.TelosysEvolution;
+import org.telosys.eclipse.plugin.core.commons.Validator;
 import org.telosys.eclipse.plugin.core.commons.WorkspaceUtil;
 
 public class CheckModelHandler extends AbstractMenuHandler {
@@ -20,7 +21,7 @@ public class CheckModelHandler extends AbstractMenuHandler {
     public Object execute(ExecutionEvent event) throws ExecutionException {
     	IResource selectedResource = ProjectExplorerUtil.getSingleSelectedResource();
     	if ( selectedResource != null ) {
-	    	if ( isInModelDirectory(selectedResource) ) {
+	    	if ( Validator.isInModelDirectory(selectedResource) ) {
 	    		IContainer modelContainer = selectedResource instanceof IContainer ? (IContainer)selectedResource : selectedResource.getParent();
 	    		checkModelFromModelFolder(modelContainer);
 	    	}

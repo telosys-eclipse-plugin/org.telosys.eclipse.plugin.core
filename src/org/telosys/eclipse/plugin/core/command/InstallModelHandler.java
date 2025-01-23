@@ -5,32 +5,32 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
 import org.telosys.eclipse.plugin.core.commons.AbstractMenuHandler;
 import org.telosys.eclipse.plugin.core.commons.ProjectExplorerUtil;
+import org.telosys.eclipse.plugin.core.commons.Validator;
 import org.telosys.tools.api.InstallationType;
 import org.telosys.tools.api.TelosysProject;
 
 public class InstallModelHandler extends AbstractMenuHandler {
 	
-    // When the user opens a menu containing the command, 
-    // isEnabled() is called to determine whether the command should be enabled (clickable) or disabled (grayed out).
-    @Override
-    public boolean isEnabled() {
-    	IProject project = ProjectExplorerUtil.getSingleSelectedProject();
-    	// In a project and the selected project is not a Telosys model/bundle directory
-    	return project != null  &&  !isModelDirectory(project)  &&  !isBundleDirectory(project) ;
-    }
+//    // When the user opens a menu containing the command, 
+//    // isEnabled() is called to determine whether the command should be enabled (clickable) or disabled (grayed out).
+//    @Override
+//    public boolean isEnabled() {
+//    	IProject project = ProjectExplorerUtil.getSingleSelectedProject();
+//    	// In a project and the selected project is not a Telosys model/bundle directory
+//    	return project != null  &&  !isModelDirectory(project)  &&  !isBundleDirectory(project) ;
+//    }
 
 	@Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
     	IProject project = ProjectExplorerUtil.getSingleSelectedProject(true);
         if ( project != null ) {
-    		openDialogBox(project);
-    		// TODO
-//        	if ( isTelosysProject(project) ) {
-//        		openDialogBox(project);
-//        	}
-//        	else {
-//        		notTelosysProjectMessage();
-//        	}
+        	if ( Validator.isTelosysProject(project) ) {
+        		// Open the window
+        		openDialogBox(project);
+        	}
+        	else {
+        		notTelosysProjectMessage();
+        	}
         }
         return null;
     }

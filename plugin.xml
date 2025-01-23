@@ -13,6 +13,17 @@
 	    </editor>
 	</extension>
 	
+	<!-- ========== Property Testers -->
+	<extension point="org.eclipse.core.expressions.propertyTesters">
+		<propertyTester
+              id="org.telosys.eclipse.plugin.core.MenuPropertyTester"
+           class="org.telosys.eclipse.plugin.core.MenuPropertyTester"
+           namespace="org.telosys.eclipse.plugin.property"
+           properties="isTelosysProject,acceptInitCommand,acceptModelCommands"
+           type="java.lang.Object"
+           />
+	</extension>
+ 
 	<!-- ========== Commands -->
 		<!-- id :  Unique identifier for your command. -->
 		<!-- name: Display name for the command. -->
@@ -29,20 +40,41 @@
 	<!-- Bind the Java class handler to the command Id -->
 	<extension  point="org.eclipse.ui.handlers">
 		<handler commandId="org.telosys.eclipse.plugin.core.controlcenter.ControlCenter" 
-		             class="org.telosys.eclipse.plugin.core.controlcenter.ControlCenterHandler" />
+		             class="org.telosys.eclipse.plugin.core.controlcenter.ControlCenterHandler" >
+           <enabledWhen> <test property="org.telosys.eclipse.plugin.property.isTelosysProject" forcePluginActivation="true" /> </enabledWhen>
+        </handler>
+		             
 		<handler commandId="org.telosys.eclipse.plugin.core.command.Init" 
-		             class="org.telosys.eclipse.plugin.core.command.InitHandler" />
+		             class="org.telosys.eclipse.plugin.core.command.InitHandler" >
+           <enabledWhen> <test property="org.telosys.eclipse.plugin.property.acceptInitCommand" forcePluginActivation="true" /> </enabledWhen>
+        </handler>
+         
 		<handler commandId="org.telosys.eclipse.plugin.core.command.NewModel" 
-		             class="org.telosys.eclipse.plugin.core.command.NewModelHandler" /> 
+		             class="org.telosys.eclipse.plugin.core.command.NewModelHandler" >	             
+           <enabledWhen> <test property="org.telosys.eclipse.plugin.property.isTelosysProject" forcePluginActivation="true" /> </enabledWhen>
+        </handler>
+         
 		<handler commandId="org.telosys.eclipse.plugin.core.command.InstallModel" 
-		             class="org.telosys.eclipse.plugin.core.command.InstallModelHandler" /> 
-		<handler commandId="org.telosys.eclipse.plugin.core.command.CheckModel" 
-		             class="org.telosys.eclipse.plugin.core.command.CheckModelHandler" /> 
-		<handler commandId="org.telosys.eclipse.plugin.core.command.NewEntity" 
-		             class="org.telosys.eclipse.plugin.core.command.NewEntityHandler" /> 
+		             class="org.telosys.eclipse.plugin.core.command.InstallModelHandler" >
+           <enabledWhen> <test property="org.telosys.eclipse.plugin.property.isTelosysProject" forcePluginActivation="true" /> </enabledWhen>
+        </handler> 
+
 		<handler commandId="org.telosys.eclipse.plugin.core.command.InstallBundle" 
-		             class="org.telosys.eclipse.plugin.core.command.InstallBundleHandler" /> 
-	</extension>
+		             class="org.telosys.eclipse.plugin.core.command.InstallBundleHandler" > 
+           <enabledWhen> <test property="org.telosys.eclipse.plugin.property.isTelosysProject" forcePluginActivation="true" /> </enabledWhen>
+        </handler> 
+		              
+		<handler commandId="org.telosys.eclipse.plugin.core.command.CheckModel" 
+		             class="org.telosys.eclipse.plugin.core.command.CheckModelHandler" > 
+           <enabledWhen> <test property="org.telosys.eclipse.plugin.property.acceptModelCommands" forcePluginActivation="true" /> </enabledWhen>
+        </handler> 
+		             
+		<handler commandId="org.telosys.eclipse.plugin.core.command.NewEntity" 
+		             class="org.telosys.eclipse.plugin.core.command.NewEntityHandler" > 
+           <enabledWhen> <test property="org.telosys.eclipse.plugin.property.acceptModelCommands" forcePluginActivation="true" /> </enabledWhen>
+        </handler> 
+		             
+    </extension>
 		
 	<!-- ========== Menu Contribution -->
 	<!-- Contribute commands to the context menu for projects in the Project Explorer -->
@@ -53,15 +85,10 @@
 		<!-- "additions" section is where dynamically added menu items (by Eclipse or other plugins) appear.-->
 		<!-- after=additions  : Adds the menu item(s) after the predefined "additions" section   -->
 		<!-- before=additions : Adds the menu item(s) before the predefined "additions" section  -->
-	    <menuContribution
-	        locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?before=additions">
-	    	<!-- First Level -->
-        <!--
-        	<menu label="Telosys Control Center" icon="icons/sample.png"  />
-        -->
-        	<command label="Telosys Control Center" icon="icons/sample.png" 
-        	      style="push"  commandId="org.telosys.eclipse.plugin.core.controlcenter.ControlCenter"/>
-        	<menu label="Telosys Commands" icon="icons/sample.png">
+	    <menuContribution locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?before=additions" >
+	        <!-- First Level -->
+            <command label="Telosys Control Center" icon="icons/sample.png" style="push"  commandId="org.telosys.eclipse.plugin.core.controlcenter.ControlCenter" />
+            <menu label="Telosys Commands" icon="icons/sample.png">
 	    		<!-- Second Level -->
 		        <command label="Init"            style="push"  commandId="org.telosys.eclipse.plugin.core.command.Init" />
 		        <command label="New Model"       style="push"  commandId="org.telosys.eclipse.plugin.core.command.NewModel" />

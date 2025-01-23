@@ -12,6 +12,7 @@ import org.eclipse.jface.window.Window;
 import org.telosys.eclipse.plugin.core.commons.AbstractMenuHandler;
 import org.telosys.eclipse.plugin.core.commons.DialogBox;
 import org.telosys.eclipse.plugin.core.commons.ProjectExplorerUtil;
+import org.telosys.eclipse.plugin.core.commons.Validator;
 import org.telosys.eclipse.plugin.core.commons.WorkspaceUtil;
 import org.telosys.tools.api.TelosysProject;
 
@@ -44,7 +45,7 @@ public class NewEntityHandler extends AbstractMenuHandler {
 //    	IProject selectedProject = null;
     	IResource selectedResource = ProjectExplorerUtil.getSingleSelectedResource();
     	if ( selectedResource != null ) {
-	    	if ( isInModelDirectory(selectedResource) ) {
+	    	if ( Validator.isInModelDirectory(selectedResource) ) {
 	    		IContainer modelContainer = selectedResource instanceof IContainer ? (IContainer)selectedResource : selectedResource.getParent();
 	    		newEntityFromModelFolder(modelContainer);
 	    	}
