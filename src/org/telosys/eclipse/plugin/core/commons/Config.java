@@ -5,9 +5,9 @@ public class Config {
 	protected static final boolean SHOW_ERROR = true ;
 
 	
-	public static final boolean LOG_FROM_PROPERTY_TESTER = true;
-	public static final boolean LOG_FROM_MENU_HANDLER = true;
-	public static final boolean LOG_FROM_DIALOG_BOX = true;
+	public static final boolean LOG_FROM_PROPERTY_TESTER = false;
+	public static final boolean LOG_FROM_MENU_HANDLER = false;
+	public static final boolean LOG_FROM_DIALOG_BOX = false;
 	
 
 }

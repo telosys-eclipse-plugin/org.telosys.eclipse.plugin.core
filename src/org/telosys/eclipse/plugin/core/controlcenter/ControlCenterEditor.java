@@ -18,8 +18,30 @@ public class ControlCenterEditor extends EditorPart {
 	
     private IProject project;
     
+
+	@Override
+	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
+		setSite(site);
+		setInput(input);
+
+		// Validate and extract project from the input
+		if (input instanceof ControlCenterEditorInput) {
+			this.project = ((ControlCenterEditorInput) input).getProject();
+	        // Set editor tab caption and tooltip
+	        setPartName(this.project.getName());
+	        setTitleToolTip("Editing project: " + this.project.getFullPath().toString());
+		} else {
+			throw new PartInitException("Invalid input: Must be a ProjectEditorInput");
+		}
+	}
+	
 	@Override
 	public void createPartControl(Composite parent) {
+		ControlCenterUI ui = new ControlCenterUI(project);
+		ui.createUI(parent);
+	}
+	
+	public void createPartControl_OLD(Composite parent) {
 		// Create your SWT widgets here
 		Composite container = new Composite(parent, SWT.NONE);
 		container.setLayout(new GridLayout(2, false)); // Example layout
@@ -35,7 +57,7 @@ public class ControlCenterEditor extends EditorPart {
 		combo.setItems(new String[] { "Option 1", "Option 2", "Option 3" });
 		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 	}
-
+	
 	@Override
 	public void setFocus() {
 		// Set focus logic if needed
@@ -62,20 +84,6 @@ public class ControlCenterEditor extends EditorPart {
 		return false;
 	}
 
-	@Override
-	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
-		setSite(site);
-		setInput(input);
 
-		// Validate and extract project from the input
-		if (input instanceof ControlCenterEditorInput) {
-			this.project = ((ControlCenterEditorInput) input).getProject();
-	        // Set editor tab caption and tooltip
-	        setPartName(this.project.getName());
-	        setTitleToolTip("Editing project: " + this.project.getFullPath().toString());
-		} else {
-			throw new PartInitException("Invalid input: Must be a ProjectEditorInput");
-		}
-	}
 
 }
