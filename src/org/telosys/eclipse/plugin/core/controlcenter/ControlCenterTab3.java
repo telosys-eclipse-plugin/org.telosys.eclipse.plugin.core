@@ -8,6 +8,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
@@ -75,11 +76,11 @@ public class ControlCenterTab3 {
         Table table = EntitiesTable.createTable(leftPart);
         EntitiesTable.populateTable(table, 20);
         //--- Buttons bar
-        createButtonBar(leftPart, table);
+        createButtonBar(leftPart, table, new RefreshModelListener(table));
         return leftPart;
 	}
 	
-	private void createButtonBar(Composite parent, Table table) {
+	private void createButtonBar(Composite parent, Table table, Listener refreshListener) {
 		// Create Composite for Button Bar
         Composite buttonBar = new Composite(parent, SWT.NONE);
 //        RowLayout rowLayout = new RowLayout(SWT.HORIZONTAL);
@@ -121,6 +122,7 @@ public class ControlCenterTab3 {
         Button refresh = new Button(buttonBar, SWT.PUSH);
         refresh.setText("Refresh");
         refresh.setLayoutData(buttonGridData);
+        refresh.addListener(SWT.Selection, refreshListener);
 	}
 
 	private Composite createRightPart(Composite tabContent) {
@@ -140,7 +142,7 @@ public class ControlCenterTab3 {
         Table table = TemplatesTable.createTable(rightPart);
         TemplatesTable.populateTable(table, 20);
         //--- Buttons bar
-        createButtonBar(rightPart, table);
+        createButtonBar(rightPart, table, new RefreshBundleListener(table));
         return rightPart;
 	}
 	
