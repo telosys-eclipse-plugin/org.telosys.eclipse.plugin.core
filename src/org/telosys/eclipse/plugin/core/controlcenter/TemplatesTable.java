@@ -1,23 +1,16 @@
 package org.telosys.eclipse.plugin.core.controlcenter;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.telosys.eclipse.plugin.commons.Logger;
 import org.telosys.eclipse.plugin.core.commons.PluginImages;
 
-public class EntitiesTable {
+public class TemplatesTable {
 
 	/**
-	 * Creates a Table widget for ENTITIES
+	 * Creates a Table widget
 	 * @param composite
 	 * @return
 	 */
@@ -28,6 +21,8 @@ public class EntitiesTable {
         TableUtils.createTableColumn(table, 300);
         // Column 1
         TableUtils.createTableColumn(table, 160);
+        // Column 2
+        TableUtils.createTableColumn(table, 160);
 
         Logger.log("Table created: table.getColumnCount() = " + table.getColumnCount() );
         return table;
@@ -36,16 +31,22 @@ public class EntitiesTable {
 	protected static void populateTable(Table table, int n) {
         // Add Rows
         for (int i = 1; i <= n; i++) { // More than 12 rows to enable scrolling
-            TableItem item = new TableItem(table, SWT.NONE);
+            TableItem tableItem = new TableItem(table, SWT.NONE);
             //item.setText("Item " + i);
-            item.setChecked(true); // All checked by default
+            tableItem.setChecked(true); // All checked by default
     		if ( i % 4 == 0 ) {
-    			item.setImage( PluginImages.getImage(PluginImages.WARNING ) ) ;
+    			tableItem.setImage( PluginImages.getImage(PluginImages.WARNING ) ) ;
     		}
-            item.setText(0, "Entity Col-0:" + i); // Text for Column 0
-            item.setText(1, "Entity Col-1:" + i); // Text for Column 1          
-            item.setData("EntityData-row#" + i); // Any object 
+    		// Set text for each cell of the row (for each column)
+    		int colIndex=0;
+    		tableItem.setText(colIndex++, "Template Col0:" + i); // Text for Column
+    		tableItem.setText(colIndex++, "Template Col1:" + i); // Text for Column       
+    		tableItem.setText(colIndex++, "Template Col2:" + i); // Text for Column       
+
+    		//    		String[] rowValues = new String[]{ "Col#0"+i, "Col#1"+i, "Col#2"+i, "Col#3"+i };
+//    		String[] rowValues = new String[]{ "Col#0"+i, "Col#1"+i };
+//    		tableItem.setText(rowValues);
+            tableItem.setData("Template Data" + i); // Any object 
         }
 	}
-	
 }
