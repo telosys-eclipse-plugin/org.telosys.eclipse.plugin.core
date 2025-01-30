@@ -11,6 +11,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableItem;
 
 public class ControlCenterTab3 {
 	
@@ -73,7 +74,53 @@ public class ControlCenterTab3 {
         //--- Table for ENTITIES
         Table table = EntitiesTable.createTable(leftPart);
         EntitiesTable.populateTable(table, 20);
+        //--- Buttons bar
+        createButtonBar(leftPart, table);
         return leftPart;
+	}
+	
+	private void createButtonBar(Composite parent, Table table) {
+		// Create Composite for Button Bar
+        Composite buttonBar = new Composite(parent, SWT.NONE);
+//        RowLayout rowLayout = new RowLayout(SWT.HORIZONTAL);
+//        rowLayout.spacing = 10;  // Space between buttons
+//        rowLayout.marginLeft = 0;
+//        buttonBar.setLayout(rowLayout);
+        
+        // Use GridLayout with 3 columns
+        GridLayout gridLayout = new GridLayout(3, true); // true = equal column width
+        gridLayout.marginWidth = 0; // 10;  // Margin around the buttons
+        gridLayout.marginHeight = 0; // 10;
+        gridLayout.horizontalSpacing = 10; // Space between buttons
+        buttonBar.setLayout(gridLayout);        
+        // Ensure all buttons have equal width
+        GridData buttonGridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        buttonGridData.widthHint = 120; // Minimum button width (adjust as needed)
+
+        // Create Buttons
+        Button selectAll = new Button(buttonBar, SWT.PUSH);
+        selectAll.setText("Select All");
+        selectAll.setLayoutData(buttonGridData);
+        selectAll.addListener(SWT.Selection, event -> {
+        	//table.selectAll();
+            for (TableItem item : table.getItems()) {
+                item.setChecked(true);
+            }
+        });
+
+        Button deselectAll = new Button(buttonBar, SWT.PUSH);
+        deselectAll.setText("Deselect All");
+        deselectAll.setLayoutData(buttonGridData);
+        deselectAll.addListener(SWT.Selection, event -> {
+        	table.deselectAll();
+            for (TableItem item : table.getItems()) {
+                item.setChecked(false);
+            }
+        });
+
+        Button refresh = new Button(buttonBar, SWT.PUSH);
+        refresh.setText("Refresh");
+        refresh.setLayoutData(buttonGridData);
 	}
 
 	private Composite createRightPart(Composite tabContent) {
@@ -92,6 +139,8 @@ public class ControlCenterTab3 {
         //--- Table for TEMPLATES
         Table table = TemplatesTable.createTable(rightPart);
         TemplatesTable.populateTable(table, 20);
+        //--- Buttons bar
+        createButtonBar(rightPart, table);
         return rightPart;
 	}
 	
