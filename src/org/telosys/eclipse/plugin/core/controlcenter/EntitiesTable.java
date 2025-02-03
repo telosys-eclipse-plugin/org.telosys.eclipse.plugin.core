@@ -26,19 +26,19 @@ public class EntitiesTable {
         return table;
 	}
 	
-	protected static void populateTable(Table table, int n) {
-        // Add Rows
-        for (int i = 1; i <= n; i++) { // More than 12 rows to enable scrolling
-            TableItem item = new TableItem(table, SWT.NONE);
-            //item.setText("Item " + i);
-            item.setChecked(true); // All checked by default
-    		if ( i % 4 == 0 ) {
-    			item.setImage( PluginImages.getImage(PluginImages.WARNING ) ) ;
-    		}
-            item.setText(0, "Entity Col-0:" + i); // Text for Column 0
-            item.setText(1, "Entity Col-1:" + i); // Text for Column 1          
-            item.setData("EntityData-row#" + i); // Any object 
-        }
-	}
+//	protected static void populateTable(Table table, int n) {
+//        // Add Rows
+//        for (int i = 1; i <= n; i++) { // More than 12 rows to enable scrolling
+//            TableItem item = new TableItem(table, SWT.NONE);
+//            //item.setText("Item " + i);
+//            item.setChecked(true); // All checked by default
+//    		if ( i % 4 == 0 ) {
+//    			item.setImage( PluginImages.getImage(PluginImages.WARNING ) ) ;
+//    		}
+//            item.setText(0, "Entity Col-0:" + i); // Text for Column 0
+//            item.setText(1, "Entity Col-1:" + i); // Text for Column 1          
+//            item.setData("EntityData-row#" + i); // Any object 
+//        }
+//	}
 	
 }

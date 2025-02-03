@@ -9,6 +9,7 @@ import org.telosys.tools.api.TelosysProject;
 import org.telosys.tools.dsl.DslModelError;
 import org.telosys.tools.dsl.DslModelErrors;
 import org.telosys.tools.dsl.DslModelManager;
+import org.telosys.tools.dsl.DslModelUtil;
 
 /**
  * New Telosys evolutions to be added in "Telosys Java API" 
@@ -18,9 +19,22 @@ import org.telosys.tools.dsl.DslModelManager;
  */
 public class TelosysEvolution {
 
+	// TODO:  TelosysProject.checkModel(String modelName)
 	public static boolean hasSpecificModelFolder(TelosysProject telosysProject){
     	String specificModelsFolder = telosysProject.getTelosysToolsCfg().getSpecificModelsFolderAbsolutePath();
     	return specificModelsFolder != null && !specificModelsFolder.isEmpty() && !specificModelsFolder.isBlank() ;
+	}
+
+	// TODO:  Telosys.createEntity(File modelFolder, String entityName)
+
+	// TODO:  TelosysProject.getEntities(String modelName)
+	public static List<String> getEntities(TelosysProject telosysProject, String modelName) throws TelosysApiException {
+		File modelFolder = telosysProject.getModelFolder(modelName); 
+		try {
+			return  DslModelUtil.getEntityNames(modelFolder);
+		} catch (Exception e) {
+			throw new TelosysApiException("Cannot get entities for model '" + modelName + "'", e);
+		}
 	}
 
 	// TODO:  TelosysProject.checkModel(String modelName)
@@ -30,10 +44,10 @@ public class TelosysEvolution {
 			return new ModelCheckStatus(modelName, true);
 		} catch (TelosysModelException tme) {
 			return new ModelCheckStatus(modelName, false, buildReportLines(tme));
-		}		
-
+		}
 	}
 	
+	// TODO:  Telosys.checkModel(File modelFolder)
 	public static ModelCheckStatus checkModel(File modelFolder) {
 		if ( modelFolder != null ) {
 			String modelName = modelFolder.getName();

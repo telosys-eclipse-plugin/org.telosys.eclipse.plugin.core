@@ -3,12 +3,10 @@ package org.telosys.eclipse.plugin.core.controlcenter;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
@@ -16,6 +14,7 @@ import org.eclipse.ui.part.EditorPart;
 
 public class ControlCenterEditor extends EditorPart {
 	
+    private Font boldFont;
     private IProject project;
     
 
@@ -37,27 +36,27 @@ public class ControlCenterEditor extends EditorPart {
 	
 	@Override
 	public void createPartControl(Composite parent) {
-		ControlCenterUI ui = new ControlCenterUI(project);
+        // Create a bold font
+        Display display = parent.getDisplay();
+        FontData[] fontData = display.getSystemFont().getFontData();
+        for (FontData fd : fontData) {
+            fd.setStyle(SWT.BOLD);
+        }
+        boldFont = new Font(display, fontData);
+        
+		ControlCenterUI ui = new ControlCenterUI(project, boldFont);
 		ui.createUI(parent);
 	}
 	
-	public void createPartControl_OLD(Composite parent) {
-		// Create your SWT widgets here
-		Composite container = new Composite(parent, SWT.NONE);
-		container.setLayout(new GridLayout(2, false)); // Example layout
-
-		// Example: Label and Text Input Field
-		new Label(container, SWT.NONE).setText("Project Name:");
-		Text projectNameText = new Text(container, SWT.BORDER);
-		projectNameText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-
-		// Example: Combo Box
-		new Label(container, SWT.NONE).setText("Options:");
-		Combo combo = new Combo(container, SWT.DROP_DOWN | SWT.READ_ONLY);
-		combo.setItems(new String[] { "Option 1", "Option 2", "Option 3" });
-		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-	}
-	
+    @Override
+    public void dispose() {
+        // Dispose of the font when the editor is closed
+        if (boldFont != null && !boldFont.isDisposed()) {
+            boldFont.dispose();
+        }
+        super.dispose();
+    }
+    
 	@Override
 	public void setFocus() {
 		// Set focus logic if needed

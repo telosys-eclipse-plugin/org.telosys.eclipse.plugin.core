@@ -4,6 +4,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -14,11 +15,13 @@ import org.eclipse.swt.widgets.TabItem;
 
 public class ControlCenterUI {
 	
+	private final Font boldFont;
     private final IProject project;
     
-	public ControlCenterUI(IProject project) {
+	public ControlCenterUI(IProject project, Font boldFont) {
 		super();
 		this.project = project;
+		this.boldFont = boldFont;
 	}
 	private void createStyledText(Composite composite) {
 		String part1 = "Telosys Control Center for project " ;
@@ -38,37 +41,21 @@ public class ControlCenterUI {
 	}
 	protected void createUI(Composite parent) {
 		// Create your SWT widgets here
-		//parent.setLayout(new FillLayout()); // Ensures TabFolder fills entire shell (OK)
 		parent.setLayout(new GridLayout(1, false)); // 1 col
 		
 		Composite container = parent;
-//		Composite container = new Composite(parent, SWT.NONE);
-//		container.setLayout(new GridLayout(1, false)); // 1 col
 		
 		// Label 
-//		Label label = new Label(container, SWT.NONE);
-//		label.setText("Telosys Control Center for project " + project.getName());
-//		label.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 		createStyledText(container);
 
 		TabFolder tabFolder = new TabFolder(container, SWT.NONE);
 		tabFolder.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true)); // Fill remaining space
 
-//		TabItem tabItem1 = new TabItem(tabFolder, SWT.NONE);
-//		tabItem1.setText("  Tab 1  ");
-//		Composite tabContent1 = new Composite(tabFolder, SWT.NONE);
-//		createTabContent1(tabContent1, "Tab content 1");
-//		tabItem1.setControl(tabContent1);
 		createTab1(tabFolder, "  Tab 1  ") ;
 		
-//		TabItem tabItem2 = new TabItem(tabFolder, SWT.NONE);
-//		tabItem2.setText("  Tab 2  ");
-//		Composite tabContent2 = new Composite(tabFolder, SWT.NONE);
-//		createTabContent2(tabContent2,  "Tab content 2");
-//		tabItem2.setControl(tabContent2);
 		createTab2(tabFolder, "  Tab 2  ") ;
 		
-		ControlCenterTab3 tab3 = new ControlCenterTab3(project);
+		ControlCenterTab3 tab3 = new ControlCenterTab3(project, boldFont);
 		tab3.createTab(tabFolder);
 	}
 
