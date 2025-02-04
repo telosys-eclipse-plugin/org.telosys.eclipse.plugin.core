@@ -6,10 +6,14 @@ import java.util.List;
 
 import org.telosys.tools.api.TelosysModelException;
 import org.telosys.tools.api.TelosysProject;
+import org.telosys.tools.commons.bundles.TargetDefinition;
+import org.telosys.tools.commons.bundles.TargetsDefinitions;
 import org.telosys.tools.dsl.DslModelError;
 import org.telosys.tools.dsl.DslModelErrors;
 import org.telosys.tools.dsl.DslModelManager;
 import org.telosys.tools.dsl.DslModelUtil;
+import org.telosys.tools.generic.model.Entity;
+import org.telosys.tools.generic.model.Model;
 
 /**
  * New Telosys evolutions to be added in "Telosys Java API" 
@@ -19,7 +23,7 @@ import org.telosys.tools.dsl.DslModelUtil;
  */
 public class TelosysEvolution {
 
-	// TODO:  TelosysProject.checkModel(String modelName)
+	// TODO:  TelosysProject.hasSpecificModelFolder()
 	public static boolean hasSpecificModelFolder(TelosysProject telosysProject){
     	String specificModelsFolder = telosysProject.getTelosysToolsCfg().getSpecificModelsFolderAbsolutePath();
     	return specificModelsFolder != null && !specificModelsFolder.isEmpty() && !specificModelsFolder.isBlank() ;
@@ -100,4 +104,44 @@ public class TelosysEvolution {
 		}
 		return reportLines;
 	}
+	
+	public static void launchGeneration(TelosysProject telosysProject, String modelName, List<String> entityNames, String bundleName, List<String> templateNames,  boolean flagCopyResources) throws TelosysApiException {
+		Model model ;
+		try {
+			model = telosysProject.loadModel(modelName);
+		} catch (Exception e) {
+			throw new TelosysApiException("Cannot load model", e);
+		}
+		List<String> selectedEntities = selectEntities(model, entityNames);
+		List<TargetDefinition> selectedTargets = selectTargets(telosysProject, bundleName, templateNames);
+
+		try {
+			telosysProject.launchGeneration(model, selectedEntities, bundleName, selectedTargets, flagCopyResources);
+		} catch (Exception e) {
+			throw new TelosysApiException("Cannot launch generation", e);
+		}
+	}
+	private static List<String> selectEntities(Model model, List<String> entityNames ) throws TelosysApiException {
+		List<String> selectedEntities = new LinkedList<>();
+		for ( Entity entity : model.getEntities() ) {
+			if ( entityNames.contains(entity.getClassName() ) ) {
+				selectedEntities.add(entity.getClassName());
+			}
+		}
+		return selectedEntities;
+	}
+	private static List<TargetDefinition> selectTargets(TelosysProject telosysProject, String bundleName, List<String> templateNames ) throws TelosysApiException {
+		try {
+			List<TargetDefinition> targets = new LinkedList<>();
+			TargetsDefinitions targetsDefinitions = telosysProject.getTargetDefinitions(bundleName);
+			for ( TargetDefinition targetDef : targetsDefinitions.getTemplatesTargets() ) {
+				if ( templateNames.contains(targetDef.getTemplate() ) ) {
+					targets.add(targetDef);
+				}
+			}
+			return targets;
+		} catch (Exception e) {
+			throw new TelosysApiException("Cannot get selected templates", e);
+		}
+	}	
 }

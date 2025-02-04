@@ -22,21 +22,26 @@ import org.telosys.eclipse.plugin.core.commons.TelosysApiException;
 import org.telosys.eclipse.plugin.core.commons.TelosysEvolution;
 import org.telosys.eclipse.plugin.core.commons.Tuple2;
 import org.telosys.tools.api.TelosysProject;
+import org.telosys.tools.commons.bundles.TargetDefinition;
+import org.telosys.tools.commons.bundles.TargetsDefinitions;
+
 
 public class ControlCenterTab3 {
 	
 	private static final String TAB_TITLE = "Generation";
 	
-    private final IProject project;
+    private final IProject eclipseProject;
     private final TelosysProject telosysProject; 
 	private final Font boldFont;
     private Combo modelsCombo;
     private Table entitiesTable;
+    private Combo bundlesCombo;
+    private Table templatesTable;
     
-	public ControlCenterTab3(IProject project, Font boldFont) {
+	public ControlCenterTab3(IProject eclipseProject, Font boldFont) {
 		super();
-		this.project = project;
-		this.telosysProject = ProjectUtil.getTelosysProject(project);
+		this.eclipseProject = eclipseProject;
+		this.telosysProject = ProjectUtil.getTelosysProject(eclipseProject);
 		this.boldFont = boldFont;
 	}
 
@@ -66,6 +71,7 @@ public class ControlCenterTab3 {
         createBottomPart(tabContent);
         
         populateModelsCombo();
+        populateBundlesCombo();
         
         return tabContent;
 	}
@@ -77,83 +83,101 @@ public class ControlCenterTab3 {
         return composite;
 	}
 	
-	private Composite createLeftBar1(Composite parent) {
+	private GridData createButtonGridData() {
+        // Ensure all buttons have equal width
+        GridData buttonGridData = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
+        buttonGridData.widthHint = 120; // Minimum button width (adjust as needed)
+		return buttonGridData;
+	}
+	private Composite createBarPanel(Composite parent, int numColums) {
 		// Create Composite for Bar
 		Composite bar = new Composite(parent, SWT.NONE);
 		// Use GridLayout with N columns
-		GridLayout gridLayout = new GridLayout(4, false);
+		GridLayout gridLayout = new GridLayout(numColums, false);
 		gridLayout.marginWidth = 0; // 10; // Margin around the widgets
 		gridLayout.marginHeight = 0; // 10;
 		gridLayout.horizontalSpacing = 10; // Space between widgets
 		bar.setLayout(gridLayout);
 		bar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		return bar;
+	}
 
+	private Composite createLeftPart(Composite tabContent) {
+        Composite leftPart = createPartComposite(tabContent);
+        
+        //--- Bar with Label + Combo + Buttons
+        createLeftBar1(leftPart);
+        
+        //--- Label
+        Label label = new Label(leftPart, SWT.NONE);
+        label.setText("Entities");
+
+        //--- Table for ENTITIES
+//        entitiesTable = EntitiesTable.createTable(leftPart);
+        entitiesTable = TableUtils.createTable(leftPart); 
+        TableUtils.createTableColumn(entitiesTable, 300); // Column 0
+        TableUtils.createTableColumn(entitiesTable, 160); // Column 1
+        
+//        //--- Buttons bar
+//        Tuple2<Composite,GridData> tuple = createButtonBar(leftPart, entitiesTable, new RefreshModelListener(entitiesTable), 1);
+//        Composite buttonBar = tuple.getElement1();
+//        GridData  buttonGridData = tuple.getElement2();
+//        
+////        Button checkModel = new Button(buttonBar, SWT.PUSH);
+////        checkModel.setText("Check Model");
+////        checkModel.setLayoutData(buttonGridData);
+//
+//        Button newEntity = new Button(buttonBar, SWT.PUSH);
+//        newEntity.setText("New Entity");
+//        newEntity.setLayoutData(buttonGridData);
+
+        createLeftBar2(leftPart);
+        
+        return leftPart;
+	}
+	private Composite createLeftBar1(Composite parent) {
+		// Create Composite for Bar
+		Composite bar = createBarPanel(parent, 4);
         //--- Label
         Label label = new Label(bar, SWT.NONE);
         label.setText("Model");
         //label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
         //--- ComboBox
         modelsCombo = new Combo(bar, SWT.DROP_DOWN | SWT.READ_ONLY);
-        GridData comboGridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
-        comboGridData.widthHint = 100; // Set minimum width (e.g., 150 pixels)
-        modelsCombo.setLayoutData(comboGridData);
-        
+        modelsCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));        
         modelsCombo.setFont(boldFont);
         modelsCombo.addSelectionListener( new ComboChangeSelectionListener( 
-        		(modelSelected)-> populateEntitiesList(modelSelected) )
+        		(modelSelected)-> populateEntitiesTable(modelSelected) )
         		); 
-        // Ensure all buttons have equal width
-        GridData buttonGridData = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
-        buttonGridData.widthHint = 120; // Minimum button width (adjust as needed)
-        
         //--- Button
         Button editModel = new Button(bar, SWT.PUSH);
         editModel.setText("Edit Model");
-        editModel.setLayoutData(buttonGridData);
+        editModel.setLayoutData(createButtonGridData());
+        editModel.addListener(SWT.Selection, event -> {
+        	TelosysCommand.editModel(telosysProject, modelsCombo);
+        });        
+        
         //--- Button
         Button checkModel = new Button(bar, SWT.PUSH);
         checkModel.setText("Check Model");
-        checkModel.setLayoutData(buttonGridData);       
+        checkModel.setLayoutData(createButtonGridData());       
+        checkModel.addListener(SWT.Selection, event -> {
+        	TelosysCommand.checkModel(telosysProject, modelsCombo);
+        });        
         return bar;
 	}
-
-	private Composite createLeftPart(Composite tabContent) {
-        Composite leftPart = createPartComposite(tabContent);
-        
-        createLeftBar1(leftPart);
-        
-//        //--- Label
-//        Label label = new Label(leftPart, SWT.NONE);
-//        label.setText("Model");
-//        //--- ComboBox
-//        modelsCombo = new Combo(leftPart, SWT.DROP_DOWN | SWT.READ_ONLY);
-//        modelsCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-//        modelsCombo.setFont(boldFont);
-//        modelsCombo.addSelectionListener( new ComboChangeSelectionListener( 
-//        		(modelSelected)-> populateEntitiesList(modelSelected) )
-//        		); 
-        //--- Label
-        Label label;
-        label = new Label(leftPart, SWT.NONE);
-        label.setText("Entities");
-
-        //--- Table for ENTITIES
-        entitiesTable = EntitiesTable.createTable(leftPart);
-        
-        //--- Buttons bar
+	private void createLeftBar2(Composite leftPart) {
+		//--- Common buttons + 1 button 
         Tuple2<Composite,GridData> tuple = createButtonBar(leftPart, entitiesTable, new RefreshModelListener(entitiesTable), 1);
         Composite buttonBar = tuple.getElement1();
         GridData  buttonGridData = tuple.getElement2();
-        
-//        Button checkModel = new Button(buttonBar, SWT.PUSH);
-//        checkModel.setText("Check Model");
-//        checkModel.setLayoutData(buttonGridData);
-
+        //--- 
         Button newEntity = new Button(buttonBar, SWT.PUSH);
         newEntity.setText("New Entity");
         newEntity.setLayoutData(buttonGridData);
-
-        return leftPart;
+        newEntity.addListener(SWT.Selection, event -> {
+        	TelosysCommand.newEntity(telosysProject, modelsCombo);
+        });        
 	}
 	
 	private Tuple2<Composite,GridData> createButtonBar(Composite parent, Table table, Listener refreshListener, int additionalColumns) {
@@ -200,23 +224,46 @@ public class ControlCenterTab3 {
 
 	private Composite createRightPart(Composite tabContent) {
         Composite rightPart = createPartComposite(tabContent);
+        //--- Label + Combo + Button(s)
+        createRightBar1(rightPart);
         //--- Label
         Label label = new Label(rightPart, SWT.NONE);
-        label.setText("Bundle");
-        //--- ComboBox for BUNDLES
-        Combo combo = new Combo(rightPart, SWT.DROP_DOWN | SWT.READ_ONLY);
-        combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-        combo.setItems(new String[]{"Bundle 1", "Bundle 2", "Bundle 3"}); // Example options
-        combo.select(0); // Select first option by default
-        //--- Label
-        label = new Label(rightPart, SWT.NONE);
         label.setText("Templates");
         //--- Table for TEMPLATES
-        Table table = TemplatesTable.createTable(rightPart);
-        TemplatesTable.populateTable(table, 20);
+        templatesTable = TableUtils.createTable(rightPart);
+        TableUtils.createTableColumn(templatesTable, 300); // Column 0
+        TableUtils.createTableColumn(templatesTable, 160); // Column 1
+        TableUtils.createTableColumn(templatesTable, 160); // Column 2
         //--- Buttons bar
-        createButtonBar(rightPart, table, new RefreshBundleListener(table), 0);
+        createButtonBar(rightPart, templatesTable, new RefreshBundleListener(templatesTable), 0);
+        //--- End
         return rightPart;
+	}
+	private Composite createRightBar1(Composite parent) {
+		// Create Composite for Bar
+		Composite bar = createBarPanel(parent, 3);
+		
+        //--- Label
+        Label label = new Label(bar, SWT.NONE);
+        label.setText("Bundle");
+        
+        //--- ComboBox for BUNDLES
+        bundlesCombo = new Combo(bar, SWT.DROP_DOWN | SWT.READ_ONLY);
+        bundlesCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+        bundlesCombo.setFont(boldFont);
+        bundlesCombo.addSelectionListener( new ComboChangeSelectionListener( 
+        		(bundleSelected)-> populateTemplatesTable(bundleSelected) )
+        		);
+
+        //--- Button
+        GridData buttonGridData = createButtonGridData();
+        Button editBundle = new Button(bar, SWT.PUSH);
+        editBundle.setText("Edit Bundle");
+        editBundle.setLayoutData(buttonGridData);
+        editBundle.addListener(SWT.Selection, event -> {
+        	TelosysCommand.editBundle(telosysProject, bundlesCombo);
+        });  
+        return bar;
 	}
 	
 	private Composite createBottomPart(Composite tabContent) {
@@ -225,30 +272,42 @@ public class ControlCenterTab3 {
         bottomPart.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true, false, 2, 1));
         bottomPart.setLayout(new GridLayout(5, false)); // 5 columns for 5 widgets 
         
-        // Left-aligned buttons
-        Button btn1 = new Button(bottomPart, SWT.PUSH);
-        btn1.setText("New Model");
-        btn1.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
-
+        //--- Button (LEFT-aligned)
         Button newModel = new Button(bottomPart, SWT.PUSH);
-        newModel.setText("Install Model");
+        newModel.setText("New Model");
         newModel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
-        
-        // Button centered inside Bottom Section
-        Button centeredButton = new Button(bottomPart, SWT.PUSH);
-        centeredButton.setText(" Launch generation ");
-        centeredButton.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
-        
-        // Right-aligned buttons
-        Button btn5 = new Button(bottomPart, SWT.PUSH);
-        btn5.setText("New Bundle");
-        btn5.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
+        newModel.addListener(SWT.Selection, event -> {
+        	TelosysCommand.newModel(telosysProject);
+        });        
 
+        //--- Button (LEFT-aligned)
+        Button installModel = new Button(bottomPart, SWT.PUSH);
+        installModel.setText("Install Model");
+        installModel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
+        installModel.addListener(SWT.Selection, event -> {
+        	TelosysCommand.installModel(telosysProject);
+        });        
+        
+        //--- Button (centered)
+        Button launchGeneration = new Button(bottomPart, SWT.PUSH);
+        launchGeneration.setText(" Launch generation ");
+        launchGeneration.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
+        launchGeneration.addListener(SWT.Selection, event -> {
+        	TelosysCommand.launchGeneration(eclipseProject, modelsCombo, entitiesTable, bundlesCombo, templatesTable, true);
+        });  
+        
+        //--- Button (RIGHT-aligned)
+        Button newBundle = new Button(bottomPart, SWT.PUSH);
+        newBundle.setText("New Bundle");
+        newBundle.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
+
+        //--- Button (RIGHT-aligned)
         Button installBundle = new Button(bottomPart, SWT.PUSH);
         installBundle.setText("Install Bundle");
         installBundle.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
-        
-        
+        installBundle.addListener(SWT.Selection, event -> {
+        	TelosysCommand.installBundle(telosysProject);
+        });  
         return bottomPart;
 	}
 	
@@ -258,8 +317,7 @@ public class ControlCenterTab3 {
         modelsCombo.setItems(models.toArray(new String[0]));
         modelsCombo.select(0); // Select first model by default
 	}
-
-	private void populateEntitiesList(String modelName) {
+	private void populateEntitiesTable(String modelName) {
 		// Clear table (remove all rows)
 		entitiesTable.removeAll();
 		try {
@@ -274,6 +332,35 @@ public class ControlCenterTab3 {
 	        }
 		} catch (TelosysApiException e) {
 			DialogBox.showError(e.getMessage());
+		}
+	}
+
+	private void populateBundlesCombo() {
+		List<String> bundles = telosysProject.getBundleNames();
+		bundles.add(0, ""); // First element is void = no model
+        bundlesCombo.setItems(bundles.toArray(new String[0]));
+        bundlesCombo.select(0); // Select first model by default
+	}
+	private void populateTemplatesTable(String bundleName) {
+		// Clear table (remove all rows)
+		templatesTable.removeAll();
+		if ( bundleName.isBlank() || bundleName.isEmpty() ) {
+			return ;
+		}
+		else {
+			try {
+				TargetsDefinitions targets = telosysProject.getTargetDefinitions(bundleName);
+		        // Add Rows
+		        for (TargetDefinition target : targets.getTemplatesTargets() ) { 
+		            TableItem item = new TableItem(templatesTable, SWT.NONE);
+		            item.setChecked(true); // All checked by default
+		            item.setText(0, target.getTemplate()); // Text for Column 0
+		            item.setText(1, target.getId()); // Text for Column 1          
+		            item.setData(target); // Any object 
+		        }
+			} catch (Exception e) {
+				DialogBox.showError(e.getMessage());
+			}
 		}
 	}
 }

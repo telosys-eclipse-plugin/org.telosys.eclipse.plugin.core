@@ -1,13 +1,11 @@
 package org.telosys.eclipse.plugin.core.commons;
 
-import java.io.File;
-
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.telosys.tools.api.TelosysProject;
+import org.telosys.tools.commons.TelosysToolsLogger;
 
 public class ProjectUtil {
     
@@ -33,6 +31,10 @@ public class ProjectUtil {
     
     public static TelosysProject getTelosysProject(IProject eclipseProject) {
    		return new TelosysProject(ProjectUtil.getOSFullPath(eclipseProject));
+    }
+    
+    public static TelosysProject getTelosysProject(IProject eclipseProject, TelosysLoggerForEclipse logger) {
+   		return new TelosysProject(ProjectUtil.getOSFullPath(eclipseProject), logger);
     }
     
     /**

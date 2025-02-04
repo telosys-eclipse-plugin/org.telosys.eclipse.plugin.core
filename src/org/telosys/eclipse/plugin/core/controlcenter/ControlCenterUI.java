@@ -12,11 +12,15 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
+import org.telosys.eclipse.plugin.core.commons.MsgColor;
+import org.telosys.eclipse.plugin.core.commons.TelosysEclipseConsole;
 
 public class ControlCenterUI {
 	
 	private final Font boldFont;
     private final IProject project;
+    private final TelosysEclipseConsole telosysConsole  = new TelosysEclipseConsole("Telosys");
+    private final TelosysEclipseConsole telosysConsole2 = new TelosysEclipseConsole("Telosys #2");
     
 	public ControlCenterUI(IProject project, Font boldFont) {
 		super();
@@ -69,9 +73,47 @@ public class ControlCenterUI {
 	private void createTabContent1(Composite tabContent, String s) {
 		tabContent.setLayout(new GridLayout(1, false)); // One column layout
 		new Label(tabContent, SWT.NONE).setText(s);
-		Button button = new Button(tabContent, SWT.PUSH);
-        button.setText("Click Me");
+		
+		Button button ;
+		
+		button = new Button(tabContent, SWT.PUSH);
+        button.setText("Show console 1");
+        button.addListener(SWT.Selection, event -> {
+        	telosysConsole.showConsoleView();
+        });       
+
+        button = new Button(tabContent, SWT.PUSH);
+        button.setText("Print in console 1");
+        button.addListener(SWT.Selection, event -> {
+        	telosysConsole.println("Hello in Telosys console!");
+        });       
         
+        
+		button = new Button(tabContent, SWT.PUSH);
+        button.setText("Show console #2");
+        button.addListener(SWT.Selection, event -> {
+        	telosysConsole2.showConsoleView();
+        });       
+
+        button = new Button(tabContent, SWT.PUSH);
+        button.setText("Print in console #2");
+        button.addListener(SWT.Selection, event -> {
+        	telosysConsole2.println("Hello in Telosys console #2 !");
+        });       
+        
+        button = new Button(tabContent, SWT.PUSH);
+        button.setText("Print RED in console #2");
+        button.addListener(SWT.Selection, event -> {
+        	telosysConsole2.println("Hello RED in Telosys console #2 !", MsgColor.RED);
+        });       
+        
+        button = new Button(tabContent, SWT.PUSH);
+        button.setText("Print BOX in console #2");
+        button.addListener(SWT.Selection, event -> {
+        	telosysConsole2.println("┌────────┐");
+        	telosysConsole2.println("│  Box   │");
+        	telosysConsole2.println("└────────┘");
+        });       
 	}
 	
 	private void createTab2(TabFolder tabFolder, String tabTitle) {

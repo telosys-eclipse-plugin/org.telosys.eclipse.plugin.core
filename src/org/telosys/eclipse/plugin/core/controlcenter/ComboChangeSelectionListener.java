@@ -9,13 +9,10 @@ import org.telosys.eclipse.plugin.core.commons.DialogBox;
 
 public class ComboChangeSelectionListener extends SelectionAdapter {
 
-//	private final Combo combo;
 	private final Consumer<String> action;
 	
-//    public ComboChangeSelectionListener(Combo combo, Consumer<String> action) {
     public ComboChangeSelectionListener(Consumer<String> action) {
 		super();
-//		this.combo = combo;
 		this.action = action;
 	}
 
