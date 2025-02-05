@@ -37,6 +37,7 @@ public class ControlCenterTab3 {
     private Table entitiesTable;
     private Combo bundlesCombo;
     private Table templatesTable;
+    private Button launchGeneration; 
     
 	public ControlCenterTab3(IProject eclipseProject, Font boldFont) {
 		super();
@@ -48,8 +49,6 @@ public class ControlCenterTab3 {
 	protected TabItem createTab(TabFolder tabFolder) {
 		TabItem tabItem = new TabItem(tabFolder, SWT.NONE);
 		tabItem.setText(TAB_TITLE);
-//		Composite tabContent = new Composite(tabFolder, SWT.NONE);
-//		createTabContent(tabContent, "Tab content 1");
 		tabItem.setControl(createTabContent(tabFolder));
 		return tabItem;
 	}
@@ -102,6 +101,11 @@ public class ControlCenterTab3 {
 		return bar;
 	}
 
+	/**
+	 * Create the left part : Model and Entities 
+	 * @param tabContent
+	 * @return
+	 */
 	private Composite createLeftPart(Composite tabContent) {
         Composite leftPart = createPartComposite(tabContent);
         
@@ -113,24 +117,11 @@ public class ControlCenterTab3 {
         label.setText("Entities");
 
         //--- Table for ENTITIES
-//        entitiesTable = EntitiesTable.createTable(leftPart);
         entitiesTable = TableUtils.createTable(leftPart); 
         TableUtils.createTableColumn(entitiesTable, 300); // Column 0
         TableUtils.createTableColumn(entitiesTable, 160); // Column 1
-        
-//        //--- Buttons bar
-//        Tuple2<Composite,GridData> tuple = createButtonBar(leftPart, entitiesTable, new RefreshModelListener(entitiesTable), 1);
-//        Composite buttonBar = tuple.getElement1();
-//        GridData  buttonGridData = tuple.getElement2();
-//        
-////        Button checkModel = new Button(buttonBar, SWT.PUSH);
-////        checkModel.setText("Check Model");
-////        checkModel.setLayoutData(buttonGridData);
-//
-//        Button newEntity = new Button(buttonBar, SWT.PUSH);
-//        newEntity.setText("New Entity");
-//        newEntity.setLayoutData(buttonGridData);
 
+        //--- Bar with standards buttons + specific for model
         createLeftBar2(leftPart);
         
         return leftPart;
@@ -222,6 +213,11 @@ public class ControlCenterTab3 {
         return new Tuple2<>(buttonBar, buttonGridData);
 	}
 
+	/**
+	 * Create the right part : Bundle and Templates 
+	 * @param tabContent
+	 * @return
+	 */
 	private Composite createRightPart(Composite tabContent) {
         Composite rightPart = createPartComposite(tabContent);
         //--- Label + Combo + Button(s)
@@ -266,6 +262,11 @@ public class ControlCenterTab3 {
         return bar;
 	}
 	
+	/**
+	 * Create the bottom part : set of buttons ( New xxx, Install xxx and Launch Generation )
+	 * @param tabContent
+	 * @return
+	 */
 	private Composite createBottomPart(Composite tabContent) {
         // Bottom Section (Spanning Both Columns)
         Composite bottomPart = new Composite(tabContent, SWT.BORDER);
@@ -289,17 +290,22 @@ public class ControlCenterTab3 {
         });        
         
         //--- Button (centered)
-        Button launchGeneration = new Button(bottomPart, SWT.PUSH);
+        launchGeneration = new Button(bottomPart, SWT.PUSH);
         launchGeneration.setText(" Launch generation ");
         launchGeneration.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
         launchGeneration.addListener(SWT.Selection, event -> {
+        	launchGeneration.setEnabled(false);
         	TelosysCommand.launchGeneration(eclipseProject, modelsCombo, entitiesTable, bundlesCombo, templatesTable, true);
+        	launchGeneration.setEnabled(true);
         });  
         
         //--- Button (RIGHT-aligned)
-        Button newBundle = new Button(bottomPart, SWT.PUSH);
-        newBundle.setText("New Bundle");
-        newBundle.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
+//        Button newBundle = new Button(bottomPart, SWT.PUSH);
+//        newBundle.setText("New Bundle");
+//        newBundle.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
+        Label tmpLabel = new Label(bottomPart, SWT.NONE);
+        tmpLabel.setText("                "); // not visible
+        tmpLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 
         //--- Button (RIGHT-aligned)
         Button installBundle = new Button(bottomPart, SWT.PUSH);

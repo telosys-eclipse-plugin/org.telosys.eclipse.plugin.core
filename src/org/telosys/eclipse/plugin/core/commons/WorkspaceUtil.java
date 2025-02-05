@@ -3,6 +3,7 @@ package org.telosys.eclipse.plugin.core.commons;
 import java.io.File;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
@@ -78,6 +79,16 @@ public class WorkspaceUtil {
 		if (file != null && file.exists() ) {
 			// Convert the File path to an IPath
 			return Path.fromOSString(file.getAbsolutePath());
+		}
+		return null;
+	}
+	
+	public static IFile getIFile(File file) {
+		if (file != null && file.exists() ) {
+			IPath iPath = getIPath(file);
+			IWorkspaceRoot wksRoot = getWorkspaceRoot();
+			// Returns null if the file does not exist in the workspace
+			return wksRoot.getFileForLocation(iPath);
 		}
 		return null;
 	}

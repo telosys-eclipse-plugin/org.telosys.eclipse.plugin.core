@@ -30,7 +30,8 @@ public class ProjectUtil {
     }
     
     public static TelosysProject getTelosysProject(IProject eclipseProject) {
-   		return new TelosysProject(ProjectUtil.getOSFullPath(eclipseProject));
+    	TelosysLoggerForEclipse logger = new TelosysLoggerForEclipse(new TelosysEclipseConsole("Telosys Logger"));
+   		return getTelosysProject(eclipseProject, logger);
     }
     
     public static TelosysProject getTelosysProject(IProject eclipseProject, TelosysLoggerForEclipse logger) {

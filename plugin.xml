@@ -2,6 +2,12 @@
 <?eclipse version="3.4"?>
 <plugin>
 
+<!-- in MANIFEST
+	<requires>
+	    <import plugin="org.eclipse.core.filesystem"/>
+	</requires>
+-->
+	
 	<!-- ========== Editors -->
 	<extension point="org.eclipse.ui.editors">
 	    <editor    id="org.telosys.eclipse.plugin.core.controlcenter.ControlCenterEditor"

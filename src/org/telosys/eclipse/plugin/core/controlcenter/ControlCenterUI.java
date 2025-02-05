@@ -77,9 +77,10 @@ public class ControlCenterUI {
 		Button button ;
 		
 		button = new Button(tabContent, SWT.PUSH);
-        button.setText("Show console 1");
+        button.setText("activate console 1");
         button.addListener(SWT.Selection, event -> {
         	telosysConsole.showConsoleView();
+        	//telosysConsole.activate();
         });       
 
         button = new Button(tabContent, SWT.PUSH);
@@ -90,8 +91,9 @@ public class ControlCenterUI {
         
         
 		button = new Button(tabContent, SWT.PUSH);
-        button.setText("Show console #2");
+        button.setText("activate console #2");
         button.addListener(SWT.Selection, event -> {
+        	//telosysConsole2.activate();
         	telosysConsole2.showConsoleView();
         });       
 
