@@ -9,6 +9,7 @@ import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
@@ -38,25 +39,64 @@ public class TelosysCommand {
 	}
 	
 	//---------------------------------------------------------------------------------------
-	// MODELS
+	// MODELS and ENTITIES
 	//---------------------------------------------------------------------------------------
+	protected static void populateModels(TelosysProject telosysProject, Combo modelsCombo, String currentModel) {
+		// Populate combo box
+		List<String> models = telosysProject.getModelNames();
+		models.add(0, ""); // First element is void = no model
+        modelsCombo.setItems(models.toArray(new String[0]));
+        // Re-select current model if any
+        int selectedIndex = 0; // Select first model by default (= no model)
+        if ( currentModel != null ) {
+            int index = modelsCombo.indexOf(currentModel); // Search in values
+            if (index >= 0) { // Found in the Combo
+            	selectedIndex = index;
+            }
+        }
+        modelsCombo.select(selectedIndex);
+	}
+	protected static void populateEntities(TelosysProject telosysProject, String modelName, Table entitiesTable) {
+		// Clear table (remove all rows)
+		entitiesTable.removeAll();
+		try {
+			List<String> entities = TelosysEvolution.getEntities(telosysProject, modelName);
+	        // Add Rows
+	        for (String entityName : entities ) { 
+	            TableItem item = new TableItem(entitiesTable, SWT.NONE);
+	            item.setChecked(true); // All checked by default
+	            item.setText(0, entityName); // Text for Column 0
+//	            item.setText(1, "Entity Col-1:" + i); // Text for Column 1          
+	            item.setData(entityName); // Any object 
+	        }
+		} catch (TelosysApiException e) {
+			DialogBox.showError(e.getMessage());
+		}
+	}
 	protected static void editModel(TelosysProject telosysProject, Combo modelsCombo) {
 		Optional<String> optionalModelName = getCurrentSelection(modelsCombo);
 		if ( optionalModelName.isPresent() ) {
 			String modelName = optionalModelName.get();
 			File modelFile = telosysProject.getModelInfoFile(modelName);
-			IFile iFile = WorkspaceUtil.getIFile(modelFile);
-			if ( iFile != null ) {
-				// File is located in the Eclipse Workspace
-				openEditorForFileInworkspace(iFile);
+			if ( modelFile != null && modelFile.exists() ) {				
+				openEditorForFile(modelFile);
 			}
 			else {
-				// File is located out of the Eclipse Workspace
-				openEditorForFileOutOfworkspace(modelFile);
+				DialogBox.showWarning("Model file not found!");
 			}
 		}
-		else {
-			DialogBox.showError("No model!" );
+	}
+	protected static void editEntity(TelosysProject telosysProject, Combo modelsCombo, String entityName) {
+		Optional<String> optionalModelName = getCurrentSelection(modelsCombo);
+		if ( optionalModelName.isPresent() ) {
+			String modelName = optionalModelName.get();
+			File entityFile = telosysProject.getDslEntityFile(modelName, entityName);
+			if ( entityFile != null && entityFile.exists() ) {				
+				openEditorForFile(entityFile);
+			}
+			else {
+				DialogBox.showWarning("Entity file not found!");
+			}
 		}
 	}
 	
@@ -88,7 +128,29 @@ public class TelosysCommand {
 	protected static void editBundle(TelosysProject telosysProject, Combo bundlesCombo) {
 		Optional<String> optionalBundleName = getCurrentSelection(bundlesCombo);
 		if ( optionalBundleName.isPresent() ) {
-			todo("Edit Bundle", optionalBundleName.get(), telosysProject);
+			String bundleName = optionalBundleName.get();
+			// Get bundle file
+			File bundleFile = telosysProject.getBundleConfigFile(bundleName);
+			if (bundleFile != null && bundleFile.exists() ) {
+				openEditorForFile(bundleFile);
+			}
+			else {
+				DialogBox.showError("Bundle file not found!");
+			}
+		}
+	}
+	protected static void editTemplate(TelosysProject telosysProject, Combo bundlesCombo, String templateName) {
+		Optional<String> optionalBundleName = getCurrentSelection(bundlesCombo);
+		if ( optionalBundleName.isPresent() ) {
+			String bundleName = optionalBundleName.get();
+			// Get the template file located in the given bundle folder
+			File templateFile = TelosysEvolution.getTemplateFile(telosysProject, bundleName, templateName);
+			if ( templateFile != null && templateFile.exists() ) {				
+				openEditorForFile(templateFile);
+			}
+			else {
+				DialogBox.showWarning("Template file not found!");
+			}
 		}
 	}
 
@@ -148,6 +210,17 @@ public class TelosysCommand {
 	//---------------------------------------------------------------------------------------
 	// COMMONS
 	//---------------------------------------------------------------------------------------
+	private static void openEditorForFile(File file) {
+		IFile iFile = WorkspaceUtil.getIFile(file);
+		if ( iFile != null ) {
+			// File is located in the Eclipse Workspace
+			openEditorForFileInworkspace(iFile);
+		}
+		else {
+			// File is located out of the Eclipse Workspace
+			openEditorForFileOutOfworkspace(file);
+		}
+	}
 	private static void openEditorForFileInworkspace(IFile fileInWorkspace) {
         if (fileInWorkspace.exists()) {
             try {

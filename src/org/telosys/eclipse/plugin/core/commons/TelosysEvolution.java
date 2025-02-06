@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.telosys.tools.api.TelosysModelException;
 import org.telosys.tools.api.TelosysProject;
+import org.telosys.tools.commons.FileUtil;
 import org.telosys.tools.commons.bundles.TargetDefinition;
 import org.telosys.tools.commons.bundles.TargetsDefinitions;
 import org.telosys.tools.dsl.DslModelError;
@@ -39,6 +40,22 @@ public class TelosysEvolution {
 		} catch (Exception e) {
 			throw new TelosysApiException("Cannot get entities for model '" + modelName + "'", e);
 		}
+	}
+
+	// TODO:  replace "getDslEntityFile"
+	public static File getEntityFile(TelosysProject telosysProject, String modelName, String entityName) throws TelosysApiException {
+		try {
+			return  telosysProject.getDslEntityFile(modelName, entityName);
+		} catch (Exception e) {
+			throw new TelosysApiException("Cannot get entity file for entity '" + entityName + "' in model '" + modelName + "'", e);
+		}
+	}
+
+	// TODO
+	public static File getTemplateFile(TelosysProject telosysProject, String bundleName, String templateFileName) {
+		File bundleFolder = telosysProject.getBundleFolder(bundleName);
+		File templateFile = new File(bundleFolder, templateFileName);
+		return templateFile;
 	}
 
 	// TODO:  TelosysProject.checkModel(String modelName)

@@ -52,10 +52,6 @@ public class TableUtils {
         // Listeners 
 		table.addListener(SWT.Selection, createSelectionListener()); 
 		
-		// Popup menu 
-		Menu menu = createPopupMenu(table, "My menu action");
-		table.setMenu(menu);
-		
         return table;
 	}
 	
@@ -71,6 +67,10 @@ public class TableUtils {
         return tableColumn;
 	}
 	
+	/**
+	 * Creates a listener to manage row selection and update checkbox state 
+	 * @return
+	 */
 	private static Listener createSelectionListener() {
 		return new Listener() {
 			@Override
@@ -95,14 +95,33 @@ public class TableUtils {
 		};
 	}
 	
-	private static Menu createPopupMenu(Table table, String menuItemText) {
+	protected static Menu createPopupMenu(Table table, String editMenuItemText, Listener editMenuItemListener) {
 		//--- Menu
-        Menu contextMenu = new Menu(table);
+        Menu menu = new Menu(table);
         //--- Menu Item
-        MenuItem menuItem = new MenuItem(contextMenu, SWT.NONE);
-        menuItem.setText(menuItemText);
-        menuItem.addListener(SWT.Selection, new PopupMenuItemListener(table));
+        MenuItem menuItem = new MenuItem(menu, SWT.NONE);
+        menuItem.setText(editMenuItemText);
+        menuItem.addListener(SWT.Selection, editMenuItemListener);
         
-        return contextMenu ;
+        return menu ;
 	}
+	
+	protected static TableItem getSingleSelectedRow(Table table) {
+		TableItem[] selectedItems =  table.getSelection();
+		if ( selectedItems.length == 1 ) {
+			// one and only one selected row 
+			return selectedItems[0];
+		}
+		return null;
+	}
+	protected static String getSingleSelectedRowDataAsString(Table table) {
+		TableItem tableItem = getSingleSelectedRow(table);
+		if ( tableItem != null ) {
+			Object data = tableItem.getData();
+			if ( data instanceof String ) {
+				return (String)data;
+			}
+		}
+		return null;
+	}	
 }

@@ -12,6 +12,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
@@ -33,10 +34,14 @@ public class ControlCenterTab3 {
     private final IProject eclipseProject;
     private final TelosysProject telosysProject; 
 	private final Font boldFont;
+	
     private Combo modelsCombo;
     private Table entitiesTable;
+    
     private Combo bundlesCombo;
     private Table templatesTable;
+    private Button copyStaticFilesCheckBox;
+    
     private Button launchGeneration; 
     
 	public ControlCenterTab3(IProject eclipseProject, Font boldFont) {
@@ -69,7 +74,8 @@ public class ControlCenterTab3 {
         // Bottom Part (Button)
         createBottomPart(tabContent);
         
-        populateModelsCombo();
+        //populateModelsCombo();
+        TelosysCommand.populateModels(telosysProject, modelsCombo, null);
         populateBundlesCombo();
         
         return tabContent;
@@ -120,6 +126,10 @@ public class ControlCenterTab3 {
         entitiesTable = TableUtils.createTable(leftPart); 
         TableUtils.createTableColumn(entitiesTable, 300); // Column 0
         TableUtils.createTableColumn(entitiesTable, 160); // Column 1
+		// Popup menu for Right-click -> "Edit entity"
+        Listener menuItemListener = new EditEntityMenuItemListener(telosysProject, modelsCombo, entitiesTable);
+		Menu menu = TableUtils.createPopupMenu(entitiesTable, "Edit", menuItemListener);
+		entitiesTable.setMenu(menu);
 
         //--- Bar with standards buttons + specific for model
         createLeftBar2(leftPart);
@@ -128,7 +138,7 @@ public class ControlCenterTab3 {
 	}
 	private Composite createLeftBar1(Composite parent) {
 		// Create Composite for Bar
-		Composite bar = createBarPanel(parent, 4);
+		Composite bar = createBarPanel(parent, 3);
         //--- Label
         Label label = new Label(bar, SWT.NONE);
         label.setText("Model");
@@ -138,40 +148,42 @@ public class ControlCenterTab3 {
         modelsCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));        
         modelsCombo.setFont(boldFont);
         modelsCombo.addSelectionListener( new ComboChangeSelectionListener( 
-        		(modelSelected)-> populateEntitiesTable(modelSelected) )
+        		//(modelSelected)-> populateEntitiesTable(modelSelected) )
+        		(modelSelected)-> TelosysCommand.populateEntities(telosysProject, modelSelected, entitiesTable) )
         		); 
         //--- Button
         Button editModel = new Button(bar, SWT.PUSH);
-        editModel.setText("Edit Model");
+        editModel.setText("📝 Edit Model");
         editModel.setLayoutData(createButtonGridData());
         editModel.addListener(SWT.Selection, event -> {
         	TelosysCommand.editModel(telosysProject, modelsCombo);
         });        
         
+        return bar;
+	}
+	private void createLeftBar2(Composite leftPart) {
+		//--- Common buttons + 2 buttons
+        Tuple2<Composite,GridData> tuple = createButtonBar(leftPart, entitiesTable, null, new RefreshModelsListener(telosysProject, modelsCombo, entitiesTable), 2);
+        Composite buttonBar = tuple.getElement1();
+        GridData  buttonGridData = tuple.getElement2();
         //--- Button
-        Button checkModel = new Button(bar, SWT.PUSH);
-        checkModel.setText("Check Model");
+        Button newEntity = new Button(buttonBar, SWT.PUSH);
+        newEntity.setText("📄 New Entity");
+        newEntity.setLayoutData(buttonGridData);
+        newEntity.addListener(SWT.Selection, event -> {
+        	TelosysCommand.newEntity(telosysProject, modelsCombo);
+        });
+        //--- Button
+        Button checkModel = new Button(buttonBar, SWT.PUSH);
+        checkModel.setText("✔ Check Model");
         checkModel.setLayoutData(createButtonGridData());       
         checkModel.addListener(SWT.Selection, event -> {
         	TelosysCommand.checkModel(telosysProject, modelsCombo);
         });        
-        return bar;
-	}
-	private void createLeftBar2(Composite leftPart) {
-		//--- Common buttons + 1 button 
-        Tuple2<Composite,GridData> tuple = createButtonBar(leftPart, entitiesTable, new RefreshModelListener(entitiesTable), 1);
-        Composite buttonBar = tuple.getElement1();
-        GridData  buttonGridData = tuple.getElement2();
-        //--- 
-        Button newEntity = new Button(buttonBar, SWT.PUSH);
-        newEntity.setText("New Entity");
-        newEntity.setLayoutData(buttonGridData);
-        newEntity.addListener(SWT.Selection, event -> {
-        	TelosysCommand.newEntity(telosysProject, modelsCombo);
-        });        
+
 	}
 	
-	private Tuple2<Composite,GridData> createButtonBar(Composite parent, Table table, Listener refreshListener, int additionalColumns) {
+	private Tuple2<Composite,GridData> createButtonBar(Composite parent, Table table, Button checkBox, Listener refreshListener, int additionalColumns) {
 		// Create Composite for Button Bar
         Composite buttonBar = new Composite(parent, SWT.NONE);
         // Use GridLayout with 3 columns
@@ -186,27 +198,33 @@ public class ControlCenterTab3 {
 
         // Create Buttons
         Button selectAll = new Button(buttonBar, SWT.PUSH);
-        selectAll.setText("Select All");
+        selectAll.setText("🗹 Select All");
         selectAll.setLayoutData(buttonGridData);
         selectAll.addListener(SWT.Selection, event -> {
         	//table.selectAll();
             for (TableItem item : table.getItems()) {
                 item.setChecked(true);
             }
+            if ( checkBox != null && checkBox.getEnabled() == true) {
+            	checkBox.setSelection(true);
+            }
         });
 
         Button deselectAll = new Button(buttonBar, SWT.PUSH);
-        deselectAll.setText("Deselect All");
+        deselectAll.setText("☐ Deselect All");
         deselectAll.setLayoutData(buttonGridData);
         deselectAll.addListener(SWT.Selection, event -> {
-        	table.deselectAll();
+        	//table.deselectAll();
             for (TableItem item : table.getItems()) {
                 item.setChecked(false);
+            }
+            if ( checkBox != null ) {
+            	checkBox.setSelection(false);
             }
         });
 
         Button refresh = new Button(buttonBar, SWT.PUSH);
-        refresh.setText("Refresh");
+        refresh.setText("⟳ Refresh");
         refresh.setLayoutData(buttonGridData);
         refresh.addListener(SWT.Selection, refreshListener);
         
@@ -222,16 +240,34 @@ public class ControlCenterTab3 {
         Composite rightPart = createPartComposite(tabContent);
         //--- Label + Combo + Button(s)
         createRightBar1(rightPart);
-        //--- Label
-        Label label = new Label(rightPart, SWT.NONE);
+
+        //--- Bar: Label + CheckBox
+//		Composite bar = new Composite(rightPart, SWT.BORDER);
+//		bar.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true, false, 1, 1));
+//		bar.setLayout(new GridLayout(2, false));  
+		Composite bar = createBarPanel(rightPart, 2);
+        // Label
+        Label label = new Label(bar, SWT.NONE);
         label.setText("Templates");
+        label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false)); // Align LEFT
+        // Check Box
+        copyStaticFilesCheckBox = new Button(bar, SWT.CHECK);
+        copyStaticFilesCheckBox.setText("Copy static files");
+        copyStaticFilesCheckBox.setSelection(false); // Set state to not checked
+        copyStaticFilesCheckBox.setEnabled(false); // Disabled by default
+        copyStaticFilesCheckBox.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false)); // Align RIGHT and grabExcessHorizontalSpace
+
         //--- Table for TEMPLATES
         templatesTable = TableUtils.createTable(rightPart);
         TableUtils.createTableColumn(templatesTable, 300); // Column 0
         TableUtils.createTableColumn(templatesTable, 160); // Column 1
         TableUtils.createTableColumn(templatesTable, 160); // Column 2
+		// Set pop-up menu 
+		Menu menu = TableUtils.createPopupMenu(templatesTable, "Edit", new EditTemplateMenuItemListener(telosysProject, bundlesCombo, templatesTable));
+		templatesTable.setMenu(menu);
+        
         //--- Buttons bar
-        createButtonBar(rightPart, templatesTable, new RefreshBundleListener(templatesTable), 0);
+        createRightBar2(rightPart);
         //--- End
         return rightPart;
 	}
@@ -254,14 +290,25 @@ public class ControlCenterTab3 {
         //--- Button
         GridData buttonGridData = createButtonGridData();
         Button editBundle = new Button(bar, SWT.PUSH);
-        editBundle.setText("Edit Bundle");
+        editBundle.setText("📝 Edit Bundle");
         editBundle.setLayoutData(buttonGridData);
         editBundle.addListener(SWT.Selection, event -> {
         	TelosysCommand.editBundle(telosysProject, bundlesCombo);
         });  
         return bar;
 	}
-	
+	private void createRightBar2(Composite rightPart) {
+		//--- Common buttons + 1 check box
+        Tuple2<Composite,GridData> tuple = createButtonBar(rightPart, templatesTable, copyStaticFilesCheckBox, new RefreshBundlesListener(telosysProject, bundlesCombo, templatesTable), 0);
+//        Composite buttonBar = tuple.getElement1();
+        // GridData  buttonGridData = tuple.getElement2();
+//        //--- Check Box
+//        copyStaticFilesCheckBox = new Button(buttonBar, SWT.CHECK);
+//        copyStaticFilesCheckBox.setText("Copy static files");
+//        copyStaticFilesCheckBox.setSelection(true); // Set state to checked
+//        //checkBox.setLayoutData(buttonGridData);
+	}
+
 	/**
 	 * Create the bottom part : set of buttons ( New xxx, Install xxx and Launch Generation )
 	 * @param tabContent
@@ -295,7 +342,8 @@ public class ControlCenterTab3 {
         launchGeneration.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
         launchGeneration.addListener(SWT.Selection, event -> {
         	launchGeneration.setEnabled(false);
-        	TelosysCommand.launchGeneration(eclipseProject, modelsCombo, entitiesTable, bundlesCombo, templatesTable, true);
+        	boolean copyStaticFiles = copyStaticFilesCheckBox.getSelection();
+        	TelosysCommand.launchGeneration(eclipseProject, modelsCombo, entitiesTable, bundlesCombo, templatesTable, copyStaticFiles);
         	launchGeneration.setEnabled(true);
         });  
         
@@ -317,29 +365,29 @@ public class ControlCenterTab3 {
         return bottomPart;
 	}
 	
-	private void populateModelsCombo() {
-		List<String> models = telosysProject.getModelNames();
-		models.add(0, ""); // First element is void = no model
-        modelsCombo.setItems(models.toArray(new String[0]));
-        modelsCombo.select(0); // Select first model by default
-	}
-	private void populateEntitiesTable(String modelName) {
-		// Clear table (remove all rows)
-		entitiesTable.removeAll();
-		try {
-			List<String> entities = TelosysEvolution.getEntities(telosysProject, modelName);
-	        // Add Rows
-	        for (String entityName : entities ) { 
-	            TableItem item = new TableItem(entitiesTable, SWT.NONE);
-	            item.setChecked(true); // All checked by default
-	            item.setText(0, entityName); // Text for Column 0
-//	            item.setText(1, "Entity Col-1:" + i); // Text for Column 1          
-	            item.setData(entityName); // Any object 
-	        }
-		} catch (TelosysApiException e) {
-			DialogBox.showError(e.getMessage());
-		}
-	}
+//	private void populateModelsCombo() {
+//		List<String> models = telosysProject.getModelNames();
+//		models.add(0, ""); // First element is void = no model
+//        modelsCombo.setItems(models.toArray(new String[0]));
+//        modelsCombo.select(0); // Select first model by default
+//	}
+//	private void populateEntitiesTable(String modelName) {
+//		// Clear table (remove all rows)
+//		entitiesTable.removeAll();
+//		try {
+//			List<String> entities = TelosysEvolution.getEntities(telosysProject, modelName);
+//	        // Add Rows
+//	        for (String entityName : entities ) { 
+//	            TableItem item = new TableItem(entitiesTable, SWT.NONE);
+//	            item.setChecked(true); // All checked by default
+//	            item.setText(0, entityName); // Text for Column 0
+////	            item.setText(1, "Entity Col-1:" + i); // Text for Column 1          
+//	            item.setData(entityName); // Any object 
+//	        }
+//		} catch (TelosysApiException e) {
+//			DialogBox.showError(e.getMessage());
+//		}
+//	}
 
 	private void populateBundlesCombo() {
 		List<String> bundles = telosysProject.getBundleNames();
@@ -351,6 +399,8 @@ public class ControlCenterTab3 {
 		// Clear table (remove all rows)
 		templatesTable.removeAll();
 		if ( bundleName.isBlank() || bundleName.isEmpty() ) {
+	        copyStaticFilesCheckBox.setEnabled(false);
+	        copyStaticFilesCheckBox.setSelection(false);
 			return ;
 		}
 		else {
@@ -361,9 +411,12 @@ public class ControlCenterTab3 {
 		            TableItem item = new TableItem(templatesTable, SWT.NONE);
 		            item.setChecked(true); // All checked by default
 		            item.setText(0, target.getTemplate()); // Text for Column 0
-		            item.setText(1, target.getId()); // Text for Column 1          
-		            item.setData(target); // Any object 
+		            item.setText(1, target.getId()); // Text for Column 1    
+		            // Data (any object) used for "Edit" command => Template file name
+		            item.setData(target.getTemplate());
 		        }
+		        copyStaticFilesCheckBox.setEnabled(true);
+		        copyStaticFilesCheckBox.setSelection(true);
 			} catch (Exception e) {
 				DialogBox.showError(e.getMessage());
 			}
