@@ -10,13 +10,17 @@ import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
+import org.telosys.eclipse.plugin.core.command.CheckModelFromModelDialogBox;
 import org.telosys.eclipse.plugin.core.commons.DialogBox;
+import org.telosys.eclipse.plugin.core.commons.ModelCheckStatus;
 import org.telosys.eclipse.plugin.core.commons.ProjectUtil;
 import org.telosys.eclipse.plugin.core.commons.TelosysApiException;
 import org.telosys.eclipse.plugin.core.commons.TelosysEclipseConsole;
@@ -24,10 +28,21 @@ import org.telosys.eclipse.plugin.core.commons.TelosysEvolution;
 import org.telosys.eclipse.plugin.core.commons.TelosysLoggerForEclipse;
 import org.telosys.eclipse.plugin.core.commons.WorkbenchUtil;
 import org.telosys.eclipse.plugin.core.commons.WorkspaceUtil;
+import org.telosys.eclipse.plugin.core.commons.dialogbox.NewModelDialogBox;
 import org.telosys.tools.api.TelosysProject;
+import org.telosys.tools.commons.bundles.TargetDefinition;
+import org.telosys.tools.commons.bundles.TargetsDefinitions;
 
 public class TelosysCommand {
+	
+	private static final String TELOSYS_API_ERROR = "Telosys API error";
 
+	private static boolean isValidName(String name) {
+		if ( name == null ) return false;
+		if ( name.isEmpty() ) return false;
+		if ( name.isBlank() ) return false;
+		return true;
+	}
 	private static Optional<String> getCurrentSelection(Combo modelsCombo){
 		String modelName = modelsCombo.getText();
 		if ( modelName.isBlank() || modelName.isEmpty() ) {
@@ -59,18 +74,20 @@ public class TelosysCommand {
 	protected static void populateEntities(TelosysProject telosysProject, String modelName, Table entitiesTable) {
 		// Clear table (remove all rows)
 		entitiesTable.removeAll();
-		try {
-			List<String> entities = TelosysEvolution.getEntities(telosysProject, modelName);
-	        // Add Rows
-	        for (String entityName : entities ) { 
-	            TableItem item = new TableItem(entitiesTable, SWT.NONE);
-	            item.setChecked(true); // All checked by default
-	            item.setText(0, entityName); // Text for Column 0
-//	            item.setText(1, "Entity Col-1:" + i); // Text for Column 1          
-	            item.setData(entityName); // Any object 
-	        }
-		} catch (TelosysApiException e) {
-			DialogBox.showError(e.getMessage());
+		if ( isValidName(modelName) ) {
+			try {
+				List<String> entities = TelosysEvolution.getEntities(telosysProject, modelName);
+		        // Add Rows
+		        for (String entityName : entities ) { 
+		            TableItem item = new TableItem(entitiesTable, SWT.NONE);
+		            item.setChecked(true); // All checked by default
+		            item.setText(0, entityName); // Text for Column 0
+	//	            item.setText(1, "Entity Col-1:" + i); // Text for Column 1          
+		            item.setData(entityName); // Any object 
+		        }
+			} catch (TelosysApiException e) {
+				DialogBox.showError(TELOSYS_API_ERROR, e.getMessage());
+			}
 		}
 	}
 	protected static void editModel(TelosysProject telosysProject, Combo modelsCombo) {
@@ -99,11 +116,27 @@ public class TelosysCommand {
 			}
 		}
 	}
-	
 	protected static void checkModel(TelosysProject telosysProject, Combo modelsCombo) {
 		Optional<String> optionalModelName = getCurrentSelection(modelsCombo);
 		if ( optionalModelName.isPresent() ) {
-			todo("Check Model", optionalModelName.get(), telosysProject);
+			checkModel(telosysProject, optionalModelName.get());
+		}
+	}
+	protected static void checkModel(TelosysProject telosysProject, String modelName) {
+		if ( modelName != null ) {
+			File osDirFile = telosysProject.getModelFolder(modelName);
+			if ( osDirFile != null ) {
+				//--- Check the model
+				ModelCheckStatus modelCheckStatus = TelosysEvolution.checkModel(osDirFile);
+				//--- Show the result
+				Shell shell = WorkbenchUtil.getActiveWindowShell();
+		    	CheckModelFromModelDialogBox dialogBox = new CheckModelFromModelDialogBox(shell, osDirFile, modelCheckStatus.getFullReport());
+		    	dialogBox.open(); // show dialog box to print the result 
+		    	// nothing else to do (all the work is done)
+			}
+			else {
+				DialogBox.showError("Cannot get model directory");
+			}
 		}
 	}
 	
@@ -114,8 +147,9 @@ public class TelosysCommand {
 		}
 	}
 	
-	protected static void newModel(TelosysProject telosysProject) {
-		todo("New Model ", "", telosysProject);
+	public static void newModel(TelosysProject telosysProject) {
+		NewModelDialogBox dialogBox = new NewModelDialogBox(telosysProject);
+		dialogBox.open();
 	}
 
 	protected static void installModel(TelosysProject telosysProject) {
@@ -125,6 +159,52 @@ public class TelosysCommand {
 	//---------------------------------------------------------------------------------------
 	// BUNDLES
 	//---------------------------------------------------------------------------------------
+	protected static void populateBundles(TelosysProject telosysProject, Combo bundlesCombo, String currentBundle) {
+		// Populate combo box
+		List<String> bundles = telosysProject.getBundleNames();
+		bundles.add(0, ""); // First element is void = no model
+		bundlesCombo.setItems(bundles.toArray(new String[0]));
+        // Re-select current bundle if any
+        int selectedIndex = 0; // Select first by default (= no bundle)
+        if ( currentBundle != null ) {
+            int index = bundlesCombo.indexOf(currentBundle); // Search in values
+            if (index >= 0) { // Found in the Combo
+            	selectedIndex = index;
+            }
+        }
+        bundlesCombo.select(selectedIndex);
+	}
+	protected static void setCopyStaticFilesCheckBoxState(String bundleName, Button copyStaticFilesCheckBox) {
+		boolean state = false;
+		if ( bundleName != null && !bundleName.isBlank() && !bundleName.isEmpty()) {
+			state = true;
+		}
+		copyStaticFilesCheckBox.setEnabled(state);
+		copyStaticFilesCheckBox.setSelection(state);
+	}
+	protected static void populateTemplates(TelosysProject telosysProject, String bundleName, Button copyStaticFilesCheckBox, Table templatesTable) {
+		// Reset "Copy Static Files" check box
+		setCopyStaticFilesCheckBoxState(bundleName, copyStaticFilesCheckBox);
+		// Clear table (remove all rows)
+		templatesTable.removeAll();
+		// Populate table if current bundle
+		if ( isValidName(bundleName) ) {
+			try {
+				TargetsDefinitions targets = telosysProject.getTargetDefinitions(bundleName);
+		        // Add Rows
+		        for (TargetDefinition target : targets.getTemplatesTargets() ) { 
+		            TableItem item = new TableItem(templatesTable, SWT.NONE);
+		            item.setChecked(true); // All checked by default
+		            item.setText(0, target.getTemplate()); // Text for Column 0
+		            //item.setText(1, target.getId()); // Text for Column 1    
+		            // Data (any object) used for "Edit" command => Template file name
+		            item.setData(target.getTemplate());
+		        }
+			} catch (Exception e) {
+				DialogBox.showError(TELOSYS_API_ERROR, e.getMessage());
+			}
+		}
+	}
 	protected static void editBundle(TelosysProject telosysProject, Combo bundlesCombo) {
 		Optional<String> optionalBundleName = getCurrentSelection(bundlesCombo);
 		if ( optionalBundleName.isPresent() ) {

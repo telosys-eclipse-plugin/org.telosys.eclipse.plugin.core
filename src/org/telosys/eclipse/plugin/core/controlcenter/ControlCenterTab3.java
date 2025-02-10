@@ -76,7 +76,8 @@ public class ControlCenterTab3 {
         
         //populateModelsCombo();
         TelosysCommand.populateModels(telosysProject, modelsCombo, null);
-        populateBundlesCombo();
+        //populateBundlesCombo();
+        TelosysCommand.populateBundles(telosysProject, bundlesCombo, null);
         
         return tabContent;
 	}
@@ -284,7 +285,8 @@ public class ControlCenterTab3 {
         bundlesCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
         bundlesCombo.setFont(boldFont);
         bundlesCombo.addSelectionListener( new ComboChangeSelectionListener( 
-        		(bundleSelected)-> populateTemplatesTable(bundleSelected) )
+        		//(bundleSelected)-> populateTemplatesTable(bundleSelected) )
+        		(bundleSelected)-> TelosysCommand.populateTemplates(telosysProject, bundleSelected, copyStaticFilesCheckBox, templatesTable) )
         		);
 
         //--- Button
@@ -298,8 +300,10 @@ public class ControlCenterTab3 {
         return bar;
 	}
 	private void createRightBar2(Composite rightPart) {
-		//--- Common buttons + 1 check box
-        Tuple2<Composite,GridData> tuple = createButtonBar(rightPart, templatesTable, copyStaticFilesCheckBox, new RefreshBundlesListener(telosysProject, bundlesCombo, templatesTable), 0);
+		//--- Common buttons 
+		RefreshBundlesListener refreshListener = new RefreshBundlesListener(telosysProject, bundlesCombo, templatesTable, copyStaticFilesCheckBox);
+        //Tuple2<Composite,GridData> tuple = createButtonBar(rightPart, templatesTable, copyStaticFilesCheckBox, refreshListener, 0);
+        createButtonBar(rightPart, templatesTable, copyStaticFilesCheckBox, refreshListener, 0);
 //        Composite buttonBar = tuple.getElement1();
         // GridData  buttonGridData = tuple.getElement2();
 //        //--- Check Box
@@ -389,37 +393,38 @@ public class ControlCenterTab3 {
 //		}
 //	}
 
-	private void populateBundlesCombo() {
-		List<String> bundles = telosysProject.getBundleNames();
-		bundles.add(0, ""); // First element is void = no model
-        bundlesCombo.setItems(bundles.toArray(new String[0]));
-        bundlesCombo.select(0); // Select first model by default
-	}
-	private void populateTemplatesTable(String bundleName) {
-		// Clear table (remove all rows)
-		templatesTable.removeAll();
-		if ( bundleName.isBlank() || bundleName.isEmpty() ) {
-	        copyStaticFilesCheckBox.setEnabled(false);
-	        copyStaticFilesCheckBox.setSelection(false);
-			return ;
-		}
-		else {
-			try {
-				TargetsDefinitions targets = telosysProject.getTargetDefinitions(bundleName);
-		        // Add Rows
-		        for (TargetDefinition target : targets.getTemplatesTargets() ) { 
-		            TableItem item = new TableItem(templatesTable, SWT.NONE);
-		            item.setChecked(true); // All checked by default
-		            item.setText(0, target.getTemplate()); // Text for Column 0
-		            item.setText(1, target.getId()); // Text for Column 1    
-		            // Data (any object) used for "Edit" command => Template file name
-		            item.setData(target.getTemplate());
-		        }
-		        copyStaticFilesCheckBox.setEnabled(true);
-		        copyStaticFilesCheckBox.setSelection(true);
-			} catch (Exception e) {
-				DialogBox.showError(e.getMessage());
-			}
-		}
-	}
+//	private void populateBundlesCombo() {
+//		List<String> bundles = telosysProject.getBundleNames();
+//		bundles.add(0, ""); // First element is void = no model
+//        bundlesCombo.setItems(bundles.toArray(new String[0]));
+//        bundlesCombo.select(0); // Select first model by default
+//	}
+	
+//	private void populateTemplatesTable(String bundleName) {
+//		// Clear table (remove all rows)
+//		templatesTable.removeAll();
+//		if ( bundleName.isBlank() || bundleName.isEmpty() ) {
+//	        copyStaticFilesCheckBox.setEnabled(false);
+//	        copyStaticFilesCheckBox.setSelection(false);
+//			return ;
+//		}
+//		else {
+//			try {
+//				TargetsDefinitions targets = telosysProject.getTargetDefinitions(bundleName);
+//		        // Add Rows
+//		        for (TargetDefinition target : targets.getTemplatesTargets() ) { 
+//		            TableItem item = new TableItem(templatesTable, SWT.NONE);
+//		            item.setChecked(true); // All checked by default
+//		            item.setText(0, target.getTemplate()); // Text for Column 0
+//		            item.setText(1, target.getId()); // Text for Column 1    
+//		            // Data (any object) used for "Edit" command => Template file name
+//		            item.setData(target.getTemplate());
+//		        }
+//		        copyStaticFilesCheckBox.setEnabled(true);
+//		        copyStaticFilesCheckBox.setSelection(true);
+//			} catch (Exception e) {
+//				DialogBox.showError(e.getMessage());
+//			}
+//		}
+//	}
 }

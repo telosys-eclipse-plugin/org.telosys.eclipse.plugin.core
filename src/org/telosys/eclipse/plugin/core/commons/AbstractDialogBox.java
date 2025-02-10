@@ -18,7 +18,13 @@ public abstract class AbstractDialogBox extends Dialog {
 			System.out.println("[LOG-DialogBox] - " + msg);
 		}
 	}
-	
+	protected boolean isValidName(String name) {
+		if ( name == null ) return false;
+		if ( name.isEmpty() ) return false;
+		if ( name.isBlank() ) return false;
+		return true;
+	}
+
 	private final String title ;
 	private final Layout layout ;
 	private Composite container ;
