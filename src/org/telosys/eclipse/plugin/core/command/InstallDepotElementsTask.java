@@ -19,7 +19,8 @@ import org.telosys.tools.commons.depot.DepotElement;
  */
 public class InstallDepotElementsTask implements IRunnableWithProgress 
 {
-	private final IProject project;
+//	private final IProject project;
+	private final TelosysProject telosysProject;
 	private final String   depot;
 	private final InstallationType installationType;
 	private final List<DepotElement> elements;
@@ -32,9 +33,17 @@ public class InstallDepotElementsTask implements IRunnableWithProgress
 	/**
 	 * Constructor
 	 */
-	public InstallDepotElementsTask(IProject project, String depot, List<DepotElement> elements, InstallationType installationType ) {
+//	public InstallDepotElementsTask(IProject project, String depot, List<DepotElement> elements, InstallationType installationType ) {
+//		super();
+//		this.project = project;
+//		this.depot = depot;
+//		this.elements = elements;
+//		this.installationType = installationType;
+//		this.sbResult = new StringBuilder();
+//	}
+	public InstallDepotElementsTask(TelosysProject telosysProject, String depot, List<DepotElement> elements, InstallationType installationType ) {
 		super();
-		this.project = project;
+		this.telosysProject = telosysProject;
 		this.depot = depot;
 		this.elements = elements;
 		this.installationType = installationType;
@@ -66,7 +75,7 @@ public class InstallDepotElementsTask implements IRunnableWithProgress
 	}
 	
 	private void installElementsFromDepot() {
-		TelosysProject telosysProject = new TelosysProject(ProjectUtil.getOSFullPath(project));
+//		TelosysProject telosysProject = new TelosysProject(ProjectUtil.getOSFullPath(project));
 		numberOfElementsInstalled = 0;
 		for (DepotElement e : elements) {
 			try {

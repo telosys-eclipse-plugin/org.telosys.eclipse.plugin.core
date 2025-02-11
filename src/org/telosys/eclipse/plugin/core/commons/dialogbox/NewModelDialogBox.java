@@ -4,28 +4,28 @@ import java.io.File;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 import org.telosys.eclipse.plugin.core.commons.AbstractDialogBox;
 import org.telosys.eclipse.plugin.core.commons.DialogBox;
 import org.telosys.eclipse.plugin.core.commons.ProjectExplorerUtil;
 import org.telosys.eclipse.plugin.core.commons.WorkbenchUtil;
+import org.telosys.eclipse.plugin.core.controlcenter.TelosysCommand;
 import org.telosys.tools.api.TelosysProject;
 
 public class NewModelDialogBox extends AbstractDialogBox {
 
 	private final TelosysProject telosysProject;
+	private final Combo modelsCombo;
 	
 	private Text   inputField;
 	private String modelName;
 
-	/**
-	 * Constructor
-	 * @param parentShell
-	 */
-	public NewModelDialogBox(TelosysProject telosysProject) {
+	public NewModelDialogBox(TelosysProject telosysProject, Combo modelsCombo) {
 		super(WorkbenchUtil.getActiveWindowShell(), "New Model");
 		this.telosysProject = telosysProject;
+		this.modelsCombo = modelsCombo;
 	}
 	
 	@Override
@@ -51,10 +51,14 @@ public class NewModelDialogBox extends AbstractDialogBox {
 		modelName = inputField.getText();
 		if ( isValidName(modelName) ) {
 			File modelFolder = createModel(modelName);
-			if ( modelFolder != null ) {
-				// Model created => refresh and expand
+			if ( modelFolder != null ) { // Model created 				
+				// Refresh combo-box if any
+				if ( modelsCombo != null ) {
+					TelosysCommand.refreshModels(telosysProject, modelsCombo);
+				}
+				// Refresh and expand folder in Project Explorer
 				ProjectExplorerUtil.reveal(modelFolder);
-				// close dialgox box
+				// close dialog-box
 				super.okPressed();
 			}
 		}

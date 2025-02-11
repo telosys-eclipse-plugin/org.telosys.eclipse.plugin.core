@@ -28,7 +28,6 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext bundleContext) throws Exception {
 		super.start(bundleContext);
 		plugin = this;
-		Logger.active = true;
 		Logger.log("-------------------------------------------------" );
 		Logger.log("Starting Plugin " + PLUGIN_ID );
 		Logger.log("BundleContext: " + bundleContext );

@@ -33,6 +33,7 @@ public class CheckModelHandler extends AbstractMenuHandler {
         	DialogBox.showError("Cannot get project for selected element");
     	}
         return null;
+        
     }
     
     private void checkModelFromProjectFolder(IResource selectedResource) {

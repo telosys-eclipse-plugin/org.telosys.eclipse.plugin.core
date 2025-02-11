@@ -18,7 +18,10 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
+import org.telosys.eclipse.plugin.commons.Logger;
 import org.telosys.eclipse.plugin.core.command.CheckModelFromModelDialogBox;
+import org.telosys.eclipse.plugin.core.commons.ComboItem;
+import org.telosys.eclipse.plugin.core.commons.ComboUtil;
 import org.telosys.eclipse.plugin.core.commons.DialogBox;
 import org.telosys.eclipse.plugin.core.commons.ModelCheckStatus;
 import org.telosys.eclipse.plugin.core.commons.ProjectUtil;
@@ -28,7 +31,9 @@ import org.telosys.eclipse.plugin.core.commons.TelosysEvolution;
 import org.telosys.eclipse.plugin.core.commons.TelosysLoggerForEclipse;
 import org.telosys.eclipse.plugin.core.commons.WorkbenchUtil;
 import org.telosys.eclipse.plugin.core.commons.WorkspaceUtil;
+import org.telosys.eclipse.plugin.core.commons.dialogbox.InstallDialogBox;
 import org.telosys.eclipse.plugin.core.commons.dialogbox.NewModelDialogBox;
+import org.telosys.tools.api.InstallationType;
 import org.telosys.tools.api.TelosysProject;
 import org.telosys.tools.commons.bundles.TargetDefinition;
 import org.telosys.tools.commons.bundles.TargetsDefinitions;
@@ -56,27 +61,41 @@ public class TelosysCommand {
 	//---------------------------------------------------------------------------------------
 	// MODELS and ENTITIES
 	//---------------------------------------------------------------------------------------
-	protected static void populateModels(TelosysProject telosysProject, Combo modelsCombo, String currentModel) {
+	public static void populateModels(TelosysProject telosysProject, Combo modelsCombo) {
+		populateModels(telosysProject, modelsCombo, Optional.empty());
+	}
+	private static Optional<String> populateModels(TelosysProject telosysProject, Combo modelsCombo, Optional<String> optionalCurrentModel) {
+        Logger.log("populateModels ( optionalCurrentModel = '" + optionalCurrentModel +"' )");
 		// Populate combo box
 		List<String> models = telosysProject.getModelNames();
 		models.add(0, ""); // First element is void = no model
-        modelsCombo.setItems(models.toArray(new String[0]));
+        modelsCombo.setItems(models.toArray(new String[0])); // All models 
         // Re-select current model if any
-        int selectedIndex = 0; // Select first model by default (= no model)
-        if ( currentModel != null ) {
-            int index = modelsCombo.indexOf(currentModel); // Search in values
-            if (index >= 0) { // Found in the Combo
-            	selectedIndex = index;
-            }
-        }
-        modelsCombo.select(selectedIndex);
+        Optional<ComboItem> optionalItem = ComboUtil.getItemByValue(modelsCombo, optionalCurrentModel);
+//		if ( optionalItem.isPresent() ) {
+//			// Found => select it
+//			modelsCombo.select(optionalItem.get().getIndex());
+//			return Optional.of(optionalItem.get().getValue());
+//		}
+//		else {
+//			// Not Found => select first (blank)
+//			modelsCombo.select(0);
+//			return Optional.empty();
+//		}
+		return ComboUtil.selectItem(modelsCombo, optionalItem);
 	}
-	protected static void populateEntities(TelosysProject telosysProject, String modelName, Table entitiesTable) {
+	public static void populateEntities(TelosysProject telosysProject, String modelName, Table entitiesTable) {
+		Optional<String> optionalModelName = isValidName(modelName) ? Optional.of(modelName) : Optional.empty();
+		populateEntities(telosysProject, optionalModelName, entitiesTable);
+
+	}
+	private static void populateEntities(TelosysProject telosysProject, Optional<String> optionalModelName, Table entitiesTable) {
+        Logger.log("populateEntities ( optionalModelName = '" + optionalModelName +"' )");
 		// Clear table (remove all rows)
 		entitiesTable.removeAll();
-		if ( isValidName(modelName) ) {
+		if ( optionalModelName.isPresent() ) {
 			try {
-				List<String> entities = TelosysEvolution.getEntities(telosysProject, modelName);
+				List<String> entities = TelosysEvolution.getEntities(telosysProject, optionalModelName.get());
 		        // Add Rows
 		        for (String entityName : entities ) { 
 		            TableItem item = new TableItem(entitiesTable, SWT.NONE);
@@ -89,6 +108,25 @@ public class TelosysCommand {
 				DialogBox.showError(TELOSYS_API_ERROR, e.getMessage());
 			}
 		}
+	}
+	public static Optional<String> refreshModels(TelosysProject telosysProject, Combo modelsCombo) {
+        Logger.log("refreshModels()");
+//		String currentModel = null;
+//		Optional<String> optionalModelName = getCurrentSelection(modelsCombo);
+//		if ( optionalModelName.isPresent() ) {
+//			currentModel = optionalModelName.get();
+//		}
+//		// Reload all models in combobox
+//        Logger.log("refreshModels() --> populateModels(currentModel='" + currentModel + "')");
+//		return TelosysCommand.populateModels(telosysProject, modelsCombo, currentModel);
+//        Logger.log("refreshModels() --> populateModels(currentModel='" + currentModel + "')");
+		return populateModels(telosysProject, modelsCombo, getCurrentSelection(modelsCombo));
+	}
+	public static void refreshModelsAndEntities(TelosysProject telosysProject, Combo modelsCombo, Table entitiesTable) {
+        Logger.log("refreshModelsAndEntities() ");
+        Optional<String> optionalCurrentModel = refreshModels(telosysProject, modelsCombo); 
+        Logger.log("refreshModelsAndEntities() : optionalCurrentModel='" + optionalCurrentModel + "')");
+		populateEntities(telosysProject, optionalCurrentModel, entitiesTable);
 	}
 	protected static void editModel(TelosysProject telosysProject, Combo modelsCombo) {
 		Optional<String> optionalModelName = getCurrentSelection(modelsCombo);
@@ -122,7 +160,7 @@ public class TelosysCommand {
 			checkModel(telosysProject, optionalModelName.get());
 		}
 	}
-	protected static void checkModel(TelosysProject telosysProject, String modelName) {
+	private static void checkModel(TelosysProject telosysProject, String modelName) {
 		if ( modelName != null ) {
 			File osDirFile = telosysProject.getModelFolder(modelName);
 			if ( osDirFile != null ) {
@@ -148,49 +186,83 @@ public class TelosysCommand {
 	}
 	
 	public static void newModel(TelosysProject telosysProject) {
-		NewModelDialogBox dialogBox = new NewModelDialogBox(telosysProject);
+		NewModelDialogBox dialogBox = new NewModelDialogBox(telosysProject, null);
+		dialogBox.open();
+	}
+	public static void newModel(TelosysProject telosysProject, Combo modelsCombo) {
+		NewModelDialogBox dialogBox = new NewModelDialogBox(telosysProject, modelsCombo);
 		dialogBox.open();
 	}
 
 	protected static void installModel(TelosysProject telosysProject) {
-		todo("Install Model ", "", telosysProject);
+    	String depot = telosysProject.getTelosysToolsCfg().getDepotForModels(); 
+    	InstallDialogBox dialogBox = new InstallDialogBox(telosysProject, depot, InstallationType.MODEL );
+    	dialogBox.open(); // show dialog box immediately 
 	}
 	
 	//---------------------------------------------------------------------------------------
 	// BUNDLES
 	//---------------------------------------------------------------------------------------
-	protected static void populateBundles(TelosysProject telosysProject, Combo bundlesCombo, String currentBundle) {
+	public static void populateBundles(TelosysProject telosysProject, Combo bundlesCombo) {
+		populateBundles(telosysProject, bundlesCombo, Optional.empty());
+	}
+	private static Optional<String> populateBundles(TelosysProject telosysProject, Combo bundlesCombo, Optional<String> optionalCurrentBundle) {
+        Logger.log("populateBundles ( optionalCurrentBundle = '" + optionalCurrentBundle +"' )");
 		// Populate combo box
 		List<String> bundles = telosysProject.getBundleNames();
-		bundles.add(0, ""); // First element is void = no model
-		bundlesCombo.setItems(bundles.toArray(new String[0]));
+		bundles.add(0, ""); // First element is void 
+		bundlesCombo.setItems(bundles.toArray(new String[0])); // All other elements
         // Re-select current bundle if any
-        int selectedIndex = 0; // Select first by default (= no bundle)
-        if ( currentBundle != null ) {
-            int index = bundlesCombo.indexOf(currentBundle); // Search in values
-            if (index >= 0) { // Found in the Combo
-            	selectedIndex = index;
-            }
-        }
-        bundlesCombo.select(selectedIndex);
+		Optional<ComboItem> optionalItem = ComboUtil.getItemByValue(bundlesCombo, optionalCurrentBundle);
+//		if ( optionalItem.isPresent() ) {
+//			// Found => select
+//	        bundlesCombo.select(optionalItem.get().getIndex());
+//	        return Optional.of(optionalItem.get().getValue());
+//		}
+//		else {
+//			return Optional.empty();
+//		}
+		return ComboUtil.selectItem(bundlesCombo, optionalItem);
 	}
-	protected static void setCopyStaticFilesCheckBoxState(String bundleName, Button copyStaticFilesCheckBox) {
+	private static void setCopyStaticFilesCheckBoxState(Optional<String> optionalBundleName, Button copyStaticFilesCheckBox) {
 		boolean state = false;
-		if ( bundleName != null && !bundleName.isBlank() && !bundleName.isEmpty()) {
+		if ( optionalBundleName.isPresent() ) {
 			state = true;
 		}
 		copyStaticFilesCheckBox.setEnabled(state);
 		copyStaticFilesCheckBox.setSelection(state);
 	}
-	protected static void populateTemplates(TelosysProject telosysProject, String bundleName, Button copyStaticFilesCheckBox, Table templatesTable) {
+	public static Optional<String> refreshBundles(TelosysProject telosysProject, Combo bundlesCombo) {
+        Logger.log("refreshBundles()");
+//		String currentBundle = null;
+//		Optional<String> optionalBundleName = getCurrentSelection(bundlesCombo);
+//		if ( optionalBundleName.isPresent() ) {
+//			currentBundle = optionalBundleName.get();
+//		}
+//		// Reload all bundles in combo-box
+//        Logger.log("refreshBundles() --> populateBundles(currentBundle='" + currentBundle + "')");
+		return populateBundles(telosysProject, bundlesCombo, getCurrentSelection(bundlesCombo));
+	}
+	public static void refreshBundlesAndTemplates(TelosysProject telosysProject, Combo bundlesCombo, Button copyStaticFilesCheckBox, Table templatesTable) {
+        Logger.log("refreshBundlesAndTemplates()");
+        Optional<String> optionalCurrentBundle = refreshBundles(telosysProject, bundlesCombo); 
+        Logger.log("refreshBundlesAndTemplates() : optionalCurrentBundle='" + optionalCurrentBundle + "'");
+   		populateTemplates(telosysProject, optionalCurrentBundle, copyStaticFilesCheckBox, templatesTable);
+	}
+	
+	public static void populateTemplates(TelosysProject telosysProject, String bundleName, Button copyStaticFilesCheckBox, Table templatesTable) {
+		Optional<String> optionalBundleName = isValidName(bundleName) ? Optional.of(bundleName) : Optional.empty();
+		populateTemplates(telosysProject, optionalBundleName, copyStaticFilesCheckBox, templatesTable);
+	}
+	private static void populateTemplates(TelosysProject telosysProject, Optional<String> optionalBundleName, Button copyStaticFilesCheckBox, Table templatesTable) {
 		// Reset "Copy Static Files" check box
-		setCopyStaticFilesCheckBoxState(bundleName, copyStaticFilesCheckBox);
+		setCopyStaticFilesCheckBoxState(optionalBundleName, copyStaticFilesCheckBox);
 		// Clear table (remove all rows)
 		templatesTable.removeAll();
 		// Populate table if current bundle
-		if ( isValidName(bundleName) ) {
+		if ( optionalBundleName.isPresent() ) {
 			try {
-				TargetsDefinitions targets = telosysProject.getTargetDefinitions(bundleName);
+				TargetsDefinitions targets = telosysProject.getTargetDefinitions(optionalBundleName.get());
 		        // Add Rows
 		        for (TargetDefinition target : targets.getTemplatesTargets() ) { 
 		            TableItem item = new TableItem(templatesTable, SWT.NONE);
@@ -250,7 +322,7 @@ public class TelosysCommand {
 		if ( s.trim().isEmpty() ) return false;
 		return true; // OK 
 	}
-	protected static void launchGeneration(IProject eclipseProject, Combo modelsCombo, Table entitiesTable, Combo bundlesCombo, Table templatesTable, boolean flagCopyResources) {
+	public static void launchGeneration(IProject eclipseProject, Combo modelsCombo, Table entitiesTable, Combo bundlesCombo, Table templatesTable, boolean flagCopyResources) {
 		// Retrieve required information from UI widgets 
 		Optional<String> optionalModelName = getCurrentSelection(modelsCombo);
 		Optional<String> optionalBundleName = getCurrentSelection(bundlesCombo);

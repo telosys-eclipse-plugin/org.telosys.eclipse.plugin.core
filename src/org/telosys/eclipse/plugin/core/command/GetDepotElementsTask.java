@@ -19,13 +19,13 @@ import org.telosys.tools.commons.depot.DepotResponse;
  */
 public class GetDepotElementsTask implements IRunnableWithProgress 
 {
-	private final IProject project;
+//	private final IProject project;
+	private final TelosysProject telosysProject;	
 	private final String   depot;
 
 	/**
 	 * Initial state : void list and no error
 	 */
-//	private List<DepotElement> elements = new LinkedList<>(); 
 	private DepotResponse depotResponse;
 	private String    error = null; 
 	
@@ -34,15 +34,17 @@ public class GetDepotElementsTask implements IRunnableWithProgress
 	 * @param project
 	 * @param depot
 	 */
-	public GetDepotElementsTask(IProject project, String depot) {
+//	public GetDepotElementsTask(IProject project, String depot) {
+//		super();
+//		this.project = project;
+//		this.depot = depot;
+//	}
+	public GetDepotElementsTask(TelosysProject telosysProject, String depot) {
 		super();
-		this.project = project;
+		this.telosysProject = telosysProject;
 		this.depot = depot;
 	}
 
-//	public List<DepotElement> getElements() {
-//		return elements;
-//	}
 	public DepotResponse getDepotResponse() {
 		return depotResponse;
 	}
@@ -67,7 +69,7 @@ public class GetDepotElementsTask implements IRunnableWithProgress
 	}
 	
 	private void getElementsFromDepot() {
-		TelosysProject telosysProject = new TelosysProject(ProjectUtil.getOSFullPath(project));
+//		TelosysProject telosysProject = new TelosysProject(ProjectUtil.getOSFullPath(project));
 		try {
 			depotResponse = telosysProject.getModelsAvailableInDepot(depot); 
 			if (depotResponse.getHttpStatusCode() == 200) {
@@ -88,21 +90,4 @@ public class GetDepotElementsTask implements IRunnableWithProgress
 			error = e.getMessage();
 		}				
 	}
-	
-//	private LinkedList<String> getElementsFromDepotFake() {
-//		sleep(3);
-//		LinkedList<String> elements = new LinkedList<>();
-//		for ( int n =1 ; n <= 16 ; n++ ) {
-//			elements.add("Item xxx " + n);
-//		}
-//		return elements;
-//	}
-//	private void sleep(int n) { // Sleep for n seconds
-//		try {
-//		    Thread.sleep(n * 1000); 
-//		} catch (InterruptedException e) {
-//		    e.printStackTrace();
-//		}
-//
-//	}
 }

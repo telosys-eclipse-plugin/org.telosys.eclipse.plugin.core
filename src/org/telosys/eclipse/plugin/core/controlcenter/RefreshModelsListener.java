@@ -20,22 +20,7 @@ public class RefreshModelsListener implements Listener {
 
 	@Override
 	public void handleEvent(Event event) {
-		String currentModel = null;
-		String modelName = modelsCombo.getText();
-		if ( modelName.isBlank() || modelName.isEmpty() ) {
-			currentModel = null;
-		}
-		else {
-			currentModel = modelName;
-		}
-
-		//DialogBox.showInformation("RefreshModelListener: currentModel = " + currentModel);
-		// Reload all models in combobox
-		TelosysCommand.populateModels(telosysProject, modelsCombo, currentModel);
-		// Reload entities if current model
-		if ( currentModel != null ) {
-			TelosysCommand.populateEntities(telosysProject, currentModel, entitiesTable);
-		}
+		TelosysCommand.refreshModelsAndEntities(telosysProject, modelsCombo, entitiesTable);
 	}
 
 }

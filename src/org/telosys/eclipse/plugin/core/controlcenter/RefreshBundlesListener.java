@@ -24,26 +24,27 @@ public class RefreshBundlesListener implements Listener {
 	
 	@Override
 	public void handleEvent(Event event) {
-		// Get current bundle if any
-		String currentBundle = null;
-		String bundleName = bundlesCombo.getText();
-		if ( bundleName.isBlank() || bundleName.isEmpty() ) {
-			currentBundle = null;
-		}
-		else {
-			currentBundle = bundleName;
-		}
-
-		// Reload bunldes in combo box
-		TelosysCommand.populateBundles(telosysProject, bundlesCombo, currentBundle);
-		// Reload templates if current bundle
-		if ( currentBundle != null ) {
-			TelosysCommand.populateTemplates(telosysProject, currentBundle, copyStaticFilesCheckBox, templatesTable);
-		}
-		else {
-			// No current bundle => activate = false 
-			TelosysCommand.setCopyStaticFilesCheckBoxState(currentBundle, copyStaticFilesCheckBox);
-		}
+//		// Get current bundle if any
+//		String currentBundle = null;
+//		String bundleName = bundlesCombo.getText();
+//		if ( bundleName.isBlank() || bundleName.isEmpty() ) {
+//			currentBundle = null;
+//		}
+//		else {
+//			currentBundle = bundleName;
+//		}
+//
+//		// Reload bunldes in combo box
+//		TelosysCommand.populateBundles(telosysProject, bundlesCombo, currentBundle);
+//		// Reload templates if current bundle
+//		if ( currentBundle != null ) {
+//			TelosysCommand.populateTemplates(telosysProject, currentBundle, copyStaticFilesCheckBox, templatesTable);
+//		}
+//		else {
+//			// No current bundle => activate = false 
+//			TelosysCommand.setCopyStaticFilesCheckBoxState(currentBundle, copyStaticFilesCheckBox);
+//		}
+		TelosysCommand.refreshBundlesAndTemplates(telosysProject, bundlesCombo, copyStaticFilesCheckBox, templatesTable);
 	}
 
 }

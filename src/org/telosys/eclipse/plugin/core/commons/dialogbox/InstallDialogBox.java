@@ -1,4 +1,4 @@
-package org.telosys.eclipse.plugin.core.command;
+package org.telosys.eclipse.plugin.core.commons.dialogbox;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
@@ -24,10 +24,15 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.telosys.eclipse.plugin.core.command.GetDepotElementsTask;
+import org.telosys.eclipse.plugin.core.command.InstallDepotElementsTask;
 import org.telosys.eclipse.plugin.core.commons.AbstractDialogBox;
 import org.telosys.eclipse.plugin.core.commons.DialogBox;
+import org.telosys.eclipse.plugin.core.commons.ProjectExplorerUtil;
 import org.telosys.eclipse.plugin.core.commons.ProjectUtil;
+import org.telosys.eclipse.plugin.core.commons.WorkbenchUtil;
 import org.telosys.tools.api.InstallationType;
+import org.telosys.tools.api.TelosysProject;
 import org.telosys.tools.commons.depot.DepotElement;
 import org.telosys.tools.commons.depot.DepotRateLimit;
 import org.telosys.tools.commons.depot.DepotResponse;
@@ -37,7 +42,8 @@ public class InstallDialogBox extends AbstractDialogBox {
 	private static final int BOX_WIDTH  = 600;
 	private static final int BOX_HEIGHT = 700;
 
-	private final IProject project;
+//	private final IProject project;
+	private final TelosysProject telosysProject;
 	private final String   depotFromConfiguration;
 	private final InstallationType installationType;
 	private final String   elementName; // What to install ("model" or "bundle")
@@ -73,10 +79,18 @@ public class InstallDialogBox extends AbstractDialogBox {
 	 * @param depot
 	 * @param installationType
 	 */
-	public InstallDialogBox(Shell parentShell, IProject project, String depot, InstallationType installationType) {
-		super(parentShell, "Install "+getElementName(installationType), createDialogBoxLayout());
+//	public InstallDialogBox(Shell parentShell, IProject project, String depot, InstallationType installationType) {
+//		super(parentShell, "Install "+getElementName(installationType), createDialogBoxLayout());
+//		log("CONSTRUCTOR()");
+//		this.project = project;
+//		this.installationType = installationType;
+//		this.elementName = getElementName(installationType);
+//		this.depotFromConfiguration = depot;
+//	}
+	public InstallDialogBox(TelosysProject telosysProject, String depot, InstallationType installationType) {
+		super(WorkbenchUtil.getActiveWindowShell(), "Install "+getElementName(installationType), createDialogBoxLayout());
 		log("CONSTRUCTOR()");
-		this.project = project;
+		this.telosysProject = telosysProject;
 		this.installationType = installationType;
 		this.elementName = getElementName(installationType);
 		this.depotFromConfiguration = depot;
@@ -170,7 +184,7 @@ public class InstallDialogBox extends AbstractDialogBox {
 		}
 	}
 	private void getElementsFromDepotAndPopulateList(String depot) {
-		GetDepotElementsTask getDepotElementsTask = new GetDepotElementsTask(project, depot);
+		GetDepotElementsTask getDepotElementsTask = new GetDepotElementsTask(telosysProject, depot);
 		runTask(getDepotElementsTask);
 		Optional<String> taskError = getDepotElementsTask.getError();
 		if ( taskError.isEmpty() ) {
@@ -189,12 +203,18 @@ public class InstallDialogBox extends AbstractDialogBox {
 			java.util.List<DepotElement> selectedElements = getSelectedElements();
 			if ( selectedElements != null && !selectedElements.isEmpty() ) {
 				installResultText.setText(""); // clear result text
-				InstallDepotElementsTask task = new InstallDepotElementsTask(project, depot, selectedElements, installationType);
+				InstallDepotElementsTask task = new InstallDepotElementsTask(telosysProject, depot, selectedElements, installationType);
 				runTask(task);
 				String result = task.getResult();
-				installResultText.setText(result); // clear result text
-				if ( task.getInstallationsCount() > 0 ) {
-					ProjectUtil.refresh(project);
+				installResultText.setText(result); // set result text
+//				if ( task.getInstallationsCount() > 0 ) {
+//					ProjectUtil.refresh(project);
+//				}
+				if ( installationType == InstallationType.BUNDLE ) {
+					ProjectExplorerUtil.reveal(telosysProject.getBundlesFolder());
+				}
+				else if ( installationType == InstallationType.MODEL ) {
+					ProjectExplorerUtil.reveal(telosysProject.getModelsFolder());
 				}
 			}
 			else {

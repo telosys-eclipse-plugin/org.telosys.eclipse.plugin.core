@@ -1,13 +1,9 @@
 package org.telosys.eclipse.plugin.core.command;
 
-import java.io.File;
-
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.jface.window.Window;
 import org.telosys.eclipse.plugin.core.commons.AbstractMenuHandler;
 import org.telosys.eclipse.plugin.core.commons.ProjectExplorerUtil;
-import org.telosys.eclipse.plugin.core.commons.dialogbox.NewModelDialogBox;
 import org.telosys.eclipse.plugin.core.controlcenter.TelosysCommand;
 import org.telosys.tools.api.TelosysProject;
 

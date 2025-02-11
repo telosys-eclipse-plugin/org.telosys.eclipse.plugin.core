@@ -1,11 +1,7 @@
 package org.telosys.eclipse.plugin.core.commons;
 
 import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.swt.widgets.Shell;
 import org.telosys.tools.api.TelosysProject;
 
