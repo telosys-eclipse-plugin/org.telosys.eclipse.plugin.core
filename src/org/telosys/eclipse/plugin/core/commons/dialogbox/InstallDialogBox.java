@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -22,14 +21,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.telosys.eclipse.plugin.core.command.GetDepotElementsTask;
 import org.telosys.eclipse.plugin.core.command.InstallDepotElementsTask;
 import org.telosys.eclipse.plugin.core.commons.AbstractDialogBox;
 import org.telosys.eclipse.plugin.core.commons.DialogBox;
 import org.telosys.eclipse.plugin.core.commons.ProjectExplorerUtil;
-import org.telosys.eclipse.plugin.core.commons.ProjectUtil;
 import org.telosys.eclipse.plugin.core.commons.WorkbenchUtil;
 import org.telosys.tools.api.InstallationType;
 import org.telosys.tools.api.TelosysProject;
@@ -42,7 +39,6 @@ public class InstallDialogBox extends AbstractDialogBox {
 	private static final int BOX_WIDTH  = 600;
 	private static final int BOX_HEIGHT = 700;
 
-//	private final IProject project;
 	private final TelosysProject telosysProject;
 	private final String   depotFromConfiguration;
 	private final InstallationType installationType;
@@ -54,6 +50,7 @@ public class InstallDialogBox extends AbstractDialogBox {
 	private Text   elementsFoundText;
 	private Button installButton;
 	private Text   installResultText;
+	private int numberOfElementsInstalled = 0 ;
 
 	private java.util.List<DepotElement> currentDepotElements = new LinkedList<>(); // initial state = void list to avoid null
 
@@ -71,29 +68,29 @@ public class InstallDialogBox extends AbstractDialogBox {
 		default:     return "(unknown-element)";
 		}
 	}
+	private static String getDepot(TelosysProject telosysProject, InstallationType installationType) {
+		switch (installationType) {
+		case BUNDLE: return telosysProject.getTelosysToolsCfg().getDepotForBundles();
+		case MODEL:  return telosysProject.getTelosysToolsCfg().getDepotForModels();
+		default:     return "";
+		}
+	}
 
 	/**
 	 * Constructor
-	 * @param parentShell
-	 * @param project
-	 * @param depot
+	 * @param telosysProject
 	 * @param installationType
 	 */
-//	public InstallDialogBox(Shell parentShell, IProject project, String depot, InstallationType installationType) {
-//		super(parentShell, "Install "+getElementName(installationType), createDialogBoxLayout());
-//		log("CONSTRUCTOR()");
-//		this.project = project;
-//		this.installationType = installationType;
-//		this.elementName = getElementName(installationType);
-//		this.depotFromConfiguration = depot;
-//	}
-	public InstallDialogBox(TelosysProject telosysProject, String depot, InstallationType installationType) {
+	public InstallDialogBox(TelosysProject telosysProject, InstallationType installationType) {
 		super(WorkbenchUtil.getActiveWindowShell(), "Install "+getElementName(installationType), createDialogBoxLayout());
-		log("CONSTRUCTOR()");
 		this.telosysProject = telosysProject;
 		this.installationType = installationType;
 		this.elementName = getElementName(installationType);
-		this.depotFromConfiguration = depot;
+		this.depotFromConfiguration = getDepot(telosysProject, installationType);
+	}
+	
+	public int getInstallationsCount() {
+		return numberOfElementsInstalled;
 	}
 	
 	@Override
@@ -121,26 +118,34 @@ public class InstallDialogBox extends AbstractDialogBox {
 		return new Point(BOX_WIDTH, BOX_HEIGHT);
 	}
     
+	/**
+	 * Adapter for Click on button "Get from depot"
+	 */
 	static class ButtonGetFromDepotSelectionAdapter extends SelectionAdapter {
         private final InstallDialogBox dialogBox;
+        // Constructor
         public ButtonGetFromDepotSelectionAdapter(InstallDialogBox dialogBox) {
             this.dialogBox = dialogBox;
         }
+        // Button clicked
         @Override
         public void widgetSelected(SelectionEvent e) {
-            // Button clicked
         	this.dialogBox.getElementsFromDepotAndPopulateList();
         }
     }
     
+	/**
+	 * Adapter for Click on button "Install from depot"  
+	 */
 	static class ButtonInstallFromDepotSelectionAdapter extends SelectionAdapter {
         private final InstallDialogBox dialogBox;
+        // Constructor
         public ButtonInstallFromDepotSelectionAdapter(InstallDialogBox dialogBox) {
             this.dialogBox = dialogBox;
         }
+        // Button clicked
         @Override
         public void widgetSelected(SelectionEvent e) {
-            // Button clicked
         	this.dialogBox.installElementsFromDepot();
         }
     }
@@ -205,16 +210,18 @@ public class InstallDialogBox extends AbstractDialogBox {
 				installResultText.setText(""); // clear result text
 				InstallDepotElementsTask task = new InstallDepotElementsTask(telosysProject, depot, selectedElements, installationType);
 				runTask(task);
-				String result = task.getResult();
-				installResultText.setText(result); // set result text
-//				if ( task.getInstallationsCount() > 0 ) {
-//					ProjectUtil.refresh(project);
-//				}
-				if ( installationType == InstallationType.BUNDLE ) {
-					ProjectExplorerUtil.reveal(telosysProject.getBundlesFolder());
-				}
-				else if ( installationType == InstallationType.MODEL ) {
-					ProjectExplorerUtil.reveal(telosysProject.getModelsFolder());
+				// set result text in dialog-box
+				installResultText.setText(task.getResult()); 
+				// task result
+				if ( task.getInstallationsCount() > 0 ) {
+					numberOfElementsInstalled = numberOfElementsInstalled + task.getInstallationsCount();
+					// refresh and expand folder in Project Explorer 
+					if ( installationType == InstallationType.BUNDLE ) {
+						ProjectExplorerUtil.reveal(telosysProject.getBundlesFolder());
+					}
+					else if ( installationType == InstallationType.MODEL ) {
+						ProjectExplorerUtil.reveal(telosysProject.getModelsFolder());
+					}
 				}
 			}
 			else {
@@ -290,7 +297,8 @@ public class InstallDialogBox extends AbstractDialogBox {
 	protected void createButtonsForButtonBar(Composite parent) {
 		log("createButtonsForButtonBar()");
 		// define buttons to be displayed at the bottom right of the window 
-		createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
+		//createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
+		createButton(parent, IDialogConstants.CANCEL_ID, "Close", false);
 	}
 	
 	private String buildStatusMessage(DepotResponse depotResponse) {

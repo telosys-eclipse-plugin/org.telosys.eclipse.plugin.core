@@ -19,8 +19,8 @@ public class ControlCenterUI {
 	
 	private final Font boldFont;
     private final IProject project;
-    private final TelosysEclipseConsole telosysConsole  = new TelosysEclipseConsole("Telosys");
-    private final TelosysEclipseConsole telosysConsole2 = new TelosysEclipseConsole("Telosys #2");
+//    private final TelosysEclipseConsole telosysConsole  = new TelosysEclipseConsole("Telosys");
+//    private final TelosysEclipseConsole telosysConsole2 = new TelosysEclipseConsole("Telosys #2");
     
 	public ControlCenterUI(IProject project, Font boldFont) {
 		super();
@@ -55,78 +55,84 @@ public class ControlCenterUI {
 		TabFolder tabFolder = new TabFolder(container, SWT.NONE);
 		tabFolder.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true)); // Fill remaining space
 
-		createTab1(tabFolder, "  Tab 1  ") ;
+		ControlCenterTab1 tab1 = new ControlCenterTab1(project, boldFont);
+		tab1.createTab(tabFolder);
+
+		ControlCenterTab2 tab2 = new ControlCenterTab2(project, boldFont);
+		tab2.createTab(tabFolder);
+
+		ControlCenterTabTests tabTests = new ControlCenterTabTests();
+		tabTests.createTab(tabFolder);
+//		createTab1(tabFolder, "  Tab 1  ") ;
 		
-		createTab2(tabFolder, "  Tab 2  ") ;
+//		createTab2(tabFolder, "  Tab 2  ") ;
 		
-		ControlCenterTab3 tab3 = new ControlCenterTab3(project, boldFont);
-		tab3.createTab(tabFolder);
 	}
 
-	private void createTab1(TabFolder tabFolder, String tabTitle) {
-		TabItem tabItem = new TabItem(tabFolder, SWT.NONE);
-		tabItem.setText(tabTitle);
-		Composite tabContent = new Composite(tabFolder, SWT.NONE);
-		createTabContent1(tabContent, "Tab content 1");
-		tabItem.setControl(tabContent);
-	}
-	private void createTabContent1(Composite tabContent, String s) {
-		tabContent.setLayout(new GridLayout(1, false)); // One column layout
-		new Label(tabContent, SWT.NONE).setText(s);
-		
-		Button button ;
-		
-		button = new Button(tabContent, SWT.PUSH);
-        button.setText("activate console 1");
-        button.addListener(SWT.Selection, event -> {
-        	telosysConsole.showConsoleView();
-        	//telosysConsole.activate();
-        });       
-
-        button = new Button(tabContent, SWT.PUSH);
-        button.setText("Print in console 1");
-        button.addListener(SWT.Selection, event -> {
-        	telosysConsole.println("Hello in Telosys console!");
-        });       
-        
-        
-		button = new Button(tabContent, SWT.PUSH);
-        button.setText("activate console #2");
-        button.addListener(SWT.Selection, event -> {
-        	//telosysConsole2.activate();
-        	telosysConsole2.showConsoleView();
-        });       
-
-        button = new Button(tabContent, SWT.PUSH);
-        button.setText("Print in console #2");
-        button.addListener(SWT.Selection, event -> {
-        	telosysConsole2.println("Hello in Telosys console #2 !");
-        });       
-        
-        button = new Button(tabContent, SWT.PUSH);
-        button.setText("Print RED in console #2");
-        button.addListener(SWT.Selection, event -> {
-        	telosysConsole2.println("Hello RED in Telosys console #2 !", MsgColor.RED);
-        });       
-        
-        button = new Button(tabContent, SWT.PUSH);
-        button.setText("Print BOX in console #2");
-        button.addListener(SWT.Selection, event -> {
-        	telosysConsole2.println("┌────────┐");
-        	telosysConsole2.println("│  Box   │");
-        	telosysConsole2.println("└────────┘");
-        });       
-	}
+//	private void createTab1(TabFolder tabFolder, String tabTitle) {
+//		TabItem tabItem = new TabItem(tabFolder, SWT.NONE);
+//		tabItem.setText(tabTitle);
+//		Composite tabContent = new Composite(tabFolder, SWT.NONE);
+//		createTabContent1(tabContent, "Tab content 1");
+//		tabItem.setControl(tabContent);
+//	}
+//	private void createTabContent1(Composite tabContent, String s) {
+//		tabContent.setLayout(new GridLayout(1, false)); // One column layout
+//		new Label(tabContent, SWT.NONE).setText(s);
+//		
+//		Button button ;
+//		
+//		button = new Button(tabContent, SWT.PUSH);
+//        button.setText("activate console 1");
+//        button.addListener(SWT.Selection, event -> {
+//        	telosysConsole.showConsoleView();
+//        	//telosysConsole.activate();
+//        });       
+//
+//        button = new Button(tabContent, SWT.PUSH);
+//        button.setText("Print in console 1");
+//        button.addListener(SWT.Selection, event -> {
+//        	telosysConsole.println("Hello in Telosys console!");
+//        });       
+//        
+//        
+//		button = new Button(tabContent, SWT.PUSH);
+//        button.setText("activate console #2");
+//        button.addListener(SWT.Selection, event -> {
+//        	//telosysConsole2.activate();
+//        	telosysConsole2.showConsoleView();
+//        });       
+//
+//        button = new Button(tabContent, SWT.PUSH);
+//        button.setText("Print in console #2");
+//        button.addListener(SWT.Selection, event -> {
+//        	telosysConsole2.println("Hello in Telosys console #2 !");
+//        });       
+//        
+//        button = new Button(tabContent, SWT.PUSH);
+//        button.setText("Print RED in console #2");
+//        button.addListener(SWT.Selection, event -> {
+//        	telosysConsole2.println("Hello RED in Telosys console #2 !", MsgColor.RED);
+//        });       
+//        
+//        button = new Button(tabContent, SWT.PUSH);
+//        button.setText("Print BOX in console #2");
+//        button.addListener(SWT.Selection, event -> {
+//        	telosysConsole2.println("┌────────┐");
+//        	telosysConsole2.println("│  Box   │");
+//        	telosysConsole2.println("└────────┘");
+//        });       
+//	}
 	
-	private void createTab2(TabFolder tabFolder, String tabTitle) {
-		TabItem tabItem = new TabItem(tabFolder, SWT.NONE);
-		tabItem.setText(tabTitle);
-		Composite tabContent = new Composite(tabFolder, SWT.NONE);
-		createTabContent2(tabContent, "Tab content 2");
-		tabItem.setControl(tabContent);
-	}
-	private void createTabContent2(Composite tabContent, String s) {
-		new Label(tabContent, SWT.NONE).setText(s);
-		
-	}
+//	private void createTab2(TabFolder tabFolder, String tabTitle) {
+//		TabItem tabItem = new TabItem(tabFolder, SWT.NONE);
+//		tabItem.setText(tabTitle);
+//		Composite tabContent = new Composite(tabFolder, SWT.NONE);
+//		createTabContent2(tabContent, "Tab content 2");
+//		tabItem.setControl(tabContent);
+//	}
+//	private void createTabContent2(Composite tabContent, String s) {
+//		new Label(tabContent, SWT.NONE).setText(s);
+//		
+//	}
 }

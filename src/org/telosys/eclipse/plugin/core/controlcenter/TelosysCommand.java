@@ -15,6 +15,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
@@ -37,6 +38,8 @@ import org.telosys.tools.api.InstallationType;
 import org.telosys.tools.api.TelosysProject;
 import org.telosys.tools.commons.bundles.TargetDefinition;
 import org.telosys.tools.commons.bundles.TargetsDefinitions;
+import org.telosys.tools.commons.dbcfg.yaml.DatabaseDefinition;
+import org.telosys.tools.commons.dbcfg.yaml.DatabaseDefinitions;
 
 public class TelosysCommand {
 	
@@ -194,10 +197,12 @@ public class TelosysCommand {
 		dialogBox.open();
 	}
 
-	protected static void installModel(TelosysProject telosysProject) {
-    	String depot = telosysProject.getTelosysToolsCfg().getDepotForModels(); 
-    	InstallDialogBox dialogBox = new InstallDialogBox(telosysProject, depot, InstallationType.MODEL );
+	protected static void installModels(TelosysProject telosysProject, Combo modelsCombo) {
+    	InstallDialogBox dialogBox = new InstallDialogBox(telosysProject, InstallationType.MODEL );
     	dialogBox.open(); // show dialog box immediately 
+    	if ( dialogBox.getInstallationsCount() > 0 ) {
+    		refreshModels(telosysProject, modelsCombo);
+    	}
 	}
 	
 	//---------------------------------------------------------------------------------------
@@ -310,8 +315,12 @@ public class TelosysCommand {
 		todo("New Bundle ", "(NOT YET AVAILABLE IN TELOSYS API)", telosysProject);
 	}
 	
-	protected static void installBundle(TelosysProject telosysProject) {
-		todo("Install Bundle ", "", telosysProject);
+	protected static void installBundles(TelosysProject telosysProject, Combo bundlesCombo) {
+    	InstallDialogBox dialogBox = new InstallDialogBox(telosysProject, InstallationType.BUNDLE );
+    	dialogBox.open(); // show dialog box immediately 
+    	if ( dialogBox.getInstallationsCount() > 0 ) {
+    		refreshBundles(telosysProject, bundlesCombo);
+    	}
 	}
 	
 	//---------------------------------------------------------------------------------------
@@ -422,6 +431,90 @@ public class TelosysCommand {
 			DialogBox.showError("File not found!\n" + fileOutOfWorkspace );
         }
 	}
+	
+	//---------------------------------------------------------------------------------------
+	// DATABASES
+	//---------------------------------------------------------------------------------------
+	public static void populateDatabases(TelosysProject telosysProject, Table databasesTable) {
+        Logger.log("populateDatabases()");
+		// Clear table (remove all rows)
+        databasesTable.removeAll();
+        // Populate with db configurations
+		DatabaseDefinitions databasesConfigurations;
+		try {
+			databasesConfigurations = telosysProject.getDatabaseDefinitions();
+		} catch (Exception e) {
+			DialogBox.showError("Cannot get databases configuration.\n " + e.getMessage());
+			return;
+		}
+		List<DatabaseDefinition> databases = databasesConfigurations.getDatabases();
+		if ( databases != null && ! databases.isEmpty()) {
+			// print(databasesConfigurations.getDatabases().size()+ " database(s) defined" );
+			for ( DatabaseDefinition databaseDefinition : databases ) {
+	            TableItem item = new TableItem(databasesTable, SWT.NONE);
+//		            item.setChecked(true); // All checked by default
+	            item.setText(0, databaseDefinition.getId());   // Text for Column 0
+	            item.setText(1, databaseDefinition.getType()); // Text for Column 1          
+	            item.setText(2, databaseDefinition.getName()); // Text for Column 2          
+	            item.setData(databaseDefinition); // Any object 
+			}
+			// Pack the columns to fit the content
+			// NO Pack! databasesTable.pack();
+		}
+		else {
+			// message: " no database defined "
+		}
+	}
+	
+	protected static void editDatabases(TelosysProject telosysProject) {
+		File databasesFile = TelosysEvolution.getDatabasesFile(telosysProject);
+		if ( databasesFile != null && databasesFile.exists() ) {				
+			openEditorForFile(databasesFile);
+		}
+		else {
+			DialogBox.showWarning("Databases file not found!");
+		}
+	}
+	public static void refreshDatabasesAndLibraries(TelosysProject telosysProject, Table databasesTable, Table librariesTable, Text dbText) {
+        Logger.log("refreshDatabasesAndLibraries()");
+		populateDatabases(telosysProject, databasesTable);
+		dbText.setText("");
+	}
+	protected static void showDatabaseConfig(DatabaseDefinition dd, Text text) {
+		StringBuilder sb = new StringBuilder();
+		sb.append( " . Database id   : '" + dd.getId() + "' " ).append("\n");
+		sb.append( " . Name          : " + dd.getName() ).append("\n");
+		sb.append( " . Type          : " + dd.getType() ).append("\n");
+		
+		sb.append( " . Connection : " ).append("\n");
+		sb.append( "   - JDBC URL      : " + dd.getUrl()  ).append("\n");
+		sb.append( "   - Driver class  : " + dd.getDriver() ).append("\n");
+		sb.append( "   - User          : " + dd.getUser() ).append("\n");
+		sb.append( "   - Password      : " + dd.getPassword() ).append("\n");
+		
+		sb.append( " . Metadata : " ).append("\n");
+		sb.append( "   - Catalog            : " + dd.getCatalog() ).append("\n");
+		sb.append( "   - Schema             : " + dd.getSchema() ).append("\n");
+		sb.append( "   - Table types        : " + dd.getTableTypes() ).append("\n");
+		sb.append( "   - Table name pattern : " + dd.getTableNamePattern() ).append("\n");
+		sb.append( "   - Table name exclude : " + dd.getTableNameExclude() ).append("\n");
+		sb.append( "   - Table name include : " + dd.getTableNameInclude() ).append("\n");
+
+		sb.append( " . Model creation options : " ).append("\n");
+		sb.append( "   - links ManyToOne  : " + dd.isLinksManyToOne() ).append("\n");
+		sb.append( "   - links OneToMany  : " + dd.isLinksOneToMany() ).append("\n");
+		sb.append( "   - links ManyToMany : " + dd.isLinksManyToMany() ).append("\n");		
+		sb.append( "   - db comment       : " + dd.isDbComment() ).append("\n");
+		sb.append( "   - db catalog       : " + dd.isDbCatalog() ).append("\n");
+		sb.append( "   - db schema        : " + dd.isDbSchema() ).append("\n");
+		sb.append( "   - db table         : " + dd.isDbTable() ).append("\n");
+		sb.append( "   - db view          : " + dd.isDbView() ).append("\n");
+		sb.append( "   - db name          : " + dd.isDbName() ).append("\n");
+		sb.append( "   - db type          : " + dd.isDbType() ).append("\n");
+		sb.append( "   - db default value : " + dd.isDbDefaultValue() ).append("\n");
+		
+		text.setText(sb.toString());
+	}	
 	
 	//---------------------------------------------------------------------------------------
 	// TODO

@@ -18,7 +18,9 @@ public class InstallBundleHandler extends AbstractMenuHandler {
         if ( project != null ) {
         	if ( Validator.isTelosysProject(project) ) {
         		// Open the window
-        		openDialogBox(project);
+//        		openDialogBox(project);
+            	InstallDialogBox dialogBox = new InstallDialogBox(getTelosysProject(project), InstallationType.BUNDLE );
+            	dialogBox.open(); // show dialog box immediately 
         	}
         	else {
         		notTelosysProjectMessage();
@@ -27,13 +29,13 @@ public class InstallBundleHandler extends AbstractMenuHandler {
         return null;
     }
     
-    private void openDialogBox(IProject project) {
-    	TelosysProject telosysProject = getTelosysProject(project);
-    	String depot = telosysProject.getTelosysToolsCfg().getDepotForBundles(); 
-//    	InstallDialogBox dialogBox = new InstallDialogBox(getShell(), project, depot, InstallationType.BUNDLE );
-    	InstallDialogBox dialogBox = new InstallDialogBox(telosysProject, depot, InstallationType.BUNDLE );
-    	dialogBox.open(); // show dialog box immediately 
-    	// nothing else to do, all the work is done in the DialogBox component        	
-    }
+//    private void openDialogBox(IProject project) {
+////    	TelosysProject telosysProject = getTelosysProject(project);
+////    	String depot = telosysProject.getTelosysToolsCfg().getDepotForBundles(); 
+////    	InstallDialogBox dialogBox = new InstallDialogBox(getShell(), project, depot, InstallationType.BUNDLE );
+//    	InstallDialogBox dialogBox = new InstallDialogBox(getTelosysProject(project), InstallationType.BUNDLE );
+//    	dialogBox.open(); // show dialog box immediately 
+//    	// nothing else to do, all the work is done in the DialogBox component        	
+//    }
     
 }

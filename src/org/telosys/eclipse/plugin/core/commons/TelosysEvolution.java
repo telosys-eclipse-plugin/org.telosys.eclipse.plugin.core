@@ -161,4 +161,15 @@ public class TelosysEvolution {
 			throw new TelosysApiException("Cannot get selected templates", e);
 		}
 	}	
+	
+	// TODO
+	public static final String TELOSYS_TOOLS_FOLDER = "TelosysTools" ;	
+	public static final String DATABASES_YAML    = "databases.yaml" ;
+	public static File getDatabasesFile(TelosysProject telosysProject) {
+		String projectFolderAbsolutePath = telosysProject.getProjectFolder();
+		File projectFolder = new File(projectFolderAbsolutePath);
+		File telosysToolsFolder = new File(projectFolder, TELOSYS_TOOLS_FOLDER);
+		File databasesFile = new File(telosysToolsFolder, DATABASES_YAML);
+		return databasesFile;
+	}
 }

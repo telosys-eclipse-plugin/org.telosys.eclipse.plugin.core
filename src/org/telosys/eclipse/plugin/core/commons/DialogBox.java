@@ -51,7 +51,7 @@ public class DialogBox {
      * @param message
      */
     public static void showError(String message) {
-        MessageDialog.openError(getShell(), "Error", message);
+        showError("Error", message);
     }
     /**
      * Show error message

@@ -20,9 +20,9 @@ import org.telosys.eclipse.plugin.core.commons.Tuple2;
 import org.telosys.tools.api.TelosysProject;
 
 
-public class ControlCenterTab3 {
+public class ControlCenterTab1 {
 	
-	private static final String TAB_TITLE = "Generation";
+	private static final String TAB_TITLE = " Generation ";
 	
     private final IProject eclipseProject;
     private final TelosysProject telosysProject; 
@@ -37,7 +37,7 @@ public class ControlCenterTab3 {
     
     private Button launchGeneration; 
     
-	public ControlCenterTab3(IProject eclipseProject, Font boldFont) {
+	public ControlCenterTab1(IProject eclipseProject, Font boldFont) {
 		super();
 		this.eclipseProject = eclipseProject;
 		this.telosysProject = ProjectUtil.getTelosysProject(eclipseProject);
@@ -164,7 +164,7 @@ public class ControlCenterTab3 {
 		Composite bar = createBarPanel(leftPart, 1); // 1 column only
         // Label
         Label label = new Label(bar, SWT.NONE);
-        label.setText("Templates");
+        label.setText("Entities");
         label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false)); // Align LEFT
 	}
 	private void createLeftSubPart4(Composite leftPart) {
@@ -318,25 +318,30 @@ public class ControlCenterTab3 {
         bottomPart.setLayout(new GridLayout(5, false)); // 5 columns for 5 widgets 
         
         //--- Button (LEFT-aligned)
-        Button newModel = new Button(bottomPart, SWT.PUSH);
-        newModel.setText("New Model");
-        newModel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
+//        Button newModel = new Button(bottomPart, SWT.PUSH);
+//        newModel.setText("➕ New Model");
+//        newModel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
+        Button newModel = createBottomButton(bottomPart, "➕ New Model", SWT.LEFT);
         newModel.addListener(SWT.Selection, event -> {
         	TelosysCommand.newModel(telosysProject, modelsCombo);
         });        
 
         //--- Button (LEFT-aligned)
-        Button installModel = new Button(bottomPart, SWT.PUSH);
-        installModel.setText("Install Model");
-        installModel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
+//        Button installModel = new Button(bottomPart, SWT.PUSH);
+//        installModel.setText("📥 Install Model");
+//        installModel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
+        Button installModel = createBottomButton(bottomPart, "📥 Install Model", SWT.LEFT);
         installModel.addListener(SWT.Selection, event -> {
-        	TelosysCommand.installModel(telosysProject);
+        	TelosysCommand.installModels(telosysProject, modelsCombo);
         });        
         
         //--- Button (centered)
         launchGeneration = new Button(bottomPart, SWT.PUSH);
-        launchGeneration.setText(" Launch generation ");
-        launchGeneration.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
+        launchGeneration.setText("🚀 Launch generation ");
+        //launchGeneration.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
+		GridData gridData = new GridData(SWT.CENTER, SWT.CENTER, true, false);
+		gridData.widthHint = 180; // Minimum button width 
+		launchGeneration.setLayoutData(gridData);
         launchGeneration.addListener(SWT.Selection, event -> {
         	launchGeneration.setEnabled(false);
         	boolean copyStaticFiles = copyStaticFilesCheckBox.getSelection();
@@ -348,76 +353,27 @@ public class ControlCenterTab3 {
 //        Button newBundle = new Button(bottomPart, SWT.PUSH);
 //        newBundle.setText("New Bundle");
 //        newBundle.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
-        Label tmpLabel = new Label(bottomPart, SWT.NONE);
-        tmpLabel.setText("                "); // not visible
-        tmpLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
+        Button newBundle = createBottomButton(bottomPart, "➕ New Bundle", SWT.RIGHT);
+//        Label tmpLabel = new Label(bottomPart, SWT.NONE);
+//        tmpLabel.setText("                "); // not visible
+//        tmpLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 
         //--- Button (RIGHT-aligned)
-        Button installBundle = new Button(bottomPart, SWT.PUSH);
-        installBundle.setText("Install Bundle");
-        installBundle.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
+//        Button installBundle = new Button(bottomPart, SWT.PUSH);
+//        installBundle.setText("📥 Install Bundle");
+//        installBundle.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
+        Button installBundle = createBottomButton(bottomPart, "📥 Install Bundle", SWT.RIGHT);
         installBundle.addListener(SWT.Selection, event -> {
-        	TelosysCommand.installBundle(telosysProject);
+        	TelosysCommand.installBundles(telosysProject, bundlesCombo);
         });  
         return bottomPart;
 	}
-	
-//	private void populateModelsCombo() {
-//		List<String> models = telosysProject.getModelNames();
-//		models.add(0, ""); // First element is void = no model
-//        modelsCombo.setItems(models.toArray(new String[0]));
-//        modelsCombo.select(0); // Select first model by default
-//	}
-//	private void populateEntitiesTable(String modelName) {
-//		// Clear table (remove all rows)
-//		entitiesTable.removeAll();
-//		try {
-//			List<String> entities = TelosysEvolution.getEntities(telosysProject, modelName);
-//	        // Add Rows
-//	        for (String entityName : entities ) { 
-//	            TableItem item = new TableItem(entitiesTable, SWT.NONE);
-//	            item.setChecked(true); // All checked by default
-//	            item.setText(0, entityName); // Text for Column 0
-////	            item.setText(1, "Entity Col-1:" + i); // Text for Column 1          
-//	            item.setData(entityName); // Any object 
-//	        }
-//		} catch (TelosysApiException e) {
-//			DialogBox.showError(e.getMessage());
-//		}
-//	}
-
-//	private void populateBundlesCombo() {
-//		List<String> bundles = telosysProject.getBundleNames();
-//		bundles.add(0, ""); // First element is void = no model
-//        bundlesCombo.setItems(bundles.toArray(new String[0]));
-//        bundlesCombo.select(0); // Select first model by default
-//	}
-	
-//	private void populateTemplatesTable(String bundleName) {
-//		// Clear table (remove all rows)
-//		templatesTable.removeAll();
-//		if ( bundleName.isBlank() || bundleName.isEmpty() ) {
-//	        copyStaticFilesCheckBox.setEnabled(false);
-//	        copyStaticFilesCheckBox.setSelection(false);
-//			return ;
-//		}
-//		else {
-//			try {
-//				TargetsDefinitions targets = telosysProject.getTargetDefinitions(bundleName);
-//		        // Add Rows
-//		        for (TargetDefinition target : targets.getTemplatesTargets() ) { 
-//		            TableItem item = new TableItem(templatesTable, SWT.NONE);
-//		            item.setChecked(true); // All checked by default
-//		            item.setText(0, target.getTemplate()); // Text for Column 0
-//		            item.setText(1, target.getId()); // Text for Column 1    
-//		            // Data (any object) used for "Edit" command => Template file name
-//		            item.setData(target.getTemplate());
-//		        }
-//		        copyStaticFilesCheckBox.setEnabled(true);
-//		        copyStaticFilesCheckBox.setSelection(true);
-//			} catch (Exception e) {
-//				DialogBox.showError(e.getMessage());
-//			}
-//		}
-//	}
+	private Button createBottomButton(Composite composite, String buttonText, int horizontalAlignment) {
+		Button button = new Button(composite, SWT.PUSH);
+		button.setText(buttonText);
+		GridData gridData = new GridData(horizontalAlignment, SWT.CENTER, false, false);
+		gridData.widthHint = 140; // Minimum button width 
+		button.setLayoutData(gridData);
+		return button;
+	}
 }

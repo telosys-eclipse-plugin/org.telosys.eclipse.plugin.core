@@ -66,6 +66,11 @@ public class TableUtils {
         tableColumn.setWidth(width); // Set column width
         return tableColumn;
 	}
+	protected static TableColumn createTableColumn(Table table, int width, String text) {
+        TableColumn tableColumn = createTableColumn(table, width);
+        tableColumn.setText(text);
+        return tableColumn;
+	}
 	
 	/**
 	 * Creates a listener to manage row selection and update checkbox state 
