@@ -9,11 +9,13 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.telosys.eclipse.plugin.core.commons.AbstractMenuHandler;
 import org.telosys.eclipse.plugin.core.commons.DialogBox;
-import org.telosys.eclipse.plugin.core.commons.ModelCheckStatus;
 import org.telosys.eclipse.plugin.core.commons.ProjectExplorerUtil;
-import org.telosys.eclipse.plugin.core.commons.TelosysEvolution;
-import org.telosys.eclipse.plugin.core.commons.Validator;
 import org.telosys.eclipse.plugin.core.commons.WorkspaceUtil;
+import org.telosys.eclipse.plugin.core.commons.dialogbox.CheckModelFromModelDialogBox;
+import org.telosys.eclipse.plugin.core.commons.dialogbox.CheckModelFromProjectDialogBox;
+import org.telosys.eclipse.plugin.core.telosys.ModelCheckStatus;
+import org.telosys.eclipse.plugin.core.telosys.TelosysEvolution;
+import org.telosys.eclipse.plugin.core.telosys.TelosysChecker;
 
 public class CheckModelHandler extends AbstractMenuHandler {
 	
@@ -21,7 +23,7 @@ public class CheckModelHandler extends AbstractMenuHandler {
     public Object execute(ExecutionEvent event) throws ExecutionException {
     	IResource selectedResource = ProjectExplorerUtil.getSingleSelectedResource();
     	if ( selectedResource != null ) {
-	    	if ( Validator.isInModelDirectory(selectedResource) ) {
+	    	if ( TelosysChecker.isInModelDirectory(selectedResource) ) {
 	    		IContainer modelContainer = selectedResource instanceof IContainer ? (IContainer)selectedResource : selectedResource.getParent();
 	    		checkModelFromModelFolder(modelContainer);
 	    	}
@@ -40,7 +42,7 @@ public class CheckModelHandler extends AbstractMenuHandler {
 		IProject selectedProject = selectedResource.getProject();
     	String[] projectModels = getProjectModels(selectedProject);
     	// Open dialog box to choose a model and check it 
-    	CheckModelFromProjectDialogBox dialogBox = new CheckModelFromProjectDialogBox(getShell(), selectedProject, projectModels );
+    	CheckModelFromProjectDialogBox dialogBox = new CheckModelFromProjectDialogBox(selectedProject, projectModels );
     	dialogBox.open(); // show dialog box immediately 
     	// nothing else to do, all the work is done in the DialogBox component        	
     }
@@ -51,7 +53,7 @@ public class CheckModelHandler extends AbstractMenuHandler {
     		//--- Check the model
     		ModelCheckStatus modelCheckStatus = TelosysEvolution.checkModel(osDirFile);
     		//--- Show the result
-        	CheckModelFromModelDialogBox dialogBox = new CheckModelFromModelDialogBox(getShell(), osDirFile, modelCheckStatus.getFullReport());
+        	CheckModelFromModelDialogBox dialogBox = new CheckModelFromModelDialogBox(osDirFile, modelCheckStatus.getFullReport());
         	dialogBox.open(); // show dialog box to print the result 
         	// nothing else to do (all the work is done)
     	}

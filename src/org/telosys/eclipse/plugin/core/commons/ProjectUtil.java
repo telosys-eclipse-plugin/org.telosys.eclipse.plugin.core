@@ -4,6 +4,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.telosys.eclipse.plugin.core.telosys.TelosysEclipseConsole;
+import org.telosys.eclipse.plugin.core.telosys.TelosysLoggerForEclipse;
 import org.telosys.tools.api.TelosysProject;
 import org.telosys.tools.commons.TelosysToolsLogger;
 

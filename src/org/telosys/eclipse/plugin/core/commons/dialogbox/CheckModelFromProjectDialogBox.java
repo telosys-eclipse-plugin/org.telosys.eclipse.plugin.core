@@ -1,4 +1,4 @@
-package org.telosys.eclipse.plugin.core.command;
+package org.telosys.eclipse.plugin.core.commons.dialogbox;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -14,14 +14,14 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.telosys.eclipse.plugin.core.commons.AbstractDialogBox;
 import org.telosys.eclipse.plugin.core.commons.Const;
 import org.telosys.eclipse.plugin.core.commons.DialogBox;
-import org.telosys.eclipse.plugin.core.commons.ModelCheckStatus;
 import org.telosys.eclipse.plugin.core.commons.ProjectUtil;
-import org.telosys.eclipse.plugin.core.commons.TelosysEvolution;
+import org.telosys.eclipse.plugin.core.commons.WorkbenchUtil;
+import org.telosys.eclipse.plugin.core.telosys.ModelCheckStatus;
+import org.telosys.eclipse.plugin.core.telosys.TelosysEvolution;
 import org.telosys.tools.api.TelosysProject;
 
 public class CheckModelFromProjectDialogBox extends AbstractDialogBox {
@@ -29,6 +29,7 @@ public class CheckModelFromProjectDialogBox extends AbstractDialogBox {
 	private static final int BOX_WIDTH  = 600;
 	private static final int BOX_HEIGHT = 700;
 
+	// Input Data
 	private final IProject  project;
 	private final String[]  allModels;
 	
@@ -45,9 +46,11 @@ public class CheckModelFromProjectDialogBox extends AbstractDialogBox {
 
 	/**
 	 * Constructor
+	 * @param project
+	 * @param allModels
 	 */
-	public CheckModelFromProjectDialogBox(Shell parentShell, IProject project, String[] allModels) {
-		super(parentShell, "Check Model", createDialogBoxLayout());
+	public CheckModelFromProjectDialogBox(IProject project, String[] allModels) {
+		super(WorkbenchUtil.getActiveWindowShell(), "Check Model", createDialogBoxLayout());
 		log("CONSTRUCTOR()");
 		this.project = project;
 		this.allModels = allModels;
@@ -72,15 +75,15 @@ public class CheckModelFromProjectDialogBox extends AbstractDialogBox {
         }
     }
 
-	private void createRowProject(Composite composite, IProject project) {
+	private void createRowProject(Composite composite) {
         //--- Label
         Label label = new Label(composite, SWT.NONE);
         label.setText("Project: ");
         label.setLayoutData(new GridData(SWT.DEFAULT, SWT.DEFAULT));
 
-        //--- ComboBox
+        //--- Label 
         label = new Label(composite, SWT.NONE);
-        label.setText(project.getName());
+        label.setText(this.project.getName());
         label.setLayoutData(new GridData(SWT.DEFAULT, SWT.DEFAULT));
 	}
 	
@@ -134,14 +137,14 @@ public class CheckModelFromProjectDialogBox extends AbstractDialogBox {
         Composite composite = new Composite(parent, SWT.NONE);
         composite.setLayout(new GridLayout(2, false));  // 2 columns
         //--- Project
-        createRowProject(composite, this.project); 
+        createRowProject(composite); 
 		//--- Model : label + combo box
 		createRowModel(composite);
 
 		createButton(composite, "Check model", new ButtonCheckModelSelectionAdapter(this));
 		
 	    //--- Multi-lines text box to print installation result 
-		checkModelResultText = new Text(composite, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.READ_ONLY ); // SWT.H_SCROLL
+		checkModelResultText = new Text(composite, Const.CHECK_MODEL_REPORT_STYLE );
 		GridData gridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
         gridData.horizontalSpan = 2;
         gridData.widthHint  = Const.CHECK_MODEL_REPORT_SIZE_WIDTH;    // Fixed horizontal size in pixels	

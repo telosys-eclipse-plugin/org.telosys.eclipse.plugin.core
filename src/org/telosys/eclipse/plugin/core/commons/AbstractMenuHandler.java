@@ -3,6 +3,7 @@ package org.telosys.eclipse.plugin.core.commons;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.swt.widgets.Shell;
+import org.telosys.eclipse.plugin.core.telosys.TelosysEvolution;
 import org.telosys.tools.api.TelosysProject;
 
 public abstract class AbstractMenuHandler extends AbstractHandler {
@@ -22,14 +23,14 @@ public abstract class AbstractMenuHandler extends AbstractHandler {
     	return TelosysEvolution.hasSpecificModelFolder(telosysProject);
     }
 
-	protected Shell getShell() {
-//		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-//		if (shell == null) {
-//			DialogBox.showError("Cannot get Shell from workbench!");
-//		}
-//		return shell;
-		return WorkbenchUtil.getActiveWindowShell();
-	}
+//	protected Shell getShell() {
+////		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+////		if (shell == null) {
+////			DialogBox.showError("Cannot get Shell from workbench!");
+////		}
+////		return shell;
+//		return WorkbenchUtil.getActiveWindowShell();
+//	}
 	
 //	protected IFolder getSelectedModel(IResource selectedElement) {
 ////    	if ( selectedElement instanceof IFolder ) {

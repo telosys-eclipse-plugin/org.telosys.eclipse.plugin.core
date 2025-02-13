@@ -5,10 +5,9 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
 import org.telosys.eclipse.plugin.core.commons.AbstractMenuHandler;
 import org.telosys.eclipse.plugin.core.commons.ProjectExplorerUtil;
-import org.telosys.eclipse.plugin.core.commons.Validator;
 import org.telosys.eclipse.plugin.core.commons.dialogbox.InstallDialogBox;
+import org.telosys.eclipse.plugin.core.telosys.TelosysChecker;
 import org.telosys.tools.api.InstallationType;
-import org.telosys.tools.api.TelosysProject;
 
 public class InstallModelHandler extends AbstractMenuHandler {
 	
@@ -25,12 +24,10 @@ public class InstallModelHandler extends AbstractMenuHandler {
     public Object execute(ExecutionEvent event) throws ExecutionException {
     	IProject project = ProjectExplorerUtil.getSingleSelectedProject(true);
         if ( project != null ) {
-        	if ( Validator.isTelosysProject(project) ) {
-        		// Open the window
-//        		openDialogBox(project);
+        	if ( TelosysChecker.isTelosysProject(project) ) {
+        		// Open the Dialog Box
             	InstallDialogBox dialogBox = new InstallDialogBox(getTelosysProject(project), InstallationType.MODEL );
             	dialogBox.open(); // show dialog box immediately 
-        		
         	}
         	else {
         		notTelosysProjectMessage();
@@ -38,13 +35,4 @@ public class InstallModelHandler extends AbstractMenuHandler {
         }
         return null;
     }
-    
-//    private void openDialogBox(IProject project) {
-//    	TelosysProject telosysProject = getTelosysProject(project);
-//    	String depot = telosysProject.getTelosysToolsCfg().getDepotForModels(); 
-////    	InstallDialogBox dialogBox = new InstallDialogBox(getShell(), project, depot, InstallationType.MODEL );
-//    	InstallDialogBox dialogBox = new InstallDialogBox(telosysProject, depot, InstallationType.MODEL );
-//    	dialogBox.open(); // show dialog box immediately 
-//    	// nothing else to do, all the work is done in the DialogBox component        	
-//    }
 }

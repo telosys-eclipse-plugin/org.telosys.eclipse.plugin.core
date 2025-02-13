@@ -17,6 +17,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.telosys.eclipse.plugin.core.commons.ProjectUtil;
 import org.telosys.eclipse.plugin.core.commons.Tuple2;
+import org.telosys.eclipse.plugin.core.telosys.TelosysCommand;
 import org.telosys.tools.api.TelosysProject;
 
 
@@ -177,7 +178,7 @@ public class ControlCenterTab1 {
         newEntity.setText("📄 New Entity");
         newEntity.setLayoutData(buttonGridData);
         newEntity.addListener(SWT.Selection, event -> {
-        	TelosysCommand.newEntity(telosysProject, modelsCombo);
+        	TelosysCommand.newEntity(telosysProject, modelsCombo, entitiesTable);
         });
         //--- Button
         Button checkModel = new Button(buttonBar, SWT.PUSH);

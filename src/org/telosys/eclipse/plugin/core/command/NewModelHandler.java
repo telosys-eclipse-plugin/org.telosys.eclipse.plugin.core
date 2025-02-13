@@ -4,7 +4,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.resources.IProject;
 import org.telosys.eclipse.plugin.core.commons.AbstractMenuHandler;
 import org.telosys.eclipse.plugin.core.commons.ProjectExplorerUtil;
-import org.telosys.eclipse.plugin.core.controlcenter.TelosysCommand;
+import org.telosys.eclipse.plugin.core.telosys.TelosysCommand;
 import org.telosys.tools.api.TelosysProject;
 
 public class NewModelHandler extends AbstractMenuHandler {

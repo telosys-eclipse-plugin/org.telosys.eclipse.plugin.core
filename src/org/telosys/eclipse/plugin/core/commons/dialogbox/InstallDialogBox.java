@@ -22,8 +22,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Text;
-import org.telosys.eclipse.plugin.core.command.GetDepotElementsTask;
-import org.telosys.eclipse.plugin.core.command.InstallDepotElementsTask;
 import org.telosys.eclipse.plugin.core.commons.AbstractDialogBox;
 import org.telosys.eclipse.plugin.core.commons.DialogBox;
 import org.telosys.eclipse.plugin.core.commons.ProjectExplorerUtil;

@@ -1,12 +1,10 @@
-package org.telosys.eclipse.plugin.core.command;
+package org.telosys.eclipse.plugin.core.commons.dialogbox;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Optional;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.telosys.eclipse.plugin.core.commons.ProjectUtil;
 import org.telosys.tools.api.TelosysProject;
 import org.telosys.tools.commons.depot.DepotRateLimit;
 import org.telosys.tools.commons.depot.DepotResponse;
@@ -19,7 +17,6 @@ import org.telosys.tools.commons.depot.DepotResponse;
  */
 public class GetDepotElementsTask implements IRunnableWithProgress 
 {
-//	private final IProject project;
 	private final TelosysProject telosysProject;	
 	private final String   depot;
 
@@ -31,14 +28,9 @@ public class GetDepotElementsTask implements IRunnableWithProgress
 	
 	/**
 	 * Constructor
-	 * @param project
+	 * @param telosysProject
 	 * @param depot
 	 */
-//	public GetDepotElementsTask(IProject project, String depot) {
-//		super();
-//		this.project = project;
-//		this.depot = depot;
-//	}
 	public GetDepotElementsTask(TelosysProject telosysProject, String depot) {
 		super();
 		this.telosysProject = telosysProject;
@@ -69,7 +61,6 @@ public class GetDepotElementsTask implements IRunnableWithProgress
 	}
 	
 	private void getElementsFromDepot() {
-//		TelosysProject telosysProject = new TelosysProject(ProjectUtil.getOSFullPath(project));
 		try {
 			depotResponse = telosysProject.getModelsAvailableInDepot(depot); 
 			if (depotResponse.getHttpStatusCode() == 200) {

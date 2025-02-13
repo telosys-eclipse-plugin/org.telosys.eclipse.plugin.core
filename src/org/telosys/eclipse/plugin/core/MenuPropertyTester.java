@@ -8,7 +8,7 @@ import org.eclipse.core.expressions.PropertyTester;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.telosys.eclipse.plugin.core.commons.Config;
-import org.telosys.eclipse.plugin.core.commons.Validator;
+import org.telosys.eclipse.plugin.core.telosys.TelosysChecker;
 
 public class MenuPropertyTester extends PropertyTester {
 	
@@ -83,7 +83,7 @@ public class MenuPropertyTester extends PropertyTester {
 		if ( projects.size() == 1 ) {
 			IProject project = projects.iterator().next(); // First (single) element
 			// allowed for any single Telosys project 
-			return Validator.isTelosysProject(project);
+			return TelosysChecker.isTelosysProject(project);
 		}
     	return false;
     }
@@ -99,7 +99,7 @@ public class MenuPropertyTester extends PropertyTester {
 		if ( projects.size() == 1 ) {
 			// allowed for any single project that is not a "Model" or a "Bundle"
 			IProject project = projects.iterator().next(); // First (single) element
-			return ( ! Validator.isModelDirectory(project) ) && ( ! Validator.isBundleDirectory(project) ); 
+			return ( ! TelosysChecker.isModelDirectory(project) ) && ( ! TelosysChecker.isBundleDirectory(project) ); 
 		}
     	return false;
     }
@@ -115,7 +115,7 @@ public class MenuPropertyTester extends PropertyTester {
 		if ( projects.size() == 1 ) {
 			// allowed for any single project 
 			IProject project = projects.iterator().next(); // First (single) element
-			return Validator.isTelosysProject(project) || Validator.isModelDirectory(project);
+			return TelosysChecker.isTelosysProject(project) || TelosysChecker.isModelDirectory(project);
 		}
     	return false;
     }

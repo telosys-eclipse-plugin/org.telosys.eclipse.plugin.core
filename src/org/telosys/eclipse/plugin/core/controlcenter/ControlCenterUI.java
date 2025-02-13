@@ -13,7 +13,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.telosys.eclipse.plugin.core.commons.MsgColor;
-import org.telosys.eclipse.plugin.core.commons.TelosysEclipseConsole;
+import org.telosys.eclipse.plugin.core.telosys.TelosysEclipseConsole;
 
 public class ControlCenterUI {
 	

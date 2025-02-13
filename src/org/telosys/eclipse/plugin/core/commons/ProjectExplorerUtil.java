@@ -14,6 +14,7 @@ import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.navigator.CommonNavigator;
 import org.eclipse.ui.navigator.CommonViewer;
+import org.telosys.eclipse.plugin.core.telosys.TelosysChecker;
 
 public class ProjectExplorerUtil {
 	
@@ -161,7 +162,7 @@ public class ProjectExplorerUtil {
 		if (projects.size() == 1) {
 			// Single project found
 			IProject project = projects.iterator().next(); // First (single) element
-			if ( Validator.isTelosysProject(project) ) {
+			if ( TelosysChecker.isTelosysProject(project) ) {
 				return project;
 			}
 			else {

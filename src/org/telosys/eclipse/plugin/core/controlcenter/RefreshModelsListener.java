@@ -4,6 +4,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
+import org.telosys.eclipse.plugin.core.telosys.TelosysCommand;
 import org.telosys.tools.api.TelosysProject;
 
 public class RefreshModelsListener implements Listener {

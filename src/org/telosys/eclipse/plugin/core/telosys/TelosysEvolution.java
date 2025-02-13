@@ -1,12 +1,17 @@
-package org.telosys.eclipse.plugin.core.commons;
+package org.telosys.eclipse.plugin.core.telosys;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Predicate;
 
 import org.telosys.tools.api.TelosysModelException;
 import org.telosys.tools.api.TelosysProject;
-import org.telosys.tools.commons.FileUtil;
 import org.telosys.tools.commons.bundles.TargetDefinition;
 import org.telosys.tools.commons.bundles.TargetsDefinitions;
 import org.telosys.tools.dsl.DslModelError;
@@ -165,11 +170,73 @@ public class TelosysEvolution {
 	// TODO
 	public static final String TELOSYS_TOOLS_FOLDER = "TelosysTools" ;	
 	public static final String DATABASES_YAML    = "databases.yaml" ;
-	public static File getDatabasesFile(TelosysProject telosysProject) {
+	public static final String LIB_FOLDER = "lib" ;	
+	
+	public static File getTelosysToolsFolder(TelosysProject telosysProject) {
 		String projectFolderAbsolutePath = telosysProject.getProjectFolder();
 		File projectFolder = new File(projectFolderAbsolutePath);
-		File telosysToolsFolder = new File(projectFolder, TELOSYS_TOOLS_FOLDER);
-		File databasesFile = new File(telosysToolsFolder, DATABASES_YAML);
-		return databasesFile;
+		return new File(projectFolder, TELOSYS_TOOLS_FOLDER);
 	}
+	public static File getLibFolder(TelosysProject telosysProject) {
+		File telosysToolsFolder = getTelosysToolsFolder(telosysProject); 
+		return new File(telosysToolsFolder, LIB_FOLDER);
+	}
+	
+	public static File getDatabasesFile(TelosysProject telosysProject) {
+		File telosysToolsFolder = getTelosysToolsFolder(telosysProject); 
+		return new File(telosysToolsFolder, DATABASES_YAML);
+	}
+	
+	// TODO
+	public static List<File> getLibFiles(TelosysProject telosysProject) throws TelosysApiException {
+		File libFolder = getLibFolder(telosysProject);
+		if ( libFolder.exists() && libFolder.isDirectory() ) {
+			return getJarFilesFromDir(libFolder);
+		}
+		else {
+			throw new TelosysApiException("Lib directory not found ('" + libFolder + "')");
+		}
+	}
+	
+	private static List<File> getJarFilesFromDir(File dir) throws TelosysApiException {
+//		DirectoryStream.Filter<Path> filter = (filePath) -> 
+//		{
+//			String fileName = filePath.toString();
+//			return fileName.endsWith(".jar") || fileName.endsWith(".zip");
+//		};
+		Predicate<Path> predicate = (filePath) -> 
+		{
+			String fileName = filePath.toString();
+			return fileName.endsWith(".jar") || fileName.endsWith(".zip");
+		};
+		return getFilesFromDir(dir, predicate);
+	}
+	
+	private static List<File> getFilesFromDir(File dir, Predicate<Path> predicate) throws TelosysApiException {
+		List<File> files = new ArrayList<>();
+		DirectoryStream.Filter<Path> filter = (filePath) -> predicate.test(filePath); 
+		try ( DirectoryStream<Path> dirStream = Files.newDirectoryStream(dir.toPath(), filter) ) {
+			for (Path path : dirStream) {
+				files.add(path.toFile());
+			}
+		}
+		catch ( IOException e) {
+			throw new TelosysApiException("Cannot get files from directory '" + dir.getName() + "'", e);
+		}
+		return files;
+	}
+
+	private static List<File> getFilesFromDir(File dir, DirectoryStream.Filter<Path> filter) throws TelosysApiException {
+		List<File> entries = new ArrayList<>();
+		try ( DirectoryStream<Path> dirStream = Files.newDirectoryStream(dir.toPath(), filter) ) {
+			for (Path path : dirStream) {
+				entries.add(path.toFile());
+			}
+		}
+		catch ( IOException e) {
+			throw new TelosysApiException("Cannot get files from directory '" + dir.getName() + "'", e);
+		}
+		return entries;
+	}
+
 }

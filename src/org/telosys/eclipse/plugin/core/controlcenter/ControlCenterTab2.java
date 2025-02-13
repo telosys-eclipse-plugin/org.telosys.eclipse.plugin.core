@@ -9,6 +9,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
@@ -16,6 +17,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.telosys.eclipse.plugin.core.commons.DialogBox;
 import org.telosys.eclipse.plugin.core.commons.ProjectUtil;
+import org.telosys.eclipse.plugin.core.telosys.TelosysCommand;
 import org.telosys.tools.api.TelosysProject;
 import org.telosys.tools.commons.dbcfg.yaml.DatabaseDefinition;
 
@@ -29,19 +31,21 @@ public class ControlCenterTab2 {
 			| SWT.NO_FOCUS;
 			//| SWT.CHECK ;
 	
-    private final IProject eclipseProject;
+//    private final IProject eclipseProject;
     private final TelosysProject telosysProject; 
-	private final Font boldFont;
+//	private final Font boldFont;
 	
 	private Table databasesTable;
-	private Table librariesTable;
+	//private Table librariesTable;
+	private List librariesList;
 	private Text  databaseDefinitionText;
+	private DatabaseDefinition currentDatabaseDefinition = null;
 	
 	public ControlCenterTab2(IProject eclipseProject, Font boldFont) {
 		super();
-		this.eclipseProject = eclipseProject;
+//		this.eclipseProject = eclipseProject;
 		this.telosysProject = ProjectUtil.getTelosysProject(eclipseProject);
-		this.boldFont = boldFont;
+//		this.boldFont = boldFont;
 	}
 	
 	protected TabItem createTab(TabFolder tabFolder) {
@@ -68,20 +72,32 @@ public class ControlCenterTab2 {
         // Buttons bar
         createPart3(tabContent);
 
-        //        // Populate Models Combo-Box
-//        TelosysCommand.populateModels(telosysProject, modelsCombo);
-//        // Populate Bundles Combo-Box
-//        TelosysCommand.populateBundles(telosysProject, bundlesCombo);
-        
+        // Populate tables
         TelosysCommand.populateDatabases(telosysProject, databasesTable);
+        //TelosysCommand.populateLibraries(telosysProject, librariesTable);
+        TelosysCommand.populateLibraries(telosysProject, librariesList);
         
         return tabContent;
 	}
 	
-	private Composite createPartComposite(Composite tabContent) {
+//	private Composite createPartComposite(Composite tabContent) {
+//        Composite composite = new Composite(tabContent, SWT.BORDER);
+//        
+//        // #LGU
+//        // composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+//        GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
+//        gridData.widthHint = 400;
+//        composite.setLayoutData(gridData);
+//        
+//        composite.setLayout(new GridLayout());
+//        return composite;
+//	}
+	private Composite createPartComposite(Composite tabContent, int widthHint) {
         Composite composite = new Composite(tabContent, SWT.BORDER);
-        composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         composite.setLayout(new GridLayout());
+        GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true); // flexible
+        gridData.widthHint = widthHint; // used as % for flexible GridData
+        composite.setLayoutData(gridData);
         return composite;
 	}
 	private Composite createPanel(Composite parent, int numColums) {
@@ -93,7 +109,7 @@ public class ControlCenterTab2 {
 		gridLayout.marginHeight = 0; // 10;
 		gridLayout.horizontalSpacing = 10; // Space between widgets
 		bar.setLayout(gridLayout);
-		bar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		bar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false)); // Not flexible
 		return bar;
 	}
 	private GridData createButtonGridData() {
@@ -110,7 +126,7 @@ public class ControlCenterTab2 {
 		return buttonGridData;
 	}
 	private Composite createPart1(Composite tabContent) {
-        Composite part = createPartComposite(tabContent);
+        Composite part = createPartComposite(tabContent, 400); // 40%
         
         Composite panel = createPanel(part, 3);
         //--- Label
@@ -128,11 +144,17 @@ public class ControlCenterTab2 {
         	TelosysCommand.editDatabases(telosysProject);
         });  
 
-        Composite panel2 = createPanel(part, 1);
-        databasesTable = createTable(panel2, 226, true); // about 10 rows
+//        Composite panel2 = createPanel(part, 1);
+//        databasesTable = createTable(panel2, 226, true); // about 10 rows
+        //databasesTable = createTable(panel2, 20, true); // about 10 rows
+//        databasesTable = TableUtils.createTable(panel2);
+        // Do not create a Panel for the Table (create Table directly in "part" for correct auto-resizing)
+        databasesTable = createTable(part, 226, true); // about 10 rows
+        
+        
         TableUtils.createTableColumn(databasesTable, 120, "Id"); // Column 0
         TableUtils.createTableColumn(databasesTable, 120, "Type"); // Column 1
-        TableUtils.createTableColumn(databasesTable, 200, "Name"); // Column 2
+        TableUtils.createTableColumn(databasesTable, 400, "Name"); // Column 2
         // Selection Listener
         databasesTable.addListener(SWT.Selection, event -> {
             TableItem selectedItem = (TableItem) event.item;
@@ -140,6 +162,7 @@ public class ControlCenterTab2 {
                 System.out.println("Selected Row: " + selectedItem.getText(0) + " - " + selectedItem.getText(1));
                 if ( selectedItem.getData() instanceof DatabaseDefinition) {
                     DatabaseDefinition databaseDefinition = (DatabaseDefinition) selectedItem.getData();
+                    currentDatabaseDefinition = databaseDefinition;
                     TelosysCommand.showDatabaseConfig(databaseDefinition, databaseDefinitionText);
                 }
                 else {
@@ -152,21 +175,29 @@ public class ControlCenterTab2 {
         Composite panel3 = createPanel(part, 2);
         //--- Label
         label = new Label(panel3, SWT.NONE);
-        label.setText("Libraries (JDBC drivers should be here)");
+        label.setText("Libraries (database drivers should be here)");
         //--- Filler
         filler = new Label(panel3, SWT.NONE);
         filler.setText(" ");
         filler.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
         
-        Composite panel4 = createPanel(part, 1);
-        librariesTable = createTable(panel4, 128, false); // about 6 rows
+//        Composite panel4 = createPanel(part, 1);
+//        librariesTable = createTable(panel4, 128, false); // about 6 rows
+//        librariesTable = createTable(panel4, 10, false); // about 6 rows
+        // Do not create a Panel for the Table (create Table directly in "part" for correct auto-resizing)
+        //librariesTable = createTable(part, 128, false); // about 6 rows
+        librariesList = new List(part, SWT.BORDER | SWT.V_SCROLL);
+        librariesList.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        librariesList.setEnabled(false);
         
         Composite panel5 = createPanel(part, 3);
         Button refresh = new Button(panel5, SWT.PUSH);
         refresh.setText("⟳ Refresh");
         refresh.setLayoutData(createButtonGridData());
         refresh.addListener(SWT.Selection, event -> {
-        	TelosysCommand.refreshDatabasesAndLibraries(telosysProject, databasesTable, librariesTable, databaseDefinitionText);
+//        	TelosysCommand.refreshDatabasesAndLibraries(telosysProject, databasesTable, librariesTable, databaseDefinitionText);
+        	currentDatabaseDefinition = null;
+        	TelosysCommand.refreshDatabasesAndLibraries(telosysProject, databasesTable, librariesList, databaseDefinitionText);
         });  
         //--- Filler
         filler = new Label(panel5, SWT.NONE);
@@ -189,21 +220,21 @@ public class ControlCenterTab2 {
         // Make sure the table has N visible rows
 //        int rowHeight = 22;
 //        int tableHeight = rowHeight * visibleRows; // + table.getHeaderHeight();
-        gridData.heightHint = tableHeight;
+        //gridData.heightHint = tableHeight;
         table.setLayoutData(gridData);        
         return table;
 	}
 
 	private Composite createPart2(Composite tabContent) {
-        Composite part = createPartComposite(tabContent);
+        Composite part = createPartComposite(tabContent, 600); // 60%
         
         //Composite panel = createPanel(part, 1);
 
         // SWT.MULTI: This style allows the Text widget to handle multiple lines of text.
-        databaseDefinitionText = new Text(part, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL );
+        databaseDefinitionText = new Text(part, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.READ_ONLY );
         // Set the layout data for the Text widget
         GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
-        gridData.widthHint = 400; 
+        // gridData.widthHint = 400; // #LGU moved in part Composite
         databaseDefinitionText.setLayoutData(gridData);
         // Create a Font with a fixed-size character font like "Consolas" or "Courier"
         FontData fontData = new FontData("Consolas", 10, SWT.NORMAL); // You can also use "Courier"
@@ -232,8 +263,21 @@ public class ControlCenterTab2 {
         
         Composite panel = createPanel(part, 1);
         
-        createButton(panel, "Test connection");
-        createButton(panel, "Get database info");
+        Button button ;
+        button = createButton(panel, "Test connection");
+        button.addListener(SWT.Selection, event -> {
+        	if ( currentDatabaseDefinition != null ) {
+            	TelosysCommand.testConnection(telosysProject, currentDatabaseDefinition);
+        	}
+        });  
+        
+        button = createButton(panel, "Get database info");
+        button.addListener(SWT.Selection, event -> {
+        	if ( currentDatabaseDefinition != null ) {
+        		TelosysCommand.getDatabaseInfo(telosysProject, currentDatabaseDefinition);
+        	}
+        });
+        
         createButton(panel, "Get schemas");
         createButton(panel, "Get catalogs");
         createButton(panel, "Get tables");

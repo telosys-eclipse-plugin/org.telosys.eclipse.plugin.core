@@ -1,6 +1,7 @@
-package org.telosys.eclipse.plugin.core.command;
+package org.telosys.eclipse.plugin.core.commons.dialogbox;
 
-import org.eclipse.core.resources.IProject;
+import java.io.File;
+
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
@@ -10,17 +11,21 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.telosys.eclipse.plugin.core.commons.AbstractDialogBox;
 import org.telosys.eclipse.plugin.core.commons.DialogBox;
+import org.telosys.eclipse.plugin.core.commons.WorkbenchUtil;
+import org.telosys.eclipse.plugin.core.telosys.TelosysCommand;
+import org.telosys.tools.api.TelosysProject;
 
 public class NewEntityFromProjectDialogBox extends AbstractDialogBox {
 
 	private static final int BOX_WIDTH  = 600;
 	private static final int BOX_HEIGHT = 300;
 
-	private final IProject  project;
+	// Input data
+	private final TelosysProject telosysProject;
+	private final String    projectName;
 	private final String[]  allModels;
 	
 	// UI widgets 
@@ -30,6 +35,7 @@ public class NewEntityFromProjectDialogBox extends AbstractDialogBox {
 	// Output data
 	private String modelName = "";
 	private String entityName = "";
+	private File   entityFile = null;
 
 	
 	private static Layout createDialogBoxLayout() {
@@ -41,14 +47,15 @@ public class NewEntityFromProjectDialogBox extends AbstractDialogBox {
 
 	/**
 	 * Constructor
-	 * @param parentShell
-	 * @param project
+	 * @param telosysProject
+	 * @param projectName
 	 * @param allModels
 	 */
-	public NewEntityFromProjectDialogBox(Shell parentShell, IProject project, String[] allModels) {
-		super(parentShell, "New Entity", createDialogBoxLayout());
+	public NewEntityFromProjectDialogBox(TelosysProject telosysProject, String projectName, String[] allModels) {
+		super(WorkbenchUtil.getActiveWindowShell(), "New Entity", createDialogBoxLayout());
 		log("CONSTRUCTOR()");
-		this.project = project;
+		this.telosysProject = telosysProject;
+		this.projectName = projectName;
 		this.allModels = allModels;
 	}
 
@@ -58,6 +65,9 @@ public class NewEntityFromProjectDialogBox extends AbstractDialogBox {
 	public String getEntityName() {
 		return entityName;
 	}
+	public File getEntityFile() {
+		return entityFile;
+	}
 	
 	@Override
 	protected Point getInitialSize() {
@@ -66,15 +76,15 @@ public class NewEntityFromProjectDialogBox extends AbstractDialogBox {
 		return new Point(BOX_WIDTH, BOX_HEIGHT);
 	}
     
-	private void createRowProject(Composite composite, IProject project) {
+	private void createRowProject(Composite composite) {
         //--- Label
         Label label = new Label(composite, SWT.NONE);
         label.setText("Project: ");
         label.setLayoutData(new GridData(SWT.DEFAULT, SWT.DEFAULT));
 
-        //--- ComboBox
+        //--- Label
         label = new Label(composite, SWT.NONE);
-        label.setText(project.getName());
+        label.setText(projectName);
         label.setLayoutData(new GridData(SWT.DEFAULT, SWT.DEFAULT));
 	}
 	
@@ -111,7 +121,7 @@ public class NewEntityFromProjectDialogBox extends AbstractDialogBox {
         Composite composite = new Composite(parent, SWT.NONE);
         composite.setLayout(new GridLayout(2, false));  // 2 columns
         //--- Project
-        createRowProject(composite, this.project); 
+        createRowProject(composite); 
 		//--- Model : label + combo box
 		createRowModel(composite);
 		//--- Entity name : label + input text
@@ -132,14 +142,19 @@ public class NewEntityFromProjectDialogBox extends AbstractDialogBox {
 		// "OK" = "Create" button  
 		modelName  = modelCombo.getText().trim();
 		entityName = entityNameText.getText().trim();
-		if ( modelName.isEmpty() || modelName.isBlank() ) {
-			DialogBox.showWarning("No model selected!");
+		if ( ! isValidName(modelName) ) {
+			DialogBox.showWarning("Invalid model name (not selected)!");
 			return;
 		}
-		if ( entityName.isEmpty() || entityName.isBlank() ) {
-			DialogBox.showWarning("No entity name!");
+		if ( ! isValidName(entityName) ) {
+			DialogBox.showWarning("Invalid entity name!");
 			return;
 		}
-		super.okPressed(); // Return to handler
+		// Try to create entity
+		entityFile = TelosysCommand.newEntity(telosysProject, modelName, entityName);
+		if ( entityFile != null ) { // Entity file created
+        	// Close Dialog-Box and return OK 
+			super.okPressed(); 
+		}
 	}
 }

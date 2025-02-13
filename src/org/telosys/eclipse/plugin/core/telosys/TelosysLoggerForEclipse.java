@@ -1,4 +1,4 @@
-package org.telosys.eclipse.plugin.core.commons;
+package org.telosys.eclipse.plugin.core.telosys;
 
 import org.telosys.tools.commons.logger.GenericLogger;
 

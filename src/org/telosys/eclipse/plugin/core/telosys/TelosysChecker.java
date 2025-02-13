@@ -1,12 +1,13 @@
-package org.telosys.eclipse.plugin.core.commons;
+package org.telosys.eclipse.plugin.core.telosys;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.telosys.eclipse.plugin.core.commons.Const;
 
-public class Validator {
+public class TelosysChecker {
 
 	/**
 	 * Returns true if the given project can be considered as a Telosys project 

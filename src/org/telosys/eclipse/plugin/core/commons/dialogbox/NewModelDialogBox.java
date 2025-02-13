@@ -11,7 +11,7 @@ import org.telosys.eclipse.plugin.core.commons.AbstractDialogBox;
 import org.telosys.eclipse.plugin.core.commons.DialogBox;
 import org.telosys.eclipse.plugin.core.commons.ProjectExplorerUtil;
 import org.telosys.eclipse.plugin.core.commons.WorkbenchUtil;
-import org.telosys.eclipse.plugin.core.controlcenter.TelosysCommand;
+import org.telosys.eclipse.plugin.core.telosys.TelosysCommand;
 import org.telosys.tools.api.TelosysProject;
 
 public class NewModelDialogBox extends AbstractDialogBox {
@@ -22,6 +22,11 @@ public class NewModelDialogBox extends AbstractDialogBox {
 	private Text   inputField;
 	private String modelName;
 
+	/**
+	 * Constructor
+	 * @param telosysProject
+	 * @param modelsCombo
+	 */
 	public NewModelDialogBox(TelosysProject telosysProject, Combo modelsCombo) {
 		super(WorkbenchUtil.getActiveWindowShell(), "New Model");
 		this.telosysProject = telosysProject;

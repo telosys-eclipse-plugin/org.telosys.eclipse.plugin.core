@@ -4,6 +4,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
+import org.telosys.eclipse.plugin.core.telosys.TelosysCommand;
 import org.telosys.tools.api.TelosysProject;
 
 public class EditTemplateMenuItemListener implements Listener {
@@ -24,7 +25,6 @@ public class EditTemplateMenuItemListener implements Listener {
 		//   type = 13 ( Selection = 13 )
 		//   widget : org.eclipse.swt.widgets.MenuItem
 		String templateName = TableUtils.getSingleSelectedRowDataAsString(templatesTable);
-		//DialogBox.showInformation("Edit ENTITY \n entityName = " + entityName );
 		if ( templateName != null) {
 			TelosysCommand.editTemplate(telosysProject, bundlesCombo, templateName);
 		}		

@@ -1,4 +1,4 @@
-package org.telosys.eclipse.plugin.core.command;
+package org.telosys.eclipse.plugin.core.commons.dialogbox;
 
 import java.io.File;
 
@@ -10,10 +10,10 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.telosys.eclipse.plugin.core.commons.AbstractDialogBox;
 import org.telosys.eclipse.plugin.core.commons.Const;
+import org.telosys.eclipse.plugin.core.commons.WorkbenchUtil;
 
 public class CheckModelFromModelDialogBox extends AbstractDialogBox {
 
@@ -35,9 +35,11 @@ public class CheckModelFromModelDialogBox extends AbstractDialogBox {
 
 	/**
 	 * Constructor
+	 * @param modelDirectory
+	 * @param modelCheckReport
 	 */
-	public CheckModelFromModelDialogBox(Shell parentShell, File modelDirectory, String modelCheckReport) {
-		super(parentShell, "Check Model", createDialogBoxLayout());
+	public CheckModelFromModelDialogBox(File modelDirectory, String modelCheckReport) {
+		super(WorkbenchUtil.getActiveWindowShell(), "Check Model", createDialogBoxLayout());
 		log("CONSTRUCTOR()");
 		this.modelName = modelDirectory.getName();
 		this.modelCheckReport = modelCheckReport;
@@ -66,7 +68,7 @@ public class CheckModelFromModelDialogBox extends AbstractDialogBox {
 		createRowModel(composite);
 
 	    //--- Multi-lines text box to print installation result 
-		checkModelResultText = new Text(composite, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.READ_ONLY ); // SWT.H_SCROLL
+		checkModelResultText = new Text(composite, Const.CHECK_MODEL_REPORT_STYLE );
 		GridData gridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		// No horizontalSpan (just 1 column)
         gridData.widthHint  = Const.CHECK_MODEL_REPORT_SIZE_WIDTH;    // Fixed horizontal size in pixels	

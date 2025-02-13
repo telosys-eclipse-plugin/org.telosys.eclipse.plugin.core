@@ -1,12 +1,10 @@
-package org.telosys.eclipse.plugin.core.command;
+package org.telosys.eclipse.plugin.core.commons.dialogbox;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.telosys.eclipse.plugin.core.commons.ProjectUtil;
 import org.telosys.tools.api.InstallationType;
 import org.telosys.tools.api.TelosysProject;
 import org.telosys.tools.commons.depot.DepotElement;
@@ -19,7 +17,6 @@ import org.telosys.tools.commons.depot.DepotElement;
  */
 public class InstallDepotElementsTask implements IRunnableWithProgress 
 {
-//	private final IProject project;
 	private final TelosysProject telosysProject;
 	private final String   depot;
 	private final InstallationType installationType;
@@ -29,18 +26,13 @@ public class InstallDepotElementsTask implements IRunnableWithProgress
 	private final StringBuilder sbResult;
 	private int numberOfElementsInstalled = 0 ;
 
-	
 	/**
 	 * Constructor
+	 * @param telosysProject
+	 * @param depot
+	 * @param elements
+	 * @param installationType
 	 */
-//	public InstallDepotElementsTask(IProject project, String depot, List<DepotElement> elements, InstallationType installationType ) {
-//		super();
-//		this.project = project;
-//		this.depot = depot;
-//		this.elements = elements;
-//		this.installationType = installationType;
-//		this.sbResult = new StringBuilder();
-//	}
 	public InstallDepotElementsTask(TelosysProject telosysProject, String depot, List<DepotElement> elements, InstallationType installationType ) {
 		super();
 		this.telosysProject = telosysProject;
@@ -75,7 +67,6 @@ public class InstallDepotElementsTask implements IRunnableWithProgress
 	}
 	
 	private void installElementsFromDepot() {
-//		TelosysProject telosysProject = new TelosysProject(ProjectUtil.getOSFullPath(project));
 		numberOfElementsInstalled = 0;
 		for (DepotElement e : elements) {
 			try {
