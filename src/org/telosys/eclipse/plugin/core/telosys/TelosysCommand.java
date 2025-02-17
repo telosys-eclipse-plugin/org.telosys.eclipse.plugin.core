@@ -35,6 +35,7 @@ import org.telosys.eclipse.plugin.core.commons.dialogbox.InstallDialogBox;
 import org.telosys.eclipse.plugin.core.commons.dialogbox.NewEntityFromModelDialogBox;
 import org.telosys.eclipse.plugin.core.commons.dialogbox.NewModelDialogBox;
 import org.telosys.tools.api.InstallationType;
+import org.telosys.tools.api.MetaDataOptionsImpl;
 import org.telosys.tools.api.TelosysProject;
 import org.telosys.tools.commons.bundles.TargetDefinition;
 import org.telosys.tools.commons.bundles.TargetsDefinitions;
@@ -358,7 +359,10 @@ public class TelosysCommand {
 	}
 
 	public static void newBundle(TelosysProject telosysProject) {
-		todo("New Bundle ", "(NOT YET AVAILABLE IN TELOSYS API)", telosysProject);
+		// TODO
+		DialogBox.showInformation("TODO: \n" 
+				+ "'New Bundle' NOT YET AVAILABLE IN TELOSYS API \n" 
+        		+ "Current project: \n" + telosysProject.getProjectFolder() );
 	}
 	
 	public static void installBundles(TelosysProject telosysProject, Combo bundlesCombo) {
@@ -603,16 +607,49 @@ public class TelosysCommand {
 		text.setText(sb.toString());
 	}	
 	
-	//Runnable task = () -> telosysProject.checkDatabaseConnection(currentDatabaseDefinition.getId()) ;
+	//--------------------------------------------------------------------------------------------------------
+	// New model from database 
+	//--------------------------------------------------------------------------------------------------------
+	public static void newModelFromDatabase(TelosysProject telosysProject, String modelName, DatabaseDefinition currentDatabaseDefinition) {
+		if ( !checkNotNull(telosysProject, modelName, currentDatabaseDefinition)) return;
+		if ( telosysProject.modelFolderExists(modelName) ) {
+			DialogBox.showWarning("Model '" + modelName + "' already exists!");
+		}
+		else {
+			boolean r = executeWithProgressMonitorDialog("Creating a new model from database...  Please wait.", 
+					() -> newModelFromDatabaseTask(telosysProject, modelName, currentDatabaseDefinition) );
+			if ( r == true ) {
+				// Refresh and expand folder in Project Explorer
+				File modelFolder = telosysProject.getModelFolder(modelName);
+				ProjectExplorerUtil.reveal(modelFolder);
+			}
+		}
+	}
+	private static String newModelFromDatabaseTask(TelosysProject telosysProject, String modelName, DatabaseDefinition currentDatabaseDefinition) {
+		// Just try to connect to database (no meta-data)
+		try {
+			String databaseId = currentDatabaseDefinition.getId();
+			telosysProject.createNewDslModelFromDatabase(modelName, databaseId);
+			return "OK, model '" + modelName + "' successfully created from database '" + databaseId + "'." ;
+		} catch (Exception e) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("ERROR \n");
+			sb.append("\n");
+			sb.append("Exception:" + e.getClass().getName() + " : " + e.getMessage() + "\n");
+			if ( e.getCause() != null ) {
+				sb.append("Cause: " + e.getCause().getMessage() + "\n");
+			}
+			return sb.toString();
+		}
+	}
 
+	//--------------------------------------------------------------------------------------------------------
+	// Database : test connection
+	//--------------------------------------------------------------------------------------------------------
 	public static void testConnection(TelosysProject telosysProject, DatabaseDefinition currentDatabaseDefinition) {
-//		TelosysMonitorTask task = new TelosysMonitorTask("Trying to connect...\n\nPlease wait.", 
-//				() -> testConnectionTask(telosysProject, currentDatabaseDefinition) );
-//		executeWithProgressMonitorDialog(task);
 		if ( !checkNotNull(telosysProject, currentDatabaseDefinition)) return;
 		executeWithProgressMonitorDialog("Trying to connect...  Please wait.", 
 				() -> testConnectionTask(telosysProject, currentDatabaseDefinition) );
-		
 	}
 	private static String testConnectionTask(TelosysProject telosysProject, DatabaseDefinition currentDatabaseDefinition) {
 		// Just try to connect to database (no meta-data)
@@ -622,10 +659,11 @@ public class TelosysCommand {
 				return "OK, successful connection test.";
 			}
 			else {
-				return "Cannot connect to database.\n (return = false)";
+				return "ERROR \n Cannot connect to database.\n (return = false)";
 			}
 		} catch (Exception e) {
 			StringBuilder sb = new StringBuilder();
+			sb.append("ERROR \n");
 			sb.append("Cannot connect to database.\n");
 			sb.append("\n");
 			sb.append("Exception:" + e.getClass().getName() + " : " + e.getMessage() + "\n");
@@ -636,46 +674,102 @@ public class TelosysCommand {
 		}
 	}
 	
+	//--------------------------------------------------------------------------------------------------------
+	// Database : get meta-data
+	//--------------------------------------------------------------------------------------------------------
 	public static void getDatabaseInfo(TelosysProject telosysProject, DatabaseDefinition currentDatabaseDefinition) {
-		
+		if ( !checkNotNull(telosysProject, currentDatabaseDefinition)) return;
+		MetaDataOptionsImpl metadataOptions = new MetaDataOptionsImpl();
+		metadataOptions.setInfo(true);
+		executeWithProgressMonitorDialog("Trying to get database info...  Please wait.", 
+				() -> getMetaDataTask(telosysProject, currentDatabaseDefinition, metadataOptions) );		
+	}
+	public static void getDatabaseSchemas(TelosysProject telosysProject, DatabaseDefinition currentDatabaseDefinition) {
+		if ( !checkNotNull(telosysProject, currentDatabaseDefinition)) return;
+		MetaDataOptionsImpl metadataOptions = new MetaDataOptionsImpl();
+		metadataOptions.setSchemas(true);
+		executeWithProgressMonitorDialog("Trying to get schemas...  Please wait.", 
+				() -> getMetaDataTask(telosysProject, currentDatabaseDefinition, metadataOptions) );		
+	}
+	public static void getDatabaseCatalogs(TelosysProject telosysProject, DatabaseDefinition currentDatabaseDefinition) {
+		if ( !checkNotNull(telosysProject, currentDatabaseDefinition)) return;
+		MetaDataOptionsImpl metadataOptions = new MetaDataOptionsImpl();
+		metadataOptions.setCatalogs(true);
+		executeWithProgressMonitorDialog("Trying to get catalogs...  Please wait.", 
+				() -> getMetaDataTask(telosysProject, currentDatabaseDefinition, metadataOptions) );		
+	}
+	public static void getDatabaseTables(TelosysProject telosysProject, DatabaseDefinition currentDatabaseDefinition) {
+		if ( !checkNotNull(telosysProject, currentDatabaseDefinition)) return;
+		MetaDataOptionsImpl metadataOptions = new MetaDataOptionsImpl();
+		metadataOptions.setTables(true);
+		executeWithProgressMonitorDialog("Trying to get tables...  Please wait.", 
+				() -> getMetaDataTask(telosysProject, currentDatabaseDefinition, metadataOptions) );		
+	}
+	public static void getDatabaseColumns(TelosysProject telosysProject, DatabaseDefinition currentDatabaseDefinition) {
+		if ( !checkNotNull(telosysProject, currentDatabaseDefinition)) return;
+		MetaDataOptionsImpl metadataOptions = new MetaDataOptionsImpl();
+		metadataOptions.setColumns(true);
+		executeWithProgressMonitorDialog("Trying to get columns...  Please wait.", 
+				() -> getMetaDataTask(telosysProject, currentDatabaseDefinition, metadataOptions) );		
+	}
+	public static void getDatabasePK(TelosysProject telosysProject, DatabaseDefinition currentDatabaseDefinition) {
+		if ( !checkNotNull(telosysProject, currentDatabaseDefinition)) return;
+		MetaDataOptionsImpl metadataOptions = new MetaDataOptionsImpl();
+		metadataOptions.setPrimaryKeys(true);
+		executeWithProgressMonitorDialog("Trying to get primary keys...  Please wait.", 
+				() -> getMetaDataTask(telosysProject, currentDatabaseDefinition, metadataOptions) );		
+	}
+	public static void getDatabaseFK(TelosysProject telosysProject, DatabaseDefinition currentDatabaseDefinition) {
+		if ( !checkNotNull(telosysProject, currentDatabaseDefinition)) return;
+		MetaDataOptionsImpl metadataOptions = new MetaDataOptionsImpl();
+		metadataOptions.setForeignKeys(true);
+		executeWithProgressMonitorDialog("Trying to get foreign keys...  Please wait.", 
+				() -> getMetaDataTask(telosysProject, currentDatabaseDefinition, metadataOptions) );		
+	}
+	public static String getMetaDataTask(TelosysProject telosysProject, DatabaseDefinition databaseDefinition, MetaDataOptionsImpl metadataOptions) {
+		try {
+			return telosysProject.getMetaData(databaseDefinition, metadataOptions);
+		} catch (Exception e) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("ERROR \n");
+			sb.append("Cannot get database meta-data.\n");
+			sb.append("\n");
+			sb.append("Exception:" + e.getClass().getName() + " : " + e.getMessage() + "\n");
+			if ( e.getCause() != null ) {
+				sb.append("Cause: " + e.getCause().getMessage() + "\n");
+			}
+			return sb.toString();
+		}
 	}
 	
-	private static void executeWithProgressMonitorDialog(String waitMessage, Supplier<String> supplierTask) {
+	//--------------------------------------------------------------------------------------------------------
+	// Task execution with ProgressMonitorDialog
+	//--------------------------------------------------------------------------------------------------------
+	private static boolean executeWithProgressMonitorDialog(String waitMessage, Supplier<String> supplierTask) {
 		TelosysMonitorTask monitorTask = new TelosysMonitorTask(waitMessage, supplierTask );
 		try {
 			// Run task 
 			String result = executeWithProgressMonitorDialog(monitorTask);
-			DialogBox.showInformation(result);
+			if ( result.startsWith("ERROR") ) {
+				DialogBox.showError(result);
+			} 
+			else {
+				DialogBox.showInformation(result);
+				return true; // OK
+			}
 		} catch (InvocationTargetException e) {
 			DialogBox.showError("Error during task", e.getMessage());
 		} catch (InterruptedException e) {
 			// DialogBox.showInformation("Task interrupted");
 			// Not an error
-		}		
+		}
+		return false;
 	}
 	private static String executeWithProgressMonitorDialog(TelosysMonitorTask runnableTask) throws InvocationTargetException, InterruptedException{
 		ProgressMonitorDialog progressMonitorDialog = new ProgressMonitorDialog(WorkbenchUtil.getActiveWindowShell()) ;
-//		try {
-//			// Run task 
-//			progressMonitorDialog.run(false, false, runnableTask);
-//			return runnableTask.getResult();
-//		} catch (InvocationTargetException e) {
-//			DialogBox.showError("Error during task", e.getMessage());
-//		} catch (InterruptedException e) {
-//			DialogBox.showInformation("Task interrupted");
-//		}
-//		return "";
 		// Run task 
 		progressMonitorDialog.run(false, false, runnableTask);
 		return runnableTask.getResult();
-	}
-	//---------------------------------------------------------------------------------------
-	// TODO
-	//---------------------------------------------------------------------------------------
-	private static void todo(String command, String modelName, TelosysProject telosysProject) {
-		DialogBox.showInformation("TODO: \n" 
-				+ command + " " + modelName + "\n" 
-        		+ "in project: \n" + telosysProject.getProjectFolder() );
 	}
 	
 }

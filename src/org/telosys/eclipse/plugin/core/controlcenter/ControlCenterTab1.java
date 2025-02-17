@@ -322,7 +322,7 @@ public class ControlCenterTab1 {
 //        Button newModel = new Button(bottomPart, SWT.PUSH);
 //        newModel.setText("➕ New Model");
 //        newModel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
-        Button newModel = createBottomButton(bottomPart, "➕ New Model", SWT.LEFT);
+        Button newModel = createBottomButton(bottomPart, "✨ New Model", SWT.LEFT);
         newModel.addListener(SWT.Selection, event -> {
         	TelosysCommand.newModel(telosysProject, modelsCombo);
         });        
@@ -354,7 +354,7 @@ public class ControlCenterTab1 {
 //        Button newBundle = new Button(bottomPart, SWT.PUSH);
 //        newBundle.setText("New Bundle");
 //        newBundle.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
-        Button newBundle = createBottomButton(bottomPart, "➕ New Bundle", SWT.RIGHT);
+        Button newBundle = createBottomButton(bottomPart, "✨ New Bundle", SWT.RIGHT);
 //        Label tmpLabel = new Label(bottomPart, SWT.NONE);
 //        tmpLabel.setText("                "); // not visible
 //        tmpLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
