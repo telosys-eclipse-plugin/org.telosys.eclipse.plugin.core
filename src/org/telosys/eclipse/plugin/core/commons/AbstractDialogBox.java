@@ -1,5 +1,8 @@
 package org.telosys.eclipse.plugin.core.commons;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -12,6 +15,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public abstract class AbstractDialogBox extends Dialog {
+	
+	
+	private static final Logger LOGGER = Logger.getLogger(AbstractDialogBox.class.getName()); 
+	static {
+		LOGGER.setLevel(Level.ALL);
+	}
 	
 	protected void log(String msg) {
 		if ( Config.LOG_FROM_DIALOG_BOX ) {

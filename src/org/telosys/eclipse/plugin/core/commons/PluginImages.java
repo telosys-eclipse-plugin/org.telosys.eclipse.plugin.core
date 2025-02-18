@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.logging.Logger;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
@@ -11,10 +12,12 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
 import org.osgi.framework.Bundle;
-import org.telosys.eclipse.plugin.commons.Logger;
+import org.telosys.eclipse.plugin.commons.LoggerUtil;
 
 public class PluginImages {
 
+	private static final Logger LOGGER = LoggerUtil.getLogger(PluginImages.class.getName() );
+	
 	// image registry
 	private static final ImageRegistry staticImageRegistry = new ImageRegistry() ;
 
@@ -25,7 +28,7 @@ public class PluginImages {
      * @param bundle
      */
     public static void initImageRegistry(Bundle bundle) {
-		Logger.log("initImageRegistry(" + bundle + ")" );
+    	LOGGER.info("initImageRegistry(" + bundle + ")" );
     	if ( bundle != null ) {
         	staticBundle = bundle;
         	initImageRegistry();
@@ -72,25 +75,25 @@ public class PluginImages {
 		URL imageURL = getImageURL(imageFileName);
 		checkImageExistence(imageURL);
 		if ( imageURL != null ) {
-			Logger.log("Register image: '" + imageKey + "' -> " + imageURL);
+			LOGGER.fine("Register image: '" + imageKey + "' -> " + imageURL);
 			staticImageRegistry.put(imageKey, ImageDescriptor.createFromURL(imageURL) );			
 		}
 		else {
-			Logger.error("Cannot get image URL for '" + imageFileName + "'");
+			LOGGER.warning("Cannot get image URL for '" + imageFileName + "'");
 		}
 		//return ImageDescriptor.createFromURL(url);
 	}
     private static void checkImageExistence(URL imageURL) {
         // Check if the image exists in the plugin's resources
-		Logger.log("check Image Existence: '" + imageURL + "' " );
+    	LOGGER.info("check Image Existence: '" + imageURL + "' " );
         if (imageURL != null) {
             // Check if the image exists locally (for a file-based URL)
             File file = new File(imageURL.getFile());
             if ( file.exists() ) {
-    			Logger.log("image '" + file.getName() + "' exists. " );
+            	LOGGER.fine("image '" + file.getName() + "' exists. " );
             }
             else {
-    			Logger.error("image '" + file.getName() + "' doesn't exist. " );
+            	LOGGER.warning("image '" + file.getName() + "' doesn't exist. " );
     			DialogBox.showError("image '" + file.getName() + "' doesn't exist. ");
             }
         }

@@ -96,18 +96,6 @@ public class InstallDialogBox extends AbstractDialogBox {
 		log("create() : before call super.create()");
 		super.create();
 		log("create() : after call super.create()");
-//		// Init the window
-//		log("create() : set focus");
-//		// getFromDepotButton.forceFocus(); // NOK
-//		// getShell().setDefaultButton(getFromDepotButton); // NOK
-//		// Explicitly set focus to the Button when the shell opens
-//		getShell().addListener(SWT.Activate, e -> { 
-//			System.out.println("Shell activated (via Listener SWT.Activate)!"); 
-//			//getFromDepotButton.setFocus(); // NOK
-//			getFromDepotButton.forceFocus(); // NOK
-//			} );
-		
-//		getShell().setTabList(new Control[] {elementsFromDepotButton, elementsFoundList}); // Error Widget has the wrong parent
 	}	
 	@Override
 	protected Point getInitialSize() {

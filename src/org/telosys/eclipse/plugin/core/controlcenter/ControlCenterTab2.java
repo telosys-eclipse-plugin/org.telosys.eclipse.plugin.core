@@ -1,5 +1,8 @@
 package org.telosys.eclipse.plugin.core.controlcenter;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -34,23 +37,25 @@ public class ControlCenterTab2 {
 			| SWT.NO_FOCUS;
 			//| SWT.CHECK ;
 	
-//    private final IProject eclipseProject;
     private final TelosysProject telosysProject; 
-//	private final Font boldFont;
+	private final Collection<Button> dynamicButtons = new ArrayList<>();
 	
 	private Table databasesTable;
-	//private Table librariesTable;
 	private List librariesList;
 	private Text  databaseDefinitionText;
 	private DatabaseDefinition currentDatabaseDefinition = null;
 	
 	public ControlCenterTab2(IProject eclipseProject, Font boldFont) {
 		super();
-//		this.eclipseProject = eclipseProject;
 		this.telosysProject = ProjectUtil.getTelosysProject(eclipseProject);
-//		this.boldFont = boldFont;
 	}
 	
+	private void setActivableButtonsEnabled(boolean enabled) {
+		for ( Button button : dynamicButtons ) {
+			button.setEnabled(enabled);
+		}
+	}
+
 	protected TabItem createTab(TabFolder tabFolder) {
 		TabItem tabItem = new TabItem(tabFolder, SWT.NONE);
 		tabItem.setText(TAB_TITLE);
@@ -75,26 +80,15 @@ public class ControlCenterTab2 {
         // Buttons bar
         createPart3(tabContent);
 
+    	setActivableButtonsEnabled(false);
+
         // Populate tables
         TelosysCommand.populateDatabases(telosysProject, databasesTable);
-        //TelosysCommand.populateLibraries(telosysProject, librariesTable);
         TelosysCommand.populateLibraries(telosysProject, librariesList);
         
         return tabContent;
 	}
 	
-//	private Composite createPartComposite(Composite tabContent) {
-//        Composite composite = new Composite(tabContent, SWT.BORDER);
-//        
-//        // #LGU
-//        // composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-//        GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
-//        gridData.widthHint = 400;
-//        composite.setLayoutData(gridData);
-//        
-//        composite.setLayout(new GridLayout());
-//        return composite;
-//	}
 	private Composite createPartComposite(Composite tabContent, int widthHint) {
         Composite composite = new Composite(tabContent, SWT.BORDER);
         composite.setLayout(new GridLayout());
@@ -117,9 +111,6 @@ public class ControlCenterTab2 {
 	}
 	private GridData createButtonGridData() {
 		return createButtonGridData(SWT.DEFAULT, 0);
-	}
-	private GridData createButtonGridData(int widthHint) {
-		return createButtonGridData(SWT.DEFAULT, widthHint);
 	}
 	private GridData createButtonGridData(int widthHint, int horizontalAlignment) {
         GridData buttonGridData = new GridData(horizontalAlignment, SWT.CENTER, false, false);
@@ -162,11 +153,11 @@ public class ControlCenterTab2 {
         databasesTable.addListener(SWT.Selection, event -> {
             TableItem selectedItem = (TableItem) event.item;
             if (selectedItem != null) {
-                System.out.println("Selected Row: " + selectedItem.getText(0) + " - " + selectedItem.getText(1));
                 if ( selectedItem.getData() instanceof DatabaseDefinition) {
                     DatabaseDefinition databaseDefinition = (DatabaseDefinition) selectedItem.getData();
                     currentDatabaseDefinition = databaseDefinition;
                     TelosysCommand.showDatabaseConfig(databaseDefinition, databaseDefinitionText);
+                    setActivableButtonsEnabled(true);
                 }
                 else {
                 	DialogBox.showError("Item data is not an instance of 'DatabaseDefinition'");
@@ -198,9 +189,9 @@ public class ControlCenterTab2 {
         refresh.setText("⟳ Refresh");
         refresh.setLayoutData(createButtonGridData());
         refresh.addListener(SWT.Selection, event -> {
-//        	TelosysCommand.refreshDatabasesAndLibraries(telosysProject, databasesTable, librariesTable, databaseDefinitionText);
         	currentDatabaseDefinition = null;
         	TelosysCommand.refreshDatabasesAndLibraries(telosysProject, databasesTable, librariesList, databaseDefinitionText);
+        	setActivableButtonsEnabled(false);
         });  
         //--- Filler
         filler = new Label(panel5, SWT.NONE);
@@ -210,6 +201,7 @@ public class ControlCenterTab2 {
         Button newModelFromDB = new Button(panel5, SWT.PUSH);
         newModelFromDB.setText("✨ New Model from Database");
         newModelFromDB.setLayoutData(createButtonGridData());
+        dynamicButtons.add(newModelFromDB);
         newModelFromDB.addListener(SWT.Selection, event -> {
         	NewModelFromDbDialogBox dialogBox = new NewModelFromDbDialogBox();
         	int r = dialogBox.open();
@@ -264,7 +256,8 @@ public class ControlCenterTab2 {
         GridData gridData = new GridData();
         gridData.widthHint = 160; // Set the desired width in pixels
         button.setLayoutData(gridData);
-        button.addListener(SWT.Selection, listener);  
+        button.addListener(SWT.Selection, listener);
+        dynamicButtons.add(button);
 	    return button;
 	}
 	private Composite createPart3(Composite tabContent) {

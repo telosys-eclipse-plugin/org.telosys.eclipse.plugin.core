@@ -1,15 +1,19 @@
 package org.telosys.eclipse.plugin.core;
 
+import java.util.logging.Logger;
+
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.telosys.eclipse.plugin.commons.LoggerUtil;
 import org.telosys.eclipse.plugin.core.commons.PluginImages;
-
-import org.telosys.eclipse.plugin.commons.Logger;
 
 /**
  * The activator class controls the plug-in life cycle
  */
 public class Activator extends AbstractUIPlugin {
+	
+	private static final Logger LOGGER = LoggerUtil.getLogger(Activator.class.getName() );
+
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "org.telosys.eclipse.plugin.core"; //$NON-NLS-1$
@@ -28,24 +32,25 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext bundleContext) throws Exception {
 		super.start(bundleContext);
 		plugin = this;
-		Logger.log("-------------------------------------------------" );
-		Logger.log("Starting Plugin " + PLUGIN_ID );
-		Logger.log("BundleContext: " + bundleContext );
+		System.out.println("Telosys-Plugin: current working directory: " + System.getProperty("user.dir"));
+		LOGGER.info("-------------------------------------------------" );
+		LOGGER.info("Starting Plugin " + PLUGIN_ID );
+		LOGGER.info("BundleContext: " + bundleContext );
         // Attach listener 
 		// PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService().addSelectionListener(new SelectionListener_BAK());
 		
 		// bundle = bundleContext.getBundle();
 		// Image Registry initialization 
 		PluginImages.initImageRegistry(bundleContext.getBundle()); 
-		Logger.log("-------------------------------------------------" );
+		LOGGER.info("-------------------------------------------------" );
 	}
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
-		Logger.log("-------------------------------------------------" );
-		Logger.log("Stoping Plugin " + PLUGIN_ID );
-		Logger.log("-------------------------------------------------" );
+		LOGGER.info("-------------------------------------------------" );
+		LOGGER.info("Stoping Plugin " + PLUGIN_ID );
+		LOGGER.info("-------------------------------------------------" );
 		super.stop(context);
 	}
 

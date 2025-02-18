@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.logging.Logger;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -22,7 +23,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
-import org.telosys.eclipse.plugin.commons.Logger;
+import org.telosys.eclipse.plugin.commons.LoggerUtil;
 import org.telosys.eclipse.plugin.core.commons.ComboItem;
 import org.telosys.eclipse.plugin.core.commons.ComboUtil;
 import org.telosys.eclipse.plugin.core.commons.DialogBox;
@@ -34,6 +35,7 @@ import org.telosys.eclipse.plugin.core.commons.dialogbox.CheckModelFromModelDial
 import org.telosys.eclipse.plugin.core.commons.dialogbox.InstallDialogBox;
 import org.telosys.eclipse.plugin.core.commons.dialogbox.NewEntityFromModelDialogBox;
 import org.telosys.eclipse.plugin.core.commons.dialogbox.NewModelDialogBox;
+import org.telosys.eclipse.plugin.core.commons.dialogbox.ResultDialogBox;
 import org.telosys.tools.api.InstallationType;
 import org.telosys.tools.api.MetaDataOptionsImpl;
 import org.telosys.tools.api.TelosysProject;
@@ -43,7 +45,7 @@ import org.telosys.tools.commons.dbcfg.yaml.DatabaseDefinition;
 import org.telosys.tools.commons.dbcfg.yaml.DatabaseDefinitions;
 
 public class TelosysCommand {
-	
+	private static final Logger LOGGER = LoggerUtil.getLogger(TelosysCommand.class.getName() );	
 	private static final String TELOSYS_API_ERROR = "Telosys API error";
 
 	private static boolean isValidName(String name) {
@@ -80,7 +82,7 @@ public class TelosysCommand {
 		populateModels(telosysProject, modelsCombo, Optional.empty());
 	}
 	private static Optional<String> populateModels(TelosysProject telosysProject, Combo modelsCombo, Optional<String> optionalCurrentModel) {
-        Logger.log("populateModels ( optionalCurrentModel = '" + optionalCurrentModel +"' )");
+        LOGGER.fine("populateModels ( optionalCurrentModel = '" + optionalCurrentModel +"' )");
 		// Populate combo box
 		List<String> models = telosysProject.getModelNames();
 		models.add(0, ""); // First element is void = no model
@@ -105,7 +107,7 @@ public class TelosysCommand {
 
 	}
 	private static void populateEntities(TelosysProject telosysProject, Optional<String> optionalModelName, Table entitiesTable) {
-        Logger.log("populateEntities ( optionalModelName = '" + optionalModelName +"' )");
+        LOGGER.fine("populateEntities ( optionalModelName = '" + optionalModelName +"' )");
 		// Clear table (remove all rows)
 		entitiesTable.removeAll();
 		if ( optionalModelName.isPresent() ) {
@@ -126,23 +128,23 @@ public class TelosysCommand {
 	}
 	public static Optional<String> refreshModels(TelosysProject telosysProject, Combo modelsCombo) {
 		if ( !checkNotNull(telosysProject, modelsCombo) ) return Optional.empty();
-        Logger.log("refreshModels()");
+        LOGGER.fine("refreshModels()");
 //		String currentModel = null;
 //		Optional<String> optionalModelName = getCurrentSelection(modelsCombo);
 //		if ( optionalModelName.isPresent() ) {
 //			currentModel = optionalModelName.get();
 //		}
 //		// Reload all models in combobox
-//        Logger.log("refreshModels() --> populateModels(currentModel='" + currentModel + "')");
+//        LOGGER.fine("refreshModels() --> populateModels(currentModel='" + currentModel + "')");
 //		return TelosysCommand.populateModels(telosysProject, modelsCombo, currentModel);
-//        Logger.log("refreshModels() --> populateModels(currentModel='" + currentModel + "')");
+//        LOGGER.fine("refreshModels() --> populateModels(currentModel='" + currentModel + "')");
 		return populateModels(telosysProject, modelsCombo, getCurrentSelection(modelsCombo));
 	}
 	public static void refreshModelsAndEntities(TelosysProject telosysProject, Combo modelsCombo, Table entitiesTable) {
 		if ( !checkNotNull(telosysProject, modelsCombo, entitiesTable) ) return ;
-        Logger.log("refreshModelsAndEntities() ");
+        LOGGER.fine("refreshModelsAndEntities() ");
         Optional<String> optionalCurrentModel = refreshModels(telosysProject, modelsCombo); 
-        Logger.log("refreshModelsAndEntities() : optionalCurrentModel='" + optionalCurrentModel + "')");
+        LOGGER.fine("refreshModelsAndEntities() : optionalCurrentModel='" + optionalCurrentModel + "')");
 		populateEntities(telosysProject, optionalCurrentModel, entitiesTable);
 	}
 	public static void editModel(TelosysProject telosysProject, Combo modelsCombo) {
@@ -259,7 +261,7 @@ public class TelosysCommand {
 		populateBundles(telosysProject, bundlesCombo, Optional.empty());
 	}
 	private static Optional<String> populateBundles(TelosysProject telosysProject, Combo bundlesCombo, Optional<String> optionalCurrentBundle) {
-        Logger.log("populateBundles ( optionalCurrentBundle = '" + optionalCurrentBundle +"' )");
+        LOGGER.fine("populateBundles ( optionalCurrentBundle = '" + optionalCurrentBundle +"' )");
 		// Populate combo box
 		List<String> bundles = telosysProject.getBundleNames();
 		bundles.add(0, ""); // First element is void 
@@ -285,20 +287,20 @@ public class TelosysCommand {
 		copyStaticFilesCheckBox.setSelection(state);
 	}
 	public static Optional<String> refreshBundles(TelosysProject telosysProject, Combo bundlesCombo) {
-        Logger.log("refreshBundles()");
+        LOGGER.fine("refreshBundles()");
 //		String currentBundle = null;
 //		Optional<String> optionalBundleName = getCurrentSelection(bundlesCombo);
 //		if ( optionalBundleName.isPresent() ) {
 //			currentBundle = optionalBundleName.get();
 //		}
 //		// Reload all bundles in combo-box
-//        Logger.log("refreshBundles() --> populateBundles(currentBundle='" + currentBundle + "')");
+//        LOGGER.fine("refreshBundles() --> populateBundles(currentBundle='" + currentBundle + "')");
 		return populateBundles(telosysProject, bundlesCombo, getCurrentSelection(bundlesCombo));
 	}
 	public static void refreshBundlesAndTemplates(TelosysProject telosysProject, Combo bundlesCombo, Button copyStaticFilesCheckBox, Table templatesTable) {
-        Logger.log("refreshBundlesAndTemplates()");
+        LOGGER.fine("refreshBundlesAndTemplates()");
         Optional<String> optionalCurrentBundle = refreshBundles(telosysProject, bundlesCombo); 
-        Logger.log("refreshBundlesAndTemplates() : optionalCurrentBundle='" + optionalCurrentBundle + "'");
+        LOGGER.fine("refreshBundlesAndTemplates() : optionalCurrentBundle='" + optionalCurrentBundle + "'");
    		populateTemplates(telosysProject, optionalCurrentBundle, copyStaticFilesCheckBox, templatesTable);
 	}
 	
@@ -486,7 +488,7 @@ public class TelosysCommand {
 	// DATABASES
 	//---------------------------------------------------------------------------------------
 	public static void populateDatabases(TelosysProject telosysProject, Table databasesTable) {
-        Logger.log("populateDatabases()");
+        LOGGER.fine("populateDatabases()");
 		// Clear table (remove all rows)
         databasesTable.removeAll();
         // Populate with db configurations
@@ -516,7 +518,7 @@ public class TelosysCommand {
 		}
 	}
 	public static void populateLibraries(TelosysProject telosysProject, Table librariesTable) {
-        Logger.log("populateLibraries()");
+        LOGGER.fine("populateLibraries()");
 		// Clear table (remove all rows)
         librariesTable.removeAll();
         // Populate 
@@ -533,7 +535,7 @@ public class TelosysCommand {
 		}
 	}
 	public static void populateLibraries(TelosysProject telosysProject, org.eclipse.swt.widgets.List librariesList) {
-        Logger.log("populateLibraries()");
+        LOGGER.fine("populateLibraries()");
 		// Clear (remove all rows)
         librariesList.removeAll();
         // Populate 
@@ -558,14 +560,14 @@ public class TelosysCommand {
 			DialogBox.showWarning("Databases file not found!");
 		}
 	}
-	public static void refreshDatabasesAndLibraries(TelosysProject telosysProject, Table databasesTable, Table librariesTable, Text dbText) {
-        Logger.log("refreshDatabasesAndLibraries()");
-		dbText.setText("");
-		populateDatabases(telosysProject, databasesTable);
-		populateLibraries(telosysProject, librariesTable);
-	}
+//	public static void refreshDatabasesAndLibraries(TelosysProject telosysProject, Table databasesTable, Table librariesTable, Text dbText) {
+//        LOGGER.fine("refreshDatabasesAndLibraries()");
+//		dbText.setText("");
+//		populateDatabases(telosysProject, databasesTable);
+//		populateLibraries(telosysProject, librariesTable);
+//	}
 	public static void refreshDatabasesAndLibraries(TelosysProject telosysProject, Table databasesTable,  org.eclipse.swt.widgets.List librariesList, Text dbText) {
-        Logger.log("refreshDatabasesAndLibraries()");
+        LOGGER.fine("refreshDatabasesAndLibraries()");
 		dbText.setText("");
 		populateDatabases(telosysProject, databasesTable);
 		populateLibraries(telosysProject, librariesList);
@@ -649,7 +651,8 @@ public class TelosysCommand {
 	public static void testConnection(TelosysProject telosysProject, DatabaseDefinition currentDatabaseDefinition) {
 		if ( !checkNotNull(telosysProject, currentDatabaseDefinition)) return;
 		executeWithProgressMonitorDialog("Trying to connect...  Please wait.", 
-				() -> testConnectionTask(telosysProject, currentDatabaseDefinition) );
+				() -> testConnectionTask(telosysProject, currentDatabaseDefinition),
+				false);
 	}
 	private static String testConnectionTask(TelosysProject telosysProject, DatabaseDefinition currentDatabaseDefinition) {
 		// Just try to connect to database (no meta-data)
@@ -746,6 +749,9 @@ public class TelosysCommand {
 	// Task execution with ProgressMonitorDialog
 	//--------------------------------------------------------------------------------------------------------
 	private static boolean executeWithProgressMonitorDialog(String waitMessage, Supplier<String> supplierTask) {
+		return executeWithProgressMonitorDialog(waitMessage, supplierTask, true);
+	}
+	private static boolean executeWithProgressMonitorDialog(String waitMessage, Supplier<String> supplierTask, boolean useResultDialogBox) {
 		TelosysMonitorTask monitorTask = new TelosysMonitorTask(waitMessage, supplierTask );
 		try {
 			// Run task 
@@ -754,7 +760,14 @@ public class TelosysCommand {
 				DialogBox.showError(result);
 			} 
 			else {
-				DialogBox.showInformation(result);
+				if ( useResultDialogBox ) {
+					// Show resulting metadata in a specific dialog-box
+					ResultDialogBox dialogBox = new ResultDialogBox("Database metadata", result);
+					dialogBox.open();
+				}
+				else {
+					DialogBox.showInformation(result);
+				}
 				return true; // OK
 			}
 		} catch (InvocationTargetException e) {

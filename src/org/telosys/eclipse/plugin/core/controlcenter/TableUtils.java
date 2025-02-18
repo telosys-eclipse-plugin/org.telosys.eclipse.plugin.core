@@ -1,5 +1,7 @@
 package org.telosys.eclipse.plugin.core.controlcenter;
 
+import java.util.logging.Logger;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
@@ -10,10 +12,13 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
-import org.telosys.eclipse.plugin.commons.Logger;
+import org.telosys.eclipse.plugin.commons.LoggerUtil;
+import org.telosys.eclipse.plugin.core.Activator;
 
 public class TableUtils {
-
+	
+	private static final Logger LOGGER = LoggerUtil.getLogger(TableUtils.class.getName() );
+	
 	/*
 	 * Selection: 
 	 *  SWT.MULTI (multiple line selection) or SWT.SINGLE (single line selection)
@@ -80,16 +85,15 @@ public class TableUtils {
 		return new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				Logger.log("TableSelectionListener.handleEvent:", event);
 				// event.widget : org.eclipse.swt.widgets.Table
 				// event.item   : org.eclipse.swt.widgets.TableItem
 		        TableItem item = (TableItem) event.item;
 			    if (event.detail == SWT.CHECK) {
 			    	// when user click on the checkbox located on the left of the table row 
-			    	Logger.log("Selection listener: click on Checkbox : " + item.getText() + " | Checked: " + item.getChecked());
+			    	LOGGER.fine("Selection listener: click on Checkbox : " + item.getText() + " | Checked: " + item.getChecked());
 			    } else {
 			    	// when user click on the row or on the image if any but out of the checkbox ( detail = 0 ) 
-			    	Logger.log("Selection listener: click out of Checkbox : " + item.getText()  + " | Checked: " + item.getChecked());
+			    	LOGGER.fine("Selection listener: click out of Checkbox : " + item.getText()  + " | Checked: " + item.getChecked());
 				    boolean isCtrlKeyPressed = (event.stateMask & SWT.CTRL) != 0;
 				    if ( isCtrlKeyPressed ) {
 				    	// Ctrl-click => Toggle checkbox state
