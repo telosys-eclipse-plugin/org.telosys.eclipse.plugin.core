@@ -4,8 +4,10 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.telosys.eclipse.plugin.core.telosys.TelosysEclipseConsole;
+import org.telosys.eclipse.plugin.core.telosys.TelosysConsoleForEclipse;
+import org.telosys.eclipse.plugin.core.telosys.TelosysConsoleProvider;
 import org.telosys.eclipse.plugin.core.telosys.TelosysLoggerForEclipse;
+import org.telosys.eclipse.plugin.core.telosys.commons.TelosysConsoleType;
 import org.telosys.tools.api.TelosysProject;
 import org.telosys.tools.commons.TelosysToolsLogger;
 
@@ -32,7 +34,8 @@ public class ProjectUtil {
     }
     
     public static TelosysProject getTelosysProject(IProject eclipseProject) {
-    	TelosysLoggerForEclipse logger = new TelosysLoggerForEclipse(new TelosysEclipseConsole("Telosys Logger"));
+//    	TelosysLoggerForEclipse logger = new TelosysLoggerForEclipse(new TelosysConsoleForEclipse(TelosysConsoleType.TELOSYS_LOGGER));
+    	TelosysLoggerForEclipse logger = new TelosysLoggerForEclipse( TelosysConsoleProvider.getConsole(TelosysConsoleType.TELOSYS_LOGGER) );
    		return getTelosysProject(eclipseProject, logger);
     }
     

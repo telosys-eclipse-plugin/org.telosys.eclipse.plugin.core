@@ -1,12 +1,13 @@
 package org.telosys.eclipse.plugin.core.telosys;
 
+import org.telosys.eclipse.plugin.core.telosys.commons.TelosysConsole;
 import org.telosys.tools.commons.logger.GenericLogger;
 
 public class TelosysLoggerForEclipse extends GenericLogger {
 
-	private final TelosysEclipseConsole console ;
+	private final TelosysConsole console ;
 	
-	public TelosysLoggerForEclipse(TelosysEclipseConsole console) {
+	public TelosysLoggerForEclipse(TelosysConsole console) {
 		super();
 		this.console = console;
 	}

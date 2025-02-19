@@ -1,20 +1,21 @@
 package org.telosys.eclipse.plugin.core;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
-import org.telosys.eclipse.plugin.commons.LoggerUtil;
+import org.telosys.eclipse.plugin.commons.CustomRootLogger;
+import org.telosys.eclipse.plugin.commons.EclipseConsoleAsLoggerHandler;
 import org.telosys.eclipse.plugin.core.commons.PluginImages;
+import org.telosys.eclipse.plugin.core.telosys.DbModelObserver;
+import org.telosys.tools.db.observer.DatabaseObserverProvider;
 
 /**
  * The activator class controls the plug-in life cycle
  */
 public class Activator extends AbstractUIPlugin {
 	
-	private static final Logger LOGGER = LoggerUtil.getLogger(Activator.class.getName() );
-
-
 	// The plug-in ID
 	public static final String PLUGIN_ID = "org.telosys.eclipse.plugin.core"; //$NON-NLS-1$
 
@@ -32,25 +33,38 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext bundleContext) throws Exception {
 		super.start(bundleContext);
 		plugin = this;
-		System.out.println("Telosys-Plugin: current working directory: " + System.getProperty("user.dir"));
-		LOGGER.info("-------------------------------------------------" );
-		LOGGER.info("Starting Plugin " + PLUGIN_ID );
-		LOGGER.info("BundleContext: " + bundleContext );
+		System.out.println("Telosys-Plugin: Activator (class " + this.getClass().getName() + ")");
+		
+		CustomRootLogger.setup("org.telosys.eclipse.plugin", Level.ALL, new EclipseConsoleAsLoggerHandler("Telosys Plugin Logger") );		
+		Logger logger = Logger.getLogger(this.getClass().getName());
+		
+		logger.info("-------------------------------------------------" );
+		logger.info("Telosys plugin startup: Activator.start()" );
+		logger.info("Current working directory: " + System.getProperty("user.dir"));
+		logger.info("Starting Plugin " + PLUGIN_ID );
+		logger.info("BundleContext: " + bundleContext );
         // Attach listener 
 		// PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService().addSelectionListener(new SelectionListener_BAK());
 		
 		// bundle = bundleContext.getBundle();
 		// Image Registry initialization 
+		
+		logger.info("Init ImageRegistry " );
 		PluginImages.initImageRegistry(bundleContext.getBundle()); 
-		LOGGER.info("-------------------------------------------------" );
+		logger.info("Init Telosys observers (for task output) " );
+		DatabaseObserverProvider.setModelObserverClass(DbModelObserver.class);
+//		DatabaseObserverProvider.setMetadataObserverClass(DbMetadataObserver.class);
+//		DbMetadataObserver.setActive(false);
+
+		logger.info("-------------------------------------------------" );
 	}
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
-		LOGGER.info("-------------------------------------------------" );
-		LOGGER.info("Stoping Plugin " + PLUGIN_ID );
-		LOGGER.info("-------------------------------------------------" );
+//		LOGGER.info("-------------------------------------------------" );
+//		LOGGER.info("Stoping Plugin " + PLUGIN_ID );
+//		LOGGER.info("-------------------------------------------------" );
 		super.stop(context);
 	}
 

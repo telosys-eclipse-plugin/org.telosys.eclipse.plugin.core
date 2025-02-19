@@ -8,21 +8,35 @@ import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 import org.telosys.eclipse.plugin.core.commons.DialogBox;
-import org.telosys.eclipse.plugin.core.commons.MsgColor;
+import org.telosys.eclipse.plugin.core.telosys.commons.ConsoleColor;
+import org.telosys.eclipse.plugin.core.telosys.commons.TelosysConsole;
+import org.telosys.eclipse.plugin.core.telosys.commons.TelosysConsoleType;
 
-public class TelosysEclipseConsole {
+public class TelosysConsoleForEclipseBAK extends TelosysConsole {
 	
-    private final String consoleName ;
+//    private final String consoleName ;
     private final MessageConsole       messageConsole;
     private final MessageConsoleStream messageConsoleStream ;
     private final MessageConsoleStream messageConsoleStreamRed ;
     
-//    private boolean visible = false;
-
-    public TelosysEclipseConsole(String name) {
-		super();
-		this.consoleName = name;
-		messageConsole = getConsole(name);
+//    public TelosysEclipseConsole(String name) {
+//		super();
+//		this.consoleName = name;
+//		messageConsole = getConsole(name);
+//        if ( messageConsole != null ) {
+//        	messageConsoleStream    = messageConsole.newMessageStream();
+//            messageConsoleStreamRed = getRedStream(messageConsole);
+//        }
+//        else {
+//        	messageConsoleStream    = null;
+//            messageConsoleStreamRed = null;
+//            DialogBox.showError("Cannot find or create console '" + name + "'");
+//        }
+//	}    
+    public TelosysConsoleForEclipseBAK(TelosysConsoleType consoleType) {
+		super(consoleType);
+		String consoleName = consoleType.getConsoleName();
+		messageConsole = getConsole(consoleName);
         if ( messageConsole != null ) {
         	messageConsoleStream    = messageConsole.newMessageStream();
             messageConsoleStreamRed = getRedStream(messageConsole);
@@ -30,7 +44,7 @@ public class TelosysEclipseConsole {
         else {
         	messageConsoleStream    = null;
             messageConsoleStreamRed = null;
-            DialogBox.showError("Cannot find or create console '" + name + "'");
+            DialogBox.showError("Cannot find or create console '" + consoleName + "'");
         }
 	}    
     private MessageConsoleStream getRedStream(MessageConsole messageConsole) {
@@ -54,20 +68,11 @@ public class TelosysEclipseConsole {
         }
         return null;
     }
-	private MessageConsole getConsole(String consoleName) {
-		IConsoleManager consoleManager = getConsoleManager();
-		MessageConsole messageConsole = findConsole(consoleManager, consoleName);
-		if ( messageConsole != null ) {
-			return messageConsole;
-		}
-		else {
-			return createConsole(consoleManager, consoleName);
-		}
-	}
 	
-	public String getName() {
-		return consoleName;
-	}
+//	@Override
+//	public String getName() {
+//		return consoleName;
+//	}
 	
 //    /**
 //     * Get or create the console 
@@ -107,37 +112,25 @@ public class TelosysEclipseConsole {
         return newConsole;
     }    
     
+	@Override
     public void showConsoleView() {
     	getConsoleManager().showConsoleView(messageConsole);
     }
     
-//    /**
-//	 * Shows this console in all console views. This console will be become visible
-//	 * if another console is currently pinned.   
-//	 */
-//    public void activate() {
-//    	messageConsole.activate();
-//    }
-    
-//    private void checkVisibility() {
-//        // Bring console to front the first time
-//        if ( ! visible ) {
-//            getConsoleManager().showConsoleView(messageConsole);
-//            visible = true;
-//        }
-//    }
-
     // Print functions using expected streams with "asyncExec()" 
     // You can always use "asyncExec("), it’s a safe practice.
     // It ensures that updates to UI components (like the console) are handled correctly.
     // It avoids potential issues that could arise if SWT or other UI libraries change their threading requirements or if your code becomes more complex.
     
+	@Override
     public void println(String message) {
-        println(message, MsgColor.NONE);
+        println(message, ConsoleColor.NONE);
     }
-    public void println(String message, MsgColor color) {
+	
+	@Override
+    public void println(String message, ConsoleColor color) {
     	MessageConsoleStream stream = messageConsoleStream;
-    	if (color == MsgColor.RED ) {
+    	if (color == ConsoleColor.RED ) {
     		stream = messageConsoleStreamRed;
     	}
     	println(stream, message);
@@ -149,27 +142,24 @@ public class TelosysEclipseConsole {
         });
     }
     
-    public void print(String message) {
-        print(message, MsgColor.NONE);
-    }
-    public void print(String message, MsgColor color) {
-    	MessageConsoleStream stream = messageConsoleStream;
-    	if (color == MsgColor.RED ) {
-    		stream = messageConsoleStreamRed;
-    	}
-    	print(stream, message);
-    }
-    private void print(MessageConsoleStream stream, String message) {
-        // The asyncExec() method ensures that stream.println(message) is executed safely on the SWT UI thread.
-        Display.getDefault().asyncExec(() -> {
-            stream.print(message);
-        });
-    }
-    
-//    public void println() {
-//        messageConsoleStream.println();
+//    public void print(String message) {
+//        print(message, MsgColor.NONE);
 //    }
-
+//    public void print(String message, MsgColor color) {
+//    	MessageConsoleStream stream = messageConsoleStream;
+//    	if (color == MsgColor.RED ) {
+//    		stream = messageConsoleStreamRed;
+//    	}
+//    	print(stream, message);
+//    }
+//    private void print(MessageConsoleStream stream, String message) {
+//        // The asyncExec() method ensures that stream.println(message) is executed safely on the SWT UI thread.
+//        Display.getDefault().asyncExec(() -> {
+//            stream.print(message);
+//        });
+//    }
+    
+	@Override
     public void clear() {
         messageConsole.clearConsole();
     }

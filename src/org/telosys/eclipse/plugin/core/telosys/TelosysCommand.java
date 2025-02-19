@@ -23,7 +23,6 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
-import org.telosys.eclipse.plugin.commons.LoggerUtil;
 import org.telosys.eclipse.plugin.core.commons.ComboItem;
 import org.telosys.eclipse.plugin.core.commons.ComboUtil;
 import org.telosys.eclipse.plugin.core.commons.DialogBox;
@@ -36,6 +35,8 @@ import org.telosys.eclipse.plugin.core.commons.dialogbox.InstallDialogBox;
 import org.telosys.eclipse.plugin.core.commons.dialogbox.NewEntityFromModelDialogBox;
 import org.telosys.eclipse.plugin.core.commons.dialogbox.NewModelDialogBox;
 import org.telosys.eclipse.plugin.core.commons.dialogbox.ResultDialogBox;
+import org.telosys.eclipse.plugin.core.telosys.commons.TelosysConsole;
+import org.telosys.eclipse.plugin.core.telosys.commons.TelosysConsoleType;
 import org.telosys.tools.api.InstallationType;
 import org.telosys.tools.api.MetaDataOptionsImpl;
 import org.telosys.tools.api.TelosysProject;
@@ -45,7 +46,8 @@ import org.telosys.tools.commons.dbcfg.yaml.DatabaseDefinition;
 import org.telosys.tools.commons.dbcfg.yaml.DatabaseDefinitions;
 
 public class TelosysCommand {
-	private static final Logger LOGGER = LoggerUtil.getLogger(TelosysCommand.class.getName() );	
+	private static final Logger LOGGER = Logger.getLogger(TelosysCommand.class.getName());
+	
 	private static final String TELOSYS_API_ERROR = "Telosys API error";
 
 	private static boolean isValidName(String name) {
@@ -406,7 +408,8 @@ public class TelosysCommand {
 			}
 		}
 		if ( optionalModelName.isPresent() && optionalBundleName.isPresent() && !entityNames.isEmpty() && !templateNames.isEmpty() ) {
-			TelosysEclipseConsole console = new TelosysEclipseConsole("Telosys Code Generation");
+//			TelosysConsoleForEclipse console = new TelosysConsoleForEclipse(TelosysConsoleType.TELOSYS_CONSOLE);
+			TelosysConsole console = TelosysConsoleProvider.getConsole(TelosysConsoleType.TELOSYS_CONSOLE);
 			console.clear();
 			console.showConsoleView();
 			TelosysProject telosysProject = ProjectUtil.getTelosysProject(eclipseProject, new TelosysLoggerForEclipse(console));

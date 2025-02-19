@@ -12,11 +12,11 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
 import org.osgi.framework.Bundle;
-import org.telosys.eclipse.plugin.commons.LoggerUtil;
 
 public class PluginImages {
 
-	private static final Logger LOGGER = LoggerUtil.getLogger(PluginImages.class.getName() );
+	private static final Logger LOGGER = Logger.getLogger(PluginImages.class.getName());
+
 	
 	// image registry
 	private static final ImageRegistry staticImageRegistry = new ImageRegistry() ;

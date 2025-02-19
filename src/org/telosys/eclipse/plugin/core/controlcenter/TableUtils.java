@@ -12,12 +12,11 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
-import org.telosys.eclipse.plugin.commons.LoggerUtil;
-import org.telosys.eclipse.plugin.core.Activator;
 
 public class TableUtils {
 	
-	private static final Logger LOGGER = LoggerUtil.getLogger(TableUtils.class.getName() );
+	private static final Logger LOGGER = Logger.getLogger(TableUtils.class.getName());
+	
 	
 	/*
 	 * Selection: 

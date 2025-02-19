@@ -7,15 +7,19 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
-import org.telosys.eclipse.plugin.core.commons.MsgColor;
-import org.telosys.eclipse.plugin.core.telosys.TelosysEclipseConsole;
+import org.telosys.eclipse.plugin.core.telosys.TelosysConsoleProvider;
+import org.telosys.eclipse.plugin.core.telosys.commons.ConsoleColor;
+import org.telosys.eclipse.plugin.core.telosys.commons.TelosysConsole;
+import org.telosys.eclipse.plugin.core.telosys.commons.TelosysConsoleType;
 
 public class ControlCenterTabTests {
 	
 	private static final String TAB_TITLE = "Tests ";
 	
-    private final TelosysEclipseConsole telosysConsole1  = new TelosysEclipseConsole("Telosys #1");
-    private final TelosysEclipseConsole telosysConsole2 = new TelosysEclipseConsole("Telosys #2");
+//    private final TelosysConsoleForEclipse telosysConsole1 = new TelosysConsoleForEclipse(TelosysConsoleType.TEST1);
+//    private final TelosysConsoleForEclipse telosysConsole2 = new TelosysConsoleForEclipse(TelosysConsoleType.TEST2);
+    private final TelosysConsole telosysConsole1 = TelosysConsoleProvider.getConsole(TelosysConsoleType.TEST1);
+    private final TelosysConsole telosysConsole2 = TelosysConsoleProvider.getConsole(TelosysConsoleType.TEST2);
 
 
 
@@ -64,7 +68,7 @@ public class ControlCenterTabTests {
         button = new Button(tabContent, SWT.PUSH);
         button.setText("Print RED in console #2");
         button.addListener(SWT.Selection, event -> {
-        	telosysConsole2.println("Hello RED in Telosys console #2 !", MsgColor.RED);
+        	telosysConsole2.println("Hello RED in Telosys console #2 !", ConsoleColor.RED);
         });       
         
         button = new Button(tabContent, SWT.PUSH);
