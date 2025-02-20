@@ -622,7 +622,8 @@ public class TelosysCommand {
 		}
 		else {
 			boolean r = executeWithProgressMonitorDialog("Creating a new model from database...  Please wait.", 
-					() -> newModelFromDatabaseTask(telosysProject, modelName, currentDatabaseDefinition) );
+					() -> newModelFromDatabaseTask(telosysProject, modelName, currentDatabaseDefinition),
+					false);
 			if ( r == true ) {
 				// Refresh and expand folder in Project Explorer
 				File modelFolder = telosysProject.getModelFolder(modelName);
