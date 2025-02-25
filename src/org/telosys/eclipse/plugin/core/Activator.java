@@ -35,7 +35,7 @@ public class Activator extends AbstractUIPlugin {
 		plugin = this;
 		System.out.println("Telosys-Plugin: Activator (class " + this.getClass().getName() + ")");
 		
-		CustomRootLogger.setup("org.telosys.eclipse.plugin", Level.ALL, new EclipseConsoleAsLoggerHandler("Telosys Plugin Logger") );		
+		CustomRootLogger.setup(PLUGIN_ID, Level.ALL, new EclipseConsoleAsLoggerHandler("Telosys logger: core") );		
 		Logger logger = Logger.getLogger(this.getClass().getName());
 		
 		logger.info("-------------------------------------------------" );
