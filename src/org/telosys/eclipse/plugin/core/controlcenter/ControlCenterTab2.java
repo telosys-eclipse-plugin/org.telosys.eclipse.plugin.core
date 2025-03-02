@@ -20,7 +20,7 @@ import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.telosys.eclipse.plugin.core.commons.DialogBox;
+import org.telosys.eclipse.plugin.commons.DialogBox;
 import org.telosys.eclipse.plugin.core.commons.ProjectUtil;
 import org.telosys.eclipse.plugin.core.commons.dialogbox.NewModelFromDbDialogBox;
 import org.telosys.eclipse.plugin.core.telosys.TelosysCommand;

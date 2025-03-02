@@ -7,10 +7,10 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
+import org.telosys.eclipse.plugin.commons.DialogBox;
+import org.telosys.eclipse.plugin.commons.WorkbenchUtil;
 import org.telosys.eclipse.plugin.core.commons.AbstractMenuHandler;
-import org.telosys.eclipse.plugin.core.commons.DialogBox;
 import org.telosys.eclipse.plugin.core.commons.ProjectExplorerUtil;
-import org.telosys.eclipse.plugin.core.commons.WorkbenchUtil;
 import org.telosys.eclipse.plugin.core.telosys.TelosysChecker;
 
 public class ControlCenterHandler extends AbstractMenuHandler {

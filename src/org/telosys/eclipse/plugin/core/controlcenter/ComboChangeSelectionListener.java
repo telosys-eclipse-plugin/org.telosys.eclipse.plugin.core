@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Combo;
-import org.telosys.eclipse.plugin.core.commons.DialogBox;
+import org.telosys.eclipse.plugin.commons.DialogBox;
 
 public class ComboChangeSelectionListener extends SelectionAdapter {
 

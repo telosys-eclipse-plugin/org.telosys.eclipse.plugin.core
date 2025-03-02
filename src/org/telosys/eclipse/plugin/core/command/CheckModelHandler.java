@@ -7,15 +7,15 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.telosys.eclipse.plugin.commons.DialogBox;
+import org.telosys.eclipse.plugin.commons.WorkspaceUtil;
 import org.telosys.eclipse.plugin.core.commons.AbstractMenuHandler;
-import org.telosys.eclipse.plugin.core.commons.DialogBox;
 import org.telosys.eclipse.plugin.core.commons.ProjectExplorerUtil;
-import org.telosys.eclipse.plugin.core.commons.WorkspaceUtil;
 import org.telosys.eclipse.plugin.core.commons.dialogbox.CheckModelFromModelDialogBox;
 import org.telosys.eclipse.plugin.core.commons.dialogbox.CheckModelFromProjectDialogBox;
 import org.telosys.eclipse.plugin.core.telosys.ModelCheckStatus;
-import org.telosys.eclipse.plugin.core.telosys.TelosysEvolution;
 import org.telosys.eclipse.plugin.core.telosys.TelosysChecker;
+import org.telosys.eclipse.plugin.core.telosys.TelosysEvolution;
 
 public class CheckModelHandler extends AbstractMenuHandler {
 	

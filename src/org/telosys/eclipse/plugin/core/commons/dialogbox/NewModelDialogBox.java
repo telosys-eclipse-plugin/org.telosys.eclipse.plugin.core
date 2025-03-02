@@ -7,10 +7,10 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
+import org.telosys.eclipse.plugin.commons.DialogBox;
+import org.telosys.eclipse.plugin.commons.WorkbenchUtil;
 import org.telosys.eclipse.plugin.core.commons.AbstractDialogBox;
-import org.telosys.eclipse.plugin.core.commons.DialogBox;
 import org.telosys.eclipse.plugin.core.commons.ProjectExplorerUtil;
-import org.telosys.eclipse.plugin.core.commons.WorkbenchUtil;
 import org.telosys.eclipse.plugin.core.telosys.TelosysCommand;
 import org.telosys.tools.api.TelosysProject;
 

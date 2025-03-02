@@ -2,7 +2,7 @@ package org.telosys.eclipse.plugin.core.commons;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.swt.widgets.Shell;
+import org.telosys.eclipse.plugin.commons.DialogBox;
 import org.telosys.eclipse.plugin.core.telosys.TelosysEvolution;
 import org.telosys.tools.api.TelosysProject;
 

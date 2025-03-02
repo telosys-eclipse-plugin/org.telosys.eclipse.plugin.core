@@ -4,9 +4,9 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
+import org.telosys.eclipse.plugin.commons.DialogBox;
+import org.telosys.eclipse.plugin.commons.WorkbenchUtil;
 import org.telosys.eclipse.plugin.core.commons.AbstractDialogBox;
-import org.telosys.eclipse.plugin.core.commons.DialogBox;
-import org.telosys.eclipse.plugin.core.commons.WorkbenchUtil;
 
 public class NewModelFromDbDialogBox extends AbstractDialogBox {
 

@@ -8,7 +8,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.telosys.eclipse.plugin.core.commons.WorkbenchUtil;
+import org.telosys.eclipse.plugin.commons.WorkbenchUtil;
 
 public class ResultDialogBox extends Dialog {
 	

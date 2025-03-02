@@ -7,7 +7,7 @@ import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.MessageConsole;
-import org.telosys.eclipse.plugin.core.commons.DialogBox;
+import org.telosys.eclipse.plugin.commons.DialogBox;
 import org.telosys.eclipse.plugin.core.telosys.commons.TelosysConsole;
 import org.telosys.eclipse.plugin.core.telosys.commons.TelosysConsoleType;
 

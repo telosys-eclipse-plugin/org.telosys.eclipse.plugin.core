@@ -14,6 +14,9 @@ import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.navigator.CommonNavigator;
 import org.eclipse.ui.navigator.CommonViewer;
+import org.telosys.eclipse.plugin.commons.DialogBox;
+import org.telosys.eclipse.plugin.commons.WorkbenchUtil;
+import org.telosys.eclipse.plugin.commons.WorkspaceUtil;
 import org.telosys.eclipse.plugin.core.telosys.TelosysChecker;
 
 public class ProjectExplorerUtil {

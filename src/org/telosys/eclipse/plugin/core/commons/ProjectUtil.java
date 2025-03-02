@@ -4,12 +4,11 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.telosys.eclipse.plugin.core.telosys.TelosysConsoleForEclipse;
+import org.telosys.eclipse.plugin.commons.DialogBox;
 import org.telosys.eclipse.plugin.core.telosys.TelosysConsoleProvider;
 import org.telosys.eclipse.plugin.core.telosys.TelosysLoggerForEclipse;
 import org.telosys.eclipse.plugin.core.telosys.commons.TelosysConsoleType;
 import org.telosys.tools.api.TelosysProject;
-import org.telosys.tools.commons.TelosysToolsLogger;
 
 public class ProjectUtil {
     

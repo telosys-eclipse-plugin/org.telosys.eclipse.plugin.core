@@ -2,12 +2,9 @@ package org.telosys.eclipse.plugin.core.telosys;
 
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.console.ConsolePlugin;
-import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
-import org.telosys.eclipse.plugin.core.commons.DialogBox;
 import org.telosys.eclipse.plugin.core.telosys.commons.ConsoleColor;
 import org.telosys.eclipse.plugin.core.telosys.commons.TelosysConsole;
 import org.telosys.eclipse.plugin.core.telosys.commons.TelosysConsoleType;

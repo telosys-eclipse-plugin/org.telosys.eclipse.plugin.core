@@ -11,9 +11,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Text;
+import org.telosys.eclipse.plugin.commons.WorkbenchUtil;
 import org.telosys.eclipse.plugin.core.commons.AbstractDialogBox;
 import org.telosys.eclipse.plugin.core.commons.Const;
-import org.telosys.eclipse.plugin.core.commons.WorkbenchUtil;
 
 public class CheckModelFromModelDialogBox extends AbstractDialogBox {
 
